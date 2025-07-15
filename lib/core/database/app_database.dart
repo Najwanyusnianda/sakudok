@@ -15,12 +15,14 @@ typedef DriftBundle = Bundle;
 
 typedef DriftBundleDocument = BundleDocument;
 
-@DriftDatabase(tables: [Documents, Bundles, BundleDocuments])
+@DriftDatabase(tables: [Documents, Bundles, BundleDocuments], daos: [DocumentDao])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
+
+  DocumentDao get documentDao => DocumentDao(this);
 
   @override
   MigrationStrategy get migration {

@@ -1,16 +1,13 @@
 import 'package:fpdart/fpdart.dart';
+import '../../../../core/exceptions/app_exception.dart';
 import '../repositories/document_repository.dart';
 
 class DeleteDocument {
-  final DocumentRepository repository;
+  final DocumentRepository _repository;
 
-  const DeleteDocument(this.repository);
+  DeleteDocument(this._repository);
 
-  Future<Either<String, bool>> call(int id) async {
-    if (id <= 0) {
-      return left('ID dokumen tidak valid');
-    }
-
-    return await repository.deleteDocument(id);
+  Future<Either<AppException, Unit>> call(String id) {
+    return _repository.deleteDocument(id);
   }
 } 

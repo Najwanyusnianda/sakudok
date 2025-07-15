@@ -1,12 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'document.dart';
+part of 'document_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_Document _$DocumentFromJson(Map<String, dynamic> json) => _Document(
+DocumentModel _$DocumentModelFromJson(
+  Map<String, dynamic> json,
+) => DocumentModel(
   id: json['id'] as String,
   title: json['title'] as String,
   description: json['description'] as String?,
@@ -30,23 +32,24 @@ _Document _$DocumentFromJson(Map<String, dynamic> json) => _Document(
   extractedData: json['extractedData'] as Map<String, dynamic>? ?? const {},
 );
 
-Map<String, dynamic> _$DocumentToJson(_Document instance) => <String, dynamic>{
-  'id': instance.id,
-  'title': instance.title,
-  'description': instance.description,
-  'thumbnail': instance.thumbnail,
-  'type': _$DocumentTypeEnumMap[instance.type]!,
-  'tags': instance.tags,
-  'expiryDate': instance.expiryDate?.toIso8601String(),
-  'isFavorite': instance.isFavorite,
-  'bundleCount': instance.bundleCount,
-  'createdAt': instance.createdAt.toIso8601String(),
-  'updatedAt': instance.updatedAt.toIso8601String(),
-  'images': instance.images,
-  'ocrText': instance.ocrText,
-  'metadata': instance.metadata,
-  'extractedData': instance.extractedData,
-};
+Map<String, dynamic> _$DocumentModelToJson(DocumentModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'description': instance.description,
+      'thumbnail': instance.thumbnail,
+      'type': _$DocumentTypeEnumMap[instance.type]!,
+      'tags': instance.tags,
+      'expiryDate': instance.expiryDate?.toIso8601String(),
+      'isFavorite': instance.isFavorite,
+      'bundleCount': instance.bundleCount,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
+      'images': instance.images,
+      'ocrText': instance.ocrText,
+      'metadata': instance.metadata.toJson(),
+      'extractedData': instance.extractedData,
+    };
 
 const _$DocumentTypeEnumMap = {
   DocumentType.ktp: 'ktp',

@@ -1,76 +1,49 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
-import '../../domain/entities/document.dart' as domain;
 import '../../../../core/database/app_database.dart' as db;
+import '../../domain/entities/document.dart' as domain;
+import '../../domain/entities/document_type.dart';
+import '../../domain/entities/metadata/document_metadata.dart';
 
 class DocumentMapper {
-  /// Convert database row to domain entity
-  static domain.Document fromDb(db.Document driftDoc) {
-    Map<String, dynamic> metadata = {};
-    try {
-      metadata = driftDoc.metadata.isNotEmpty 
-          ? Map<String, dynamic>.from(jsonDecode(driftDoc.metadata)) 
-          : {};
-    } catch (e) {
-      metadata = {};
-    }
-    
+  static domain.Document fromDb(db.Document dbDoc) {
     return domain.Document(
-      id: driftDoc.id,
-      title: driftDoc.title,
-      type: driftDoc.type,
-      filePath: driftDoc.filePath,
-      createdAt: driftDoc.createdAt,
-      updatedAt: driftDoc.updatedAt,
-      description: driftDoc.description,
-      hasReminder: driftDoc.hasReminder,
-      reminderDate: driftDoc.reminderDate,
-      reminderNote: driftDoc.reminderNote,
-      isEncrypted: driftDoc.isEncrypted,
-      tags: driftDoc.tags,
-      bundleId: driftDoc.bundleId,
-      metadata: metadata,
+      id: dbDoc.id.toString(),
+      title: dbDoc.title,
+      description: dbDoc.description,
+      thumbnail: dbDoc.thumbnail,
+      type: DocumentType.values.byName(dbDoc.type),
+      tags: dbDoc.tags != null ? (json.decode(dbDoc.tags!) as List).cast<String>() : [],
+      expiryDate: dbDoc.expiryDate,
+      isFavorite: dbDoc.isFavorite,
+      createdAt: dbDoc.createdAt,
+      updatedAt: dbDoc.updatedAt,
+      images: dbDoc.images != null ? (json.decode(dbDoc.images!) as List).cast<String>() : [],
+      ocrText: dbDoc.ocrText,
+      metadata: DocumentMetadata.fromJson(json.decode(dbDoc.metadata)),
+      bundleCount: dbDoc.bundleCount,
+      extractedData: dbDoc.extractedData != null ? json.decode(dbDoc.extractedData!) as Map<String, dynamic> : {},
     );
   }
 
-  /// Convert domain entity to database companion for insert
-  static db.DocumentsCompanion toDbInsert(domain.Document document) {
-    return db.DocumentsCompanion.insert(
-      title: document.title,
-      type: document.type,
-      filePath: document.filePath,
-      description: Value(document.description),
-      hasReminder: Value(document.hasReminder),
-      reminderDate: Value(document.reminderDate),
-      reminderNote: Value(document.reminderNote),
-      isEncrypted: Value(document.isEncrypted),
-      tags: Value(document.tags),
-      bundleId: Value(document.bundleId),
-      metadata: Value(document.metadata.isNotEmpty ? jsonEncode(document.metadata) : '{}'),
-    );
-  }
-
-  /// Convert domain entity to database companion for update
-  static db.DocumentsCompanion toDbUpdate(domain.Document document) {
+  static db.DocumentsCompanion toDb(domain.Document domainDoc) {
+    final id = int.tryParse(domainDoc.id);
     return db.DocumentsCompanion(
-      id: Value(document.id),
-      title: Value(document.title),
-      type: Value(document.type),
-      filePath: Value(document.filePath),
-      description: Value(document.description),
-      hasReminder: Value(document.hasReminder),
-      reminderDate: Value(document.reminderDate),
-      reminderNote: Value(document.reminderNote),
-      isEncrypted: Value(document.isEncrypted),
-      tags: Value(document.tags),
-      bundleId: Value(document.bundleId),
-      metadata: Value(document.metadata.isNotEmpty ? jsonEncode(document.metadata) : '{}'),
-      updatedAt: Value(DateTime.now()),
+      id: id != null ? Value(id) : const Value.absent(),
+      title: Value(domainDoc.title),
+      description: Value(domainDoc.description),
+      thumbnail: Value(domainDoc.thumbnail),
+      type: Value(domainDoc.type.name),
+      tags: Value(json.encode(domainDoc.tags)),
+      expiryDate: Value(domainDoc.expiryDate),
+      isFavorite: Value(domainDoc.isFavorite),
+      bundleCount: Value(domainDoc.bundleCount),
+      createdAt: Value(domainDoc.createdAt),
+      updatedAt: Value(domainDoc.updatedAt),
+      images: Value(json.encode(domainDoc.images)),
+      ocrText: Value(domainDoc.ocrText),
+      metadata: Value(json.encode(domainDoc.metadata.toJson())),
+      extractedData: Value(json.encode(domainDoc.extractedData)),
     );
-  }
-
-  /// Convert list of database rows to list of domain entities
-  static List<domain.Document> fromDbList(List<db.Document> driftDocs) {
-    return driftDocs.map((driftDoc) => fromDb(driftDoc)).toList();
   }
 } 

@@ -7,73 +7,49 @@ import '../../domain/repositories/document_repository.dart';
 import '../../domain/usecases/add_document.dart';
 import '../../domain/usecases/get_all_documents.dart';
 import '../../domain/usecases/get_document_by_id.dart';
+import '../../domain/usecases/delete_document.dart';
+import '../../domain/usecases/search_documents.dart';
+import '../../domain/usecases/update_document.dart';
 import '../../../../core/database/app_database.dart' as db;
+import '../../../../core/exceptions/app_exception.dart';
 
-// Database provider
-final databaseProvider = Provider<db.AppDatabase>((ref) {
-  return db.AppDatabase();
+// Data Layer Providers
+final databaseProvider = Provider<db.AppDatabase>((ref) => db.AppDatabase());
+final documentDataSourceProvider = Provider<DocumentLocalDataSource>(
+    (ref) => DocumentLocalDataSourceImpl(ref.watch(databaseProvider)));
+final documentRepositoryProvider = Provider<DocumentRepository>(
+    (ref) => DocumentRepositoryImpl(ref.watch(documentDataSourceProvider)));
+
+// Domain Layer (Use Case) Providers
+final getAllDocumentsProvider =
+    Provider<GetAllDocuments>((ref) => GetAllDocuments(ref.watch(documentRepositoryProvider)));
+final getDocumentByIdProvider =
+    Provider<GetDocumentById>((ref) => GetDocumentById(ref.watch(documentRepositoryProvider)));
+final addDocumentProvider =
+    Provider<AddDocument>((ref) => AddDocument(ref.watch(documentRepositoryProvider)));
+final updateDocumentProvider =
+    Provider<UpdateDocument>((ref) => UpdateDocument(ref.watch(documentRepositoryProvider)));
+final deleteDocumentProvider =
+    Provider<DeleteDocument>((ref) => DeleteDocument(ref.watch(documentRepositoryProvider)));
+final searchDocumentsProvider =
+    Provider<SearchDocuments>((ref) => SearchDocuments(ref.watch(documentRepositoryProvider)));
+
+// State Notifier for Document List
+final documentsNotifierProvider =
+    StateNotifierProvider<DocumentNotifier, AsyncValue<List<Document>>>((ref) {
+  return DocumentNotifier(ref);
 });
 
-// Data source provider
-final documentDataSourceProvider = Provider<DocumentLocalDataSource>((ref) {
-  final database = ref.watch(databaseProvider);
-  return DocumentLocalDataSourceImpl(database);
-});
-
-// Repository provider
-final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
-  final dataSource = ref.watch(documentDataSourceProvider);
-  return DocumentRepositoryImpl(dataSource);
-});
-
-// Use case providers
-final getAllDocumentsProvider = Provider<GetAllDocuments>((ref) {
-  final repository = ref.watch(documentRepositoryProvider);
-  return GetAllDocuments(repository);
-});
-
-final getDocumentByIdProvider = Provider<GetDocumentById>((ref) {
-  final repository = ref.watch(documentRepositoryProvider);
-  return GetDocumentById(repository);
-});
-
-final addDocumentProvider = Provider<AddDocument>((ref) {
-  final repository = ref.watch(documentRepositoryProvider);
-  return AddDocument(repository);
-});
-
-// State providers
-final documentsProvider = FutureProvider<List<Document>>((ref) async {
-  final useCase = ref.watch(getAllDocumentsProvider);
-  final result = await useCase();
-  return result.fold(
-    (failure) => throw Exception(failure),
-    (documents) => documents,
-  );
-});
-
-final documentByIdProvider = FutureProvider.family<Document, int>((ref, id) async {
-  final useCase = ref.watch(getDocumentByIdProvider);
-  final result = await useCase(id);
-  return result.fold(
-    (failure) => throw Exception(failure),
-    (document) => document,
-  );
-});
-
-// Notifier for document operations
 class DocumentNotifier extends StateNotifier<AsyncValue<List<Document>>> {
-  final GetAllDocuments _getAllDocuments;
-  final AddDocument _addDocument;
-
-  DocumentNotifier(this._getAllDocuments, this._addDocument)
-      : super(const AsyncValue.loading()) {
+  final Ref _ref;
+  DocumentNotifier(this._ref) : super(const AsyncValue.loading()) {
     loadDocuments();
   }
 
   Future<void> loadDocuments() async {
     state = const AsyncValue.loading();
-    final result = await _getAllDocuments();
+    final usecase = _ref.read(getAllDocumentsProvider);
+    final result = await usecase();
     state = result.fold(
       (failure) => AsyncValue.error(failure, StackTrace.current),
       (documents) => AsyncValue.data(documents),
@@ -81,16 +57,67 @@ class DocumentNotifier extends StateNotifier<AsyncValue<List<Document>>> {
   }
 
   Future<void> addDocument(Document document) async {
-    final result = await _addDocument(document);
+    final usecase = _ref.read(addDocumentProvider);
+    final result = await usecase(document);
     result.fold(
-      (failure) => throw Exception(failure),
-      (_) => loadDocuments(), // Reload documents after adding
+      (failure) {
+        // Optionally handle error state specifically, for now, we just let the list state show it
+      },
+      (_) => loadDocuments(), // Refresh list on success
+    );
+  }
+
+  Future<void> updateDocument(Document document) async {
+    final usecase = _ref.read(updateDocumentProvider);
+    final result = await usecase(document);
+    result.fold(
+      (failure) {}, // Error handled by the list's global state
+      (_) => loadDocuments(),
+    );
+  }
+
+  Future<void> deleteDocument(String id) async {
+    final usecase = _ref.read(deleteDocumentProvider);
+    final result = await usecase(id);
+    result.fold(
+      (failure) {}, // Error handled by the list's global state
+      (_) => loadDocuments(),
     );
   }
 }
 
-final documentsNotifierProvider = StateNotifierProvider<DocumentNotifier, AsyncValue<List<Document>>>((ref) {
-  final getAllDocuments = ref.watch(getAllDocumentsProvider);
-  final addDocument = ref.watch(addDocumentProvider);
-  return DocumentNotifier(getAllDocuments, addDocument);
+// Provider for a single document, useful for detail pages
+final documentByIdProvider =
+    FutureProvider.family<Document?, String>((ref, id) async {
+  final usecase = ref.watch(getDocumentByIdProvider);
+  final result = await usecase(id);
+  return result.fold(
+    (failure) => throw failure, // Let the UI handle the error state
+    (document) => document,
+  );
+});
+
+// Providers for search functionality
+final searchQueryProvider = StateProvider<String>((ref) => '');
+
+final searchResultsProvider = FutureProvider<List<Document>>((ref) async {
+  final query = ref.watch(searchQueryProvider);
+  if (query.isEmpty) {
+    // This part is tricky, we want to show all documents without re-fetching
+    // A better approach would be to have a single source of truth for the list
+    // and filter it. For now, we'll re-fetch.
+    final usecase = ref.watch(getAllDocumentsProvider);
+    final result = await usecase();
+    return result.fold(
+      (failure) => throw failure,
+      (documents) => documents,
+    );
+  } else {
+    final usecase = ref.watch(searchDocumentsProvider);
+    final result = await usecase(query);
+    return result.fold(
+      (failure) => throw failure,
+      (documents) => documents,
+    );
+  }
 }); 

@@ -1,21 +1,14 @@
 import 'package:fpdart/fpdart.dart';
+import '../../../../core/exceptions/app_exception.dart';
 import '../entities/document.dart';
 import '../repositories/document_repository.dart';
 
 class SearchDocuments {
-  final DocumentRepository repository;
+  final DocumentRepository _repository;
 
-  const SearchDocuments(this.repository);
+  SearchDocuments(this._repository);
 
-  Future<Either<String, List<Document>>> call(String query) async {
-    if (query.trim().isEmpty) {
-      return left('Query pencarian tidak boleh kosong');
-    }
-
-    if (query.trim().length < 2) {
-      return left('Query pencarian minimal 2 karakter');
-    }
-
-    return await repository.searchDocuments(query.trim());
+  Future<Either<AppException, List<Document>>> call(String query) {
+    return _repository.searchDocuments(query);
   }
 } 

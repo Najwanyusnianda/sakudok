@@ -1,113 +1,76 @@
-import 'package:fpdart/fpdart.dart';
-import 'package:drift/drift.dart';
-import 'package:sakudok/core/database/app_database.dart';
-import '../../domain/entities/document.dart' as domain;
-import '../mappers/document_mapper.dart';
-import 'dart:convert';
+// lib/features/documents/data/datasources/document_local_datasource.dart
+import '../../../../core/database/app_database.dart';
+import '../../../../core/exceptions/database_exception.dart';
 
 abstract class DocumentLocalDataSource {
-  Future<Either<String, List<domain.Document>>> getAllDocuments();
-  Future<Either<String, domain.Document>> getDocumentById(int id);
-  Future<Either<String, domain.Document>> addDocument(domain.Document document);
-  Future<Either<String, domain.Document>> updateDocument(domain.Document document);
-  Future<Either<String, bool>> deleteDocument(int id);
-  Future<Either<String, List<domain.Document>>> searchDocuments(String query);
-  Future<Either<String, List<domain.Document>>> getDocumentsByType(String type);
-  Future<Either<String, List<domain.Document>>> getExpiringDocuments(int daysThreshold);
+  Future<List<Document>> getAllDocuments();
+  Future<Document?> getDocumentById(String id);
+  Future<List<Document>> searchDocuments(String query);
+  Future<void> addDocument(DocumentsCompanion document);
+  Future<void> updateDocument(DocumentsCompanion document);
+  Future<void> deleteDocument(String id);
 }
 
 class DocumentLocalDataSourceImpl implements DocumentLocalDataSource {
-  final AppDatabase database;
+  final AppDatabase _database;
 
-  DocumentLocalDataSourceImpl(this.database);
+  DocumentLocalDataSourceImpl(this._database);
 
   @override
-  Future<Either<String, List<domain.Document>>> getAllDocuments() async {
+  Future<List<Document>> getAllDocuments() async {
     try {
-      final dbDocs = await database.getAllDocuments();
-      final domainDocs = dbDocs.map(DocumentMapper.fromDb).toList();
-      return right(domainDocs);
+      return await _database.documentDao.getAllDocuments();
     } catch (e) {
-      return left('Gagal mengambil dokumen: $e');
+      throw DatabaseException('Failed to get documents: $e');
     }
   }
 
   @override
-  Future<Either<String, domain.Document>> getDocumentById(int id) async {
+  Future<Document?> getDocumentById(String id) async {
+    final docId = int.tryParse(id);
+    if (docId == null) return null;
     try {
-      final dbDoc = await database.getDocumentById(id);
-      if (dbDoc == null) {
-        return left('Dokumen tidak ditemukan');
-      }
-      return right(DocumentMapper.fromDb(dbDoc));
+      return await _database.documentDao.getDocumentById(docId);
     } catch (e) {
-      return left('Gagal mengambil dokumen: $e');
+      throw DatabaseException('Failed to get document: $e');
     }
   }
 
   @override
-  Future<Either<String, domain.Document>> addDocument(domain.Document document) async {
+  Future<List<Document>> searchDocuments(String query) async {
     try {
-      final documentCompanion = DocumentMapper.toDbInsert(document);
-      final id = await database.insertDocument(documentCompanion);
-      final newDocument = document.copyWith(id: id);
-      return right(newDocument);
+      return await _database.documentDao.searchDocuments(query);
     } catch (e) {
-      return left('Gagal menambah dokumen: $e');
+      throw DatabaseException('Failed to search documents: $e');
     }
   }
 
   @override
-  Future<Either<String, domain.Document>> updateDocument(domain.Document document) async {
+  Future<void> addDocument(DocumentsCompanion document) async {
     try {
-      final documentCompanion = DocumentMapper.toDbUpdate(document);
-      await database.updateDocument(documentCompanion);
-      return right(document.copyWith(updatedAt: DateTime.now()));
+      await _database.documentDao.insertDocument(document);
     } catch (e) {
-      return left('Gagal mengupdate dokumen: $e');
+      throw DatabaseException('Failed to add document: $e');
     }
   }
 
   @override
-  Future<Either<String, bool>> deleteDocument(int id) async {
+  Future<void> updateDocument(DocumentsCompanion document) async {
     try {
-      await database.deleteDocument(id);
-      return right(true);
+      await _database.documentDao.updateDocument(document);
     } catch (e) {
-      return left('Gagal menghapus dokumen: $e');
+      throw DatabaseException('Failed to update document: $e');
     }
   }
 
   @override
-  Future<Either<String, List<domain.Document>>> searchDocuments(String query) async {
+  Future<void> deleteDocument(String id) async {
+    final docId = int.tryParse(id);
+    if (docId == null) return;
     try {
-      final dbDocs = await database.searchDocuments(query);
-      final domainDocs = dbDocs.map(DocumentMapper.fromDb).toList();
-      return right(domainDocs);
+      await _database.documentDao.deleteDocument(docId);
     } catch (e) {
-      return left('Gagal mencari dokumen: $e');
-    }
-  }
-
-  @override
-  Future<Either<String, List<domain.Document>>> getDocumentsByType(String type) async {
-    try {
-      final dbDocs = await database.getDocumentsByType(type);
-      final domainDocs = dbDocs.map(DocumentMapper.fromDb).toList();
-      return right(domainDocs);
-    } catch (e) {
-      return left('Gagal mengambil dokumen berdasarkan tipe: $e');
-    }
-  }
-
-  @override
-  Future<Either<String, List<domain.Document>>> getExpiringDocuments(int daysThreshold) async {
-    try {
-      final dbDocs = await database.getExpiringDocuments(daysThreshold);
-      final domainDocs = dbDocs.map(DocumentMapper.fromDb).toList();
-      return right(domainDocs);
-    } catch (e) {
-      return left('Gagal mengambil dokumen yang akan kadaluarsa: $e');
+      throw DatabaseException('Failed to delete document: $e');
     }
   }
 }

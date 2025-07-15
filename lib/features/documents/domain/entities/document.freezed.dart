@@ -15,9 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Document {
 
- int get id; String get title; String get type; String get filePath; DateTime get createdAt; DateTime get updatedAt; String? get description;// Core fields
- bool get hasReminder; DateTime? get reminderDate; String? get reminderNote; bool get isEncrypted; String? get tags; int? get bundleId;// Flexible metadata for all document types
- Map<String, dynamic> get metadata;
+ String get id; String get title; String? get description; String? get thumbnail; DocumentType get type; List<String> get tags; DateTime? get expiryDate; bool get isFavorite; int get bundleCount; DateTime get createdAt; DateTime get updatedAt; List<String> get images; String? get ocrText; DocumentMetadata get metadata; Map<String, dynamic> get extractedData;
 /// Create a copy of Document
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +28,16 @@ $DocumentCopyWith<Document> get copyWith => _$DocumentCopyWithImpl<Document>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Document&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.type, type) || other.type == type)&&(identical(other.filePath, filePath) || other.filePath == filePath)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.hasReminder, hasReminder) || other.hasReminder == hasReminder)&&(identical(other.reminderDate, reminderDate) || other.reminderDate == reminderDate)&&(identical(other.reminderNote, reminderNote) || other.reminderNote == reminderNote)&&(identical(other.isEncrypted, isEncrypted) || other.isEncrypted == isEncrypted)&&(identical(other.tags, tags) || other.tags == tags)&&(identical(other.bundleId, bundleId) || other.bundleId == bundleId)&&const DeepCollectionEquality().equals(other.metadata, metadata));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Document&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.type, type) || other.type == type)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.expiryDate, expiryDate) || other.expiryDate == expiryDate)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.bundleCount, bundleCount) || other.bundleCount == bundleCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.ocrText, ocrText) || other.ocrText == ocrText)&&(identical(other.metadata, metadata) || other.metadata == metadata)&&const DeepCollectionEquality().equals(other.extractedData, extractedData));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,type,filePath,createdAt,updatedAt,description,hasReminder,reminderDate,reminderNote,isEncrypted,tags,bundleId,const DeepCollectionEquality().hash(metadata));
+int get hashCode => Object.hash(runtimeType,id,title,description,thumbnail,type,const DeepCollectionEquality().hash(tags),expiryDate,isFavorite,bundleCount,createdAt,updatedAt,const DeepCollectionEquality().hash(images),ocrText,metadata,const DeepCollectionEquality().hash(extractedData));
 
 @override
 String toString() {
-  return 'Document(id: $id, title: $title, type: $type, filePath: $filePath, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, hasReminder: $hasReminder, reminderDate: $reminderDate, reminderNote: $reminderNote, isEncrypted: $isEncrypted, tags: $tags, bundleId: $bundleId, metadata: $metadata)';
+  return 'Document(id: $id, title: $title, description: $description, thumbnail: $thumbnail, type: $type, tags: $tags, expiryDate: $expiryDate, isFavorite: $isFavorite, bundleCount: $bundleCount, createdAt: $createdAt, updatedAt: $updatedAt, images: $images, ocrText: $ocrText, metadata: $metadata, extractedData: $extractedData)';
 }
 
 
@@ -50,11 +48,11 @@ abstract mixin class $DocumentCopyWith<$Res>  {
   factory $DocumentCopyWith(Document value, $Res Function(Document) _then) = _$DocumentCopyWithImpl;
 @useResult
 $Res call({
- int id, String title, String type, String filePath, DateTime createdAt, DateTime updatedAt, String? description, bool hasReminder, DateTime? reminderDate, String? reminderNote, bool isEncrypted, String? tags, int? bundleId, Map<String, dynamic> metadata
+ String id, String title, String? description, String? thumbnail, DocumentType type, List<String> tags, DateTime? expiryDate, bool isFavorite, int bundleCount, DateTime createdAt, DateTime updatedAt, List<String> images, String? ocrText, DocumentMetadata metadata, Map<String, dynamic> extractedData
 });
 
 
-
+$DocumentMetadataCopyWith<$Res> get metadata;
 
 }
 /// @nodoc
@@ -67,26 +65,36 @@ class _$DocumentCopyWithImpl<$Res>
 
 /// Create a copy of Document
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? type = null,Object? filePath = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? hasReminder = null,Object? reminderDate = freezed,Object? reminderNote = freezed,Object? isEncrypted = null,Object? tags = freezed,Object? bundleId = freezed,Object? metadata = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? thumbnail = freezed,Object? type = null,Object? tags = null,Object? expiryDate = freezed,Object? isFavorite = null,Object? bundleCount = null,Object? createdAt = null,Object? updatedAt = null,Object? images = null,Object? ocrText = freezed,Object? metadata = null,Object? extractedData = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,filePath: null == filePath ? _self.filePath : filePath // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,thumbnail: freezed == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
+as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as DocumentType,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
+as List<String>,expiryDate: freezed == expiryDate ? _self.expiryDate : expiryDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
+as bool,bundleCount: null == bundleCount ? _self.bundleCount : bundleCount // ignore: cast_nullable_to_non_nullable
+as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String?,hasReminder: null == hasReminder ? _self.hasReminder : hasReminder // ignore: cast_nullable_to_non_nullable
-as bool,reminderDate: freezed == reminderDate ? _self.reminderDate : reminderDate // ignore: cast_nullable_to_non_nullable
-as DateTime?,reminderNote: freezed == reminderNote ? _self.reminderNote : reminderNote // ignore: cast_nullable_to_non_nullable
-as String?,isEncrypted: null == isEncrypted ? _self.isEncrypted : isEncrypted // ignore: cast_nullable_to_non_nullable
-as bool,tags: freezed == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
-as String?,bundleId: freezed == bundleId ? _self.bundleId : bundleId // ignore: cast_nullable_to_non_nullable
-as int?,metadata: null == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
+as DateTime,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
+as List<String>,ocrText: freezed == ocrText ? _self.ocrText : ocrText // ignore: cast_nullable_to_non_nullable
+as String?,metadata: null == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
+as DocumentMetadata,extractedData: null == extractedData ? _self.extractedData : extractedData // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,
   ));
 }
-
+/// Create a copy of Document
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DocumentMetadataCopyWith<$Res> get metadata {
+  
+  return $DocumentMetadataCopyWith<$Res>(_self.metadata, (value) {
+    return _then(_self.copyWith(metadata: value));
+  });
+}
 }
 
 
@@ -168,10 +176,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String title,  String type,  String filePath,  DateTime createdAt,  DateTime updatedAt,  String? description,  bool hasReminder,  DateTime? reminderDate,  String? reminderNote,  bool isEncrypted,  String? tags,  int? bundleId,  Map<String, dynamic> metadata)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String? description,  String? thumbnail,  DocumentType type,  List<String> tags,  DateTime? expiryDate,  bool isFavorite,  int bundleCount,  DateTime createdAt,  DateTime updatedAt,  List<String> images,  String? ocrText,  DocumentMetadata metadata,  Map<String, dynamic> extractedData)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Document() when $default != null:
-return $default(_that.id,_that.title,_that.type,_that.filePath,_that.createdAt,_that.updatedAt,_that.description,_that.hasReminder,_that.reminderDate,_that.reminderNote,_that.isEncrypted,_that.tags,_that.bundleId,_that.metadata);case _:
+return $default(_that.id,_that.title,_that.description,_that.thumbnail,_that.type,_that.tags,_that.expiryDate,_that.isFavorite,_that.bundleCount,_that.createdAt,_that.updatedAt,_that.images,_that.ocrText,_that.metadata,_that.extractedData);case _:
   return orElse();
 
 }
@@ -189,10 +197,10 @@ return $default(_that.id,_that.title,_that.type,_that.filePath,_that.createdAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String title,  String type,  String filePath,  DateTime createdAt,  DateTime updatedAt,  String? description,  bool hasReminder,  DateTime? reminderDate,  String? reminderNote,  bool isEncrypted,  String? tags,  int? bundleId,  Map<String, dynamic> metadata)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String? description,  String? thumbnail,  DocumentType type,  List<String> tags,  DateTime? expiryDate,  bool isFavorite,  int bundleCount,  DateTime createdAt,  DateTime updatedAt,  List<String> images,  String? ocrText,  DocumentMetadata metadata,  Map<String, dynamic> extractedData)  $default,) {final _that = this;
 switch (_that) {
 case _Document():
-return $default(_that.id,_that.title,_that.type,_that.filePath,_that.createdAt,_that.updatedAt,_that.description,_that.hasReminder,_that.reminderDate,_that.reminderNote,_that.isEncrypted,_that.tags,_that.bundleId,_that.metadata);case _:
+return $default(_that.id,_that.title,_that.description,_that.thumbnail,_that.type,_that.tags,_that.expiryDate,_that.isFavorite,_that.bundleCount,_that.createdAt,_that.updatedAt,_that.images,_that.ocrText,_that.metadata,_that.extractedData);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +217,10 @@ return $default(_that.id,_that.title,_that.type,_that.filePath,_that.createdAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String title,  String type,  String filePath,  DateTime createdAt,  DateTime updatedAt,  String? description,  bool hasReminder,  DateTime? reminderDate,  String? reminderNote,  bool isEncrypted,  String? tags,  int? bundleId,  Map<String, dynamic> metadata)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String? description,  String? thumbnail,  DocumentType type,  List<String> tags,  DateTime? expiryDate,  bool isFavorite,  int bundleCount,  DateTime createdAt,  DateTime updatedAt,  List<String> images,  String? ocrText,  DocumentMetadata metadata,  Map<String, dynamic> extractedData)?  $default,) {final _that = this;
 switch (_that) {
 case _Document() when $default != null:
-return $default(_that.id,_that.title,_that.type,_that.filePath,_that.createdAt,_that.updatedAt,_that.description,_that.hasReminder,_that.reminderDate,_that.reminderNote,_that.isEncrypted,_that.tags,_that.bundleId,_that.metadata);case _:
+return $default(_that.id,_that.title,_that.description,_that.thumbnail,_that.type,_that.tags,_that.expiryDate,_that.isFavorite,_that.bundleCount,_that.createdAt,_that.updatedAt,_that.images,_that.ocrText,_that.metadata,_that.extractedData);case _:
   return null;
 
 }
@@ -224,30 +232,40 @@ return $default(_that.id,_that.title,_that.type,_that.filePath,_that.createdAt,_
 @JsonSerializable()
 
 class _Document implements Document {
-  const _Document({required this.id, required this.title, required this.type, required this.filePath, required this.createdAt, required this.updatedAt, this.description, this.hasReminder = false, this.reminderDate, this.reminderNote, this.isEncrypted = false, this.tags, this.bundleId, final  Map<String, dynamic> metadata = const <String, dynamic>{}}): _metadata = metadata;
+  const _Document({required this.id, required this.title, this.description, this.thumbnail, required this.type, final  List<String> tags = const [], this.expiryDate, this.isFavorite = false, this.bundleCount = 0, required this.createdAt, required this.updatedAt, final  List<String> images = const [], this.ocrText, required this.metadata, final  Map<String, dynamic> extractedData = const {}}): _tags = tags,_images = images,_extractedData = extractedData;
   factory _Document.fromJson(Map<String, dynamic> json) => _$DocumentFromJson(json);
 
-@override final  int id;
+@override final  String id;
 @override final  String title;
-@override final  String type;
-@override final  String filePath;
+@override final  String? description;
+@override final  String? thumbnail;
+@override final  DocumentType type;
+ final  List<String> _tags;
+@override@JsonKey() List<String> get tags {
+  if (_tags is EqualUnmodifiableListView) return _tags;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_tags);
+}
+
+@override final  DateTime? expiryDate;
+@override@JsonKey() final  bool isFavorite;
+@override@JsonKey() final  int bundleCount;
 @override final  DateTime createdAt;
 @override final  DateTime updatedAt;
-@override final  String? description;
-// Core fields
-@override@JsonKey() final  bool hasReminder;
-@override final  DateTime? reminderDate;
-@override final  String? reminderNote;
-@override@JsonKey() final  bool isEncrypted;
-@override final  String? tags;
-@override final  int? bundleId;
-// Flexible metadata for all document types
- final  Map<String, dynamic> _metadata;
-// Flexible metadata for all document types
-@override@JsonKey() Map<String, dynamic> get metadata {
-  if (_metadata is EqualUnmodifiableMapView) return _metadata;
+ final  List<String> _images;
+@override@JsonKey() List<String> get images {
+  if (_images is EqualUnmodifiableListView) return _images;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableMapView(_metadata);
+  return EqualUnmodifiableListView(_images);
+}
+
+@override final  String? ocrText;
+@override final  DocumentMetadata metadata;
+ final  Map<String, dynamic> _extractedData;
+@override@JsonKey() Map<String, dynamic> get extractedData {
+  if (_extractedData is EqualUnmodifiableMapView) return _extractedData;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_extractedData);
 }
 
 
@@ -264,16 +282,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Document&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.type, type) || other.type == type)&&(identical(other.filePath, filePath) || other.filePath == filePath)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.hasReminder, hasReminder) || other.hasReminder == hasReminder)&&(identical(other.reminderDate, reminderDate) || other.reminderDate == reminderDate)&&(identical(other.reminderNote, reminderNote) || other.reminderNote == reminderNote)&&(identical(other.isEncrypted, isEncrypted) || other.isEncrypted == isEncrypted)&&(identical(other.tags, tags) || other.tags == tags)&&(identical(other.bundleId, bundleId) || other.bundleId == bundleId)&&const DeepCollectionEquality().equals(other._metadata, _metadata));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Document&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnail, thumbnail) || other.thumbnail == thumbnail)&&(identical(other.type, type) || other.type == type)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.expiryDate, expiryDate) || other.expiryDate == expiryDate)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.bundleCount, bundleCount) || other.bundleCount == bundleCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.ocrText, ocrText) || other.ocrText == ocrText)&&(identical(other.metadata, metadata) || other.metadata == metadata)&&const DeepCollectionEquality().equals(other._extractedData, _extractedData));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,type,filePath,createdAt,updatedAt,description,hasReminder,reminderDate,reminderNote,isEncrypted,tags,bundleId,const DeepCollectionEquality().hash(_metadata));
+int get hashCode => Object.hash(runtimeType,id,title,description,thumbnail,type,const DeepCollectionEquality().hash(_tags),expiryDate,isFavorite,bundleCount,createdAt,updatedAt,const DeepCollectionEquality().hash(_images),ocrText,metadata,const DeepCollectionEquality().hash(_extractedData));
 
 @override
 String toString() {
-  return 'Document(id: $id, title: $title, type: $type, filePath: $filePath, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, hasReminder: $hasReminder, reminderDate: $reminderDate, reminderNote: $reminderNote, isEncrypted: $isEncrypted, tags: $tags, bundleId: $bundleId, metadata: $metadata)';
+  return 'Document(id: $id, title: $title, description: $description, thumbnail: $thumbnail, type: $type, tags: $tags, expiryDate: $expiryDate, isFavorite: $isFavorite, bundleCount: $bundleCount, createdAt: $createdAt, updatedAt: $updatedAt, images: $images, ocrText: $ocrText, metadata: $metadata, extractedData: $extractedData)';
 }
 
 
@@ -284,11 +302,11 @@ abstract mixin class _$DocumentCopyWith<$Res> implements $DocumentCopyWith<$Res>
   factory _$DocumentCopyWith(_Document value, $Res Function(_Document) _then) = __$DocumentCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String title, String type, String filePath, DateTime createdAt, DateTime updatedAt, String? description, bool hasReminder, DateTime? reminderDate, String? reminderNote, bool isEncrypted, String? tags, int? bundleId, Map<String, dynamic> metadata
+ String id, String title, String? description, String? thumbnail, DocumentType type, List<String> tags, DateTime? expiryDate, bool isFavorite, int bundleCount, DateTime createdAt, DateTime updatedAt, List<String> images, String? ocrText, DocumentMetadata metadata, Map<String, dynamic> extractedData
 });
 
 
-
+@override $DocumentMetadataCopyWith<$Res> get metadata;
 
 }
 /// @nodoc
@@ -301,27 +319,37 @@ class __$DocumentCopyWithImpl<$Res>
 
 /// Create a copy of Document
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? type = null,Object? filePath = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? hasReminder = null,Object? reminderDate = freezed,Object? reminderNote = freezed,Object? isEncrypted = null,Object? tags = freezed,Object? bundleId = freezed,Object? metadata = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = freezed,Object? thumbnail = freezed,Object? type = null,Object? tags = null,Object? expiryDate = freezed,Object? isFavorite = null,Object? bundleCount = null,Object? createdAt = null,Object? updatedAt = null,Object? images = null,Object? ocrText = freezed,Object? metadata = null,Object? extractedData = null,}) {
   return _then(_Document(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
-as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as String,filePath: null == filePath ? _self.filePath : filePath // ignore: cast_nullable_to_non_nullable
-as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,thumbnail: freezed == thumbnail ? _self.thumbnail : thumbnail // ignore: cast_nullable_to_non_nullable
+as String?,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as DocumentType,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
+as List<String>,expiryDate: freezed == expiryDate ? _self.expiryDate : expiryDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
+as bool,bundleCount: null == bundleCount ? _self.bundleCount : bundleCount // ignore: cast_nullable_to_non_nullable
+as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String?,hasReminder: null == hasReminder ? _self.hasReminder : hasReminder // ignore: cast_nullable_to_non_nullable
-as bool,reminderDate: freezed == reminderDate ? _self.reminderDate : reminderDate // ignore: cast_nullable_to_non_nullable
-as DateTime?,reminderNote: freezed == reminderNote ? _self.reminderNote : reminderNote // ignore: cast_nullable_to_non_nullable
-as String?,isEncrypted: null == isEncrypted ? _self.isEncrypted : isEncrypted // ignore: cast_nullable_to_non_nullable
-as bool,tags: freezed == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
-as String?,bundleId: freezed == bundleId ? _self.bundleId : bundleId // ignore: cast_nullable_to_non_nullable
-as int?,metadata: null == metadata ? _self._metadata : metadata // ignore: cast_nullable_to_non_nullable
+as DateTime,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
+as List<String>,ocrText: freezed == ocrText ? _self.ocrText : ocrText // ignore: cast_nullable_to_non_nullable
+as String?,metadata: null == metadata ? _self.metadata : metadata // ignore: cast_nullable_to_non_nullable
+as DocumentMetadata,extractedData: null == extractedData ? _self._extractedData : extractedData // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,
   ));
 }
 
-
+/// Create a copy of Document
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DocumentMetadataCopyWith<$Res> get metadata {
+  
+  return $DocumentMetadataCopyWith<$Res>(_self.metadata, (value) {
+    return _then(_self.copyWith(metadata: value));
+  });
+}
 }
 
 // dart format on
