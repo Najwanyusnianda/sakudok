@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/document.dart';
+import '../../domain/entities/document_type.dart';
 import '../../domain/entities/metadata/document_metadata.dart';
 
 class DocumentCard extends StatelessWidget {
@@ -94,7 +95,7 @@ class DocumentCard extends StatelessWidget {
     return document.metadata.when(
       ktp: (nik, fullName, birthPlace, birthDate, gender, bloodType, address, rt,
           rw, kelurahan, kecamatan, religion, maritalStatus, occupation,
-          citizenship, issuedDate, issuedBy) {
+          citizenship, issuedDate, issuedBy, expiryDate) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
@@ -107,9 +108,35 @@ class DocumentCard extends StatelessWidget {
           ),
         );
       },
+      sim: (simNumber, holderName, simType, issuedDate, expiryDate, issuingOffice, address, birthDate) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('SIM: $simNumber ($simType)'),
+              Text('Nama: $holderName'),
+              Text('Berlaku sampai: ${_formatDate(expiryDate)}'),
+            ],
+          ),
+        );
+      },
+      passport: (passportNumber, holderName, nationality, birthDate, birthPlace, gender, issuedDate, expiryDate, issuingAuthority, placeOfIssue) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Passport: $passportNumber'),
+              Text('Nama: $holderName'),
+              Text('Berlaku sampai: ${_formatDate(expiryDate)}'),
+            ],
+          ),
+        );
+      },
       ielts: (candidateNumber, testReportNumber, testDate, expiryDate,
           overallBand, listeningScore, readingScore, writingScore, speakingScore,
-          testCenter) {
+          testCenter, candidateName) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
@@ -118,6 +145,58 @@ class DocumentCard extends StatelessWidget {
               Text('Overall Band: $overallBand'),
               Text('Test Date: ${_formatDate(testDate)}'),
               Text('Expires: ${_formatDate(expiryDate)}'),
+            ],
+          ),
+        );
+      },
+      transcript: (studentId, studentName, university, degree, major, gpa, graduationDate, issuedDate, facultyDean) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Student: $studentName'),
+              Text('University: $university'),
+              Text('GPA: $gpa'),
+            ],
+          ),
+        );
+      },
+      cv: (fullName, profession, email, phoneNumber, lastUpdated, summary, yearsOfExperience) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Name: $fullName'),
+              Text('Profession: $profession'),
+              if (yearsOfExperience != null) Text('Experience: $yearsOfExperience years'),
+            ],
+          ),
+        );
+      },
+      certificate: (certificateName, holderName, issuingOrganization, issuedDate, expiryDate, certificateNumber, level) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Certificate: $certificateName'),
+              Text('Holder: $holderName'),
+              Text('Issued by: $issuingOrganization'),
+            ],
+          ),
+        );
+      },
+      diploma: (diplomaNumber, graduateName, institution, degree, major, graduationDate, gpa, honors) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Graduate: $graduateName'),
+              Text('Degree: $degree in $major'),
+              Text('Institution: $institution'),
             ],
           ),
         );

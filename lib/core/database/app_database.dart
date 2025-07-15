@@ -1,3 +1,4 @@
+//lib/core/database/tables/app_database.dart
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -15,14 +16,12 @@ typedef DriftBundle = Bundle;
 
 typedef DriftBundleDocument = BundleDocument;
 
-@DriftDatabase(tables: [Documents, Bundles, BundleDocuments], daos: [DocumentDao])
+@DriftDatabase(tables: [Documents, Bundles, BundleDocuments])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
-
-  DocumentDao get documentDao => DocumentDao(this);
 
   @override
   MigrationStrategy get migration {

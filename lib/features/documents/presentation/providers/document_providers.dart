@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fpdart/fpdart.dart';
 import '../../data/repositories/document_repository_impl.dart';
 import '../../data/datasources/document_local_datasource.dart';
 import '../../domain/entities/document.dart';
@@ -11,7 +10,6 @@ import '../../domain/usecases/delete_document.dart';
 import '../../domain/usecases/search_documents.dart';
 import '../../domain/usecases/update_document.dart';
 import '../../../../core/database/app_database.dart' as db;
-import '../../../../core/exceptions/app_exception.dart';
 
 // Data Layer Providers
 final databaseProvider = Provider<db.AppDatabase>((ref) => db.AppDatabase());

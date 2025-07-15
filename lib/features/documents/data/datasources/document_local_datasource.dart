@@ -3,9 +3,9 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/exceptions/database_exception.dart';
 
 abstract class DocumentLocalDataSource {
-  Future<List<Document>> getAllDocuments();
-  Future<Document?> getDocumentById(String id);
-  Future<List<Document>> searchDocuments(String query);
+  Future<List<DriftDocument>> getAllDocuments();
+  Future<DriftDocument?> getDocumentById(String id);
+  Future<List<DriftDocument>> searchDocuments(String query);
   Future<void> addDocument(DocumentsCompanion document);
   Future<void> updateDocument(DocumentsCompanion document);
   Future<void> deleteDocument(String id);
@@ -17,29 +17,29 @@ class DocumentLocalDataSourceImpl implements DocumentLocalDataSource {
   DocumentLocalDataSourceImpl(this._database);
 
   @override
-  Future<List<Document>> getAllDocuments() async {
+  Future<List<DriftDocument>> getAllDocuments() async {
     try {
-      return await _database.documentDao.getAllDocuments();
+      return await _database.getAllDocuments();
     } catch (e) {
       throw DatabaseException('Failed to get documents: $e');
     }
   }
 
   @override
-  Future<Document?> getDocumentById(String id) async {
+  Future<DriftDocument?> getDocumentById(String id) async {
     final docId = int.tryParse(id);
     if (docId == null) return null;
     try {
-      return await _database.documentDao.getDocumentById(docId);
+      return await _database.getDocumentById(docId);
     } catch (e) {
       throw DatabaseException('Failed to get document: $e');
     }
   }
 
   @override
-  Future<List<Document>> searchDocuments(String query) async {
+  Future<List<DriftDocument>> searchDocuments(String query) async {
     try {
-      return await _database.documentDao.searchDocuments(query);
+      return await _database.searchDocuments(query);
     } catch (e) {
       throw DatabaseException('Failed to search documents: $e');
     }
@@ -48,7 +48,7 @@ class DocumentLocalDataSourceImpl implements DocumentLocalDataSource {
   @override
   Future<void> addDocument(DocumentsCompanion document) async {
     try {
-      await _database.documentDao.insertDocument(document);
+      await _database.insertDocument(document);
     } catch (e) {
       throw DatabaseException('Failed to add document: $e');
     }
@@ -57,7 +57,7 @@ class DocumentLocalDataSourceImpl implements DocumentLocalDataSource {
   @override
   Future<void> updateDocument(DocumentsCompanion document) async {
     try {
-      await _database.documentDao.updateDocument(document);
+      await _database.updateDocument(document);
     } catch (e) {
       throw DatabaseException('Failed to update document: $e');
     }
@@ -68,7 +68,7 @@ class DocumentLocalDataSourceImpl implements DocumentLocalDataSource {
     final docId = int.tryParse(id);
     if (docId == null) return;
     try {
-      await _database.documentDao.deleteDocument(docId);
+      await _database.deleteDocument(docId);
     } catch (e) {
       throw DatabaseException('Failed to delete document: $e');
     }

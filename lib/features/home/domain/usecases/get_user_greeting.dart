@@ -1,5 +1,4 @@
 import '../repositories/home_repository.dart';
-import '../entities/user.dart';
 
 class GetUserGreeting {
   final HomeRepository repository;

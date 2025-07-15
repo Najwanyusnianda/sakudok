@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../documents/presentation/pages/document_list_page.dart';
+import '../../home/presentation/pages/home_page.dart';
+import '../../bundles/presentation/pages/bundle_main_page.dart';
+import '../../security/presentation/pages/settings_page.dart';
 import 'main_navigation_bar.dart';
 
 class MainScaffold extends StatefulWidget {
-  const MainScaffold({Key? key}) : super(key: key);
+  const MainScaffold({super.key});
 
   @override
   State<MainScaffold> createState() => _MainScaffoldState();
@@ -12,10 +16,10 @@ class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    PlaceholderWidget(title: 'Beranda'),
-    PlaceholderWidget(title: 'Dokumen'),
-    PlaceholderWidget(title: 'Bundle'),
-    PlaceholderWidget(title: 'Pengaturan'),
+    HomePage(),
+    DocumentListPage(),
+    BundleMainPage(),
+    SettingsPage(),
   ];
 
   @override
@@ -29,21 +33,6 @@ class _MainScaffoldState extends State<MainScaffold> {
             _currentIndex = index;
           });
         },
-      ),
-    );
-  }
-}
-
-class PlaceholderWidget extends StatelessWidget {
-  final String title;
-  const PlaceholderWidget({Key? key, required this.title}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
       ),
     );
   }

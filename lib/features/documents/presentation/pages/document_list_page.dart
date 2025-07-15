@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../providers/document_providers.dart';
 import '../widgets/document_card.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import 'add_edit_document_page.dart';
 
 class DocumentListPage extends ConsumerWidget {
   const DocumentListPage({super.key});
@@ -16,10 +16,18 @@ class DocumentListPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dokumen'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () => context.pushNamed('add-document'),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AddEditDocumentPage(),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -56,10 +64,15 @@ class DocumentListPage extends ConsumerWidget {
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: DocumentCard(
                         document: doc,
-                        onTap: () => context.pushNamed(
-                          'edit-document',
-                          pathParameters: {'id': doc.id},
-                        ),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => AddEditDocumentPage(
+                                documentId: doc.id,
+                              ),
+                            ),
+                          );
+                        },
                         onDelete: () async {
                           final shouldDelete = await showDialog<bool>(
                             context: context,

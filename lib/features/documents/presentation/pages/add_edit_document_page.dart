@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../domain/entities/document.dart';
 import '../../domain/entities/document_type.dart';
 import '../../domain/entities/metadata/document_metadata.dart';
 import '../providers/document_providers.dart';
-import '../widgets/document_form/document_form.dart';
-import '../widgets/document_form/ktp_metadata_form.dart';
+import '../widgets/document_form/document_basic_info_section.dart';
+import '../widgets/document_form/document_type_section.dart';
+import '../widgets/document_form/smart_metadata_section.dart';
 
 class AddEditDocumentPage extends ConsumerStatefulWidget {
   final String? documentId;
@@ -25,30 +25,15 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _tagsController;
+  
   DocumentType _selectedType = DocumentType.lainnya;
   bool _isFavorite = false;
   bool _isLoading = false;
   DateTime? _expiryDate;
   List<String> _tags = [];
+  DocumentMetadata? _currentMetadata;
 
-  // KTP Metadata Controllers
-  final _nikController = TextEditingController();
-  final _fullNameController = TextEditingController();
-  final _birthPlaceController = TextEditingController();
-  DateTime? _birthDate;
-  String _selectedGender = 'L';
-  String _selectedBloodType = 'A';
-  final _addressController = TextEditingController();
-  final _rtController = TextEditingController();
-  final _rwController = TextEditingController();
-  final _kelurahanController = TextEditingController();
-  final _kecamatanController = TextEditingController();
-  final _religionController = TextEditingController();
-  final _maritalStatusController = TextEditingController();
-  final _occupationController = TextEditingController();
-  final _citizenshipController = TextEditingController();
-  DateTime? _issuedDate;
-  final _issuedByController = TextEditingController();
+  bool get _isEditing => widget.documentId != null;
 
   @override
   void initState() {
@@ -60,60 +45,41 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
   }
 
   Future<void> _loadDocument() async {
-    if (widget.documentId != null) {
+    if (_isEditing) {
       try {
-        final document = await ref
-            .read(getDocumentByIdProvider(widget.documentId!))
-            .value;
-        if (document != null) {
-          setState(() {
-            _titleController.text = document.title;
-            _descriptionController.text = document.description ?? '';
-            _selectedType = document.type;
-            _isFavorite = document.isFavorite;
-            _expiryDate = document.expiryDate;
-            _tags = document.tags;
-            _tagsController.text = document.tags.join(', ');
-
-            // Load metadata based on type
-            document.metadata.when(
-              ktp: (nik, fullName, birthPlace, birthDate, gender, bloodType,
-                  address, rt, rw, kelurahan, kecamatan, religion, maritalStatus,
-                  occupation, citizenship, issuedDate, issuedBy) {
-                _nikController.text = nik;
-                _fullNameController.text = fullName;
-                _birthPlaceController.text = birthPlace;
-                _birthDate = birthDate;
-                _selectedGender = gender;
-                _selectedBloodType = bloodType;
-                _addressController.text = address;
-                _rtController.text = rt;
-                _rwController.text = rw;
-                _kelurahanController.text = kelurahan;
-                _kecamatanController.text = kecamatan;
-                _religionController.text = religion;
-                _maritalStatusController.text = maritalStatus;
-                _occupationController.text = occupation;
-                _citizenshipController.text = citizenship;
-                _issuedDate = issuedDate;
-                _issuedByController.text = issuedBy;
-              },
-              ielts: (_, __, ___, ____, _____, ______, _______, ________,
-                  _________, __________) {
-                // Handle IELTS metadata
-              },
-              unknown: (_) {},
-            );
-          });
-        }
+        final usecase = ref.read(getDocumentByIdProvider);
+        final result = await usecase(widget.documentId!);
+        result.fold(
+          (failure) {
+            if (mounted) {
+              _showSnackBar(failure.message, isError: true);
+            }
+          },
+          (document) {
+            if (mounted && document != null) {
+              _populateFields(document);
+            }
+          },
+        );
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e')),
-          );
+          _showSnackBar('Error loading document: $e', isError: true);
         }
       }
     }
+  }
+
+  void _populateFields(Document document) {
+    setState(() {
+      _titleController.text = document.title;
+      _descriptionController.text = document.description ?? '';
+      _selectedType = document.type;
+      _isFavorite = document.isFavorite;
+      _expiryDate = document.expiryDate;
+      _tags = document.tags;
+      _tagsController.text = _tags.join(', ');
+      _currentMetadata = document.metadata;
+    });
   }
 
   @override
@@ -121,139 +87,322 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
     _titleController.dispose();
     _descriptionController.dispose();
     _tagsController.dispose();
-    _nikController.dispose();
-    _fullNameController.dispose();
-    _birthPlaceController.dispose();
-    _addressController.dispose();
-    _rtController.dispose();
-    _rwController.dispose();
-    _kelurahanController.dispose();
-    _kecamatanController.dispose();
-    _religionController.dispose();
-    _maritalStatusController.dispose();
-    _occupationController.dispose();
-    _citizenshipController.dispose();
-    _issuedByController.dispose();
     super.dispose();
-  }
-
-  Future<void> _saveDocument() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      // Parse tags
-      _tags = _tagsController.text
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList();
-
-      // Create metadata based on document type
-      late final DocumentMetadata metadata;
-      switch (_selectedType) {
-        case DocumentType.ktp:
-          metadata = DocumentMetadata.ktp(
-            nik: _nikController.text,
-            fullName: _fullNameController.text,
-            birthPlace: _birthPlaceController.text,
-            birthDate: _birthDate!,
-            gender: _selectedGender,
-            bloodType: _selectedBloodType,
-            address: _addressController.text,
-            rt: _rtController.text,
-            rw: _rwController.text,
-            kelurahan: _kelurahanController.text,
-            kecamatan: _kecamatanController.text,
-            religion: _religionController.text,
-            maritalStatus: _maritalStatusController.text,
-            occupation: _occupationController.text,
-            citizenship: _citizenshipController.text,
-            issuedDate: _issuedDate!,
-            issuedBy: _issuedByController.text,
-          );
-          break;
-        case DocumentType.sim:
-        case DocumentType.passport:
-        case DocumentType.ijazah:
-        case DocumentType.sertifikat:
-        case DocumentType.lainnya:
-          metadata = DocumentMetadata.unknown({});
-          break;
-      }
-
-      final document = Document(
-        id: widget.documentId ?? '',
-        title: _titleController.text,
-        description: _descriptionController.text,
-        type: _selectedType,
-        tags: _tags,
-        expiryDate: _expiryDate,
-        isFavorite: _isFavorite,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        metadata: metadata,
-      );
-
-      if (widget.documentId != null) {
-        await ref
-            .read(documentsNotifierProvider.notifier)
-            .updateDocument(document);
-      } else {
-        await ref
-            .read(documentsNotifierProvider.notifier)
-            .addDocument(document);
-      }
-
-      if (mounted) {
-        context.pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.documentId != null
-                  ? 'Dokumen berhasil diperbarui'
-                  : 'Dokumen berhasil ditambahkan',
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.documentId != null ? 'Edit Dokumen' : 'Tambah Dokumen',
+      appBar: _buildAppBar(),
+      body: _buildBody(),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: Text(_isEditing ? 'Edit Document' : 'Add New Document'),
+      elevation: 0,
+      actions: [
+        if (_isLoading)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          TextButton.icon(
+            onPressed: _saveDocument,
+            icon: Icon(_isEditing ? Icons.save : Icons.add),
+            label: Text(_isEditing ? 'Update' : 'Save'),
+          ),
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Progress Indicator for Multi-step Process
+            _buildProgressIndicator(),
+            const SizedBox(height: 24),
+
+            // Step 1: Document Basic Information
+            DocumentBasicInfoSection(
+              titleController: _titleController,
+              descriptionController: _descriptionController,
+              tagsController: _tagsController,
+              isFavorite: _isFavorite,
+              onFavoriteChanged: (value) {
+                setState(() {
+                  _isFavorite = value;
+                });
+              },
+              onTagsChanged: (tags) {
+                setState(() {
+                  _tags = tags;
+                });
+              },
+            ),
+            const SizedBox(height: 32),
+
+            // Step 2: Document Type Selection
+            DocumentTypeSection(
+              selectedType: _selectedType,
+              onTypeChanged: (type) {
+                setState(() {
+                  _selectedType = type;
+                  // Reset metadata when type changes
+                  _currentMetadata = null;
+                });
+              },
+            ),
+            const SizedBox(height: 32),
+
+            // Step 3: Smart Metadata Collection
+            SmartMetadataSection(
+              selectedType: _selectedType,
+              currentMetadata: _currentMetadata,
+              onMetadataChanged: (metadata) {
+                setState(() {
+                  _currentMetadata = metadata;
+                });
+              },
+            ),
+            const SizedBox(height: 32),
+
+            // Save Action Summary
+            _buildSaveSummary(),
+            const SizedBox(height: 40),
+          ],
         ),
       ),
-      body: DocumentForm(
-        formKey: _formKey,
-        titleController: _titleController,
-        descriptionController: _descriptionController,
-        tagsController: _tagsController,
-        selectedType: _selectedType,
-        isFavorite: _isFavorite,
-        expiryDate: _expiryDate,
-        onTypeChanged: (type) => setState(() => _selectedType = type),
-        onFavoriteChanged: (value) => setState(() => _isFavorite = value),
-        onExpiryDateChanged: (date) => setState(() => _expiryDate = date),
-        isLoading: _isLoading,
-        onSave: _saveDocument,
-        submitLabel: widget.documentId != null ? 'Perbarui' : 'Simpan',
+    );
+  }
+
+  Widget _buildProgressIndicator() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade50, Colors.purple.shade50],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            _isEditing ? Icons.edit_document : Icons.note_add,
+            color: Colors.blue.shade700,
+            size: 28,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isEditing ? 'Update Document' : 'Create New Document',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _isEditing 
+                    ? 'Modify your document details and smart metadata'
+                    : 'Fill in the details below to create an intelligent document',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.blue.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _buildSaveSummary() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.save_alt, color: Colors.green.shade700),
+              const SizedBox(width: 8),
+              Text(
+                'Ready to Save',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildSummaryRow('Title', _titleController.text.isEmpty ? 'Not set' : _titleController.text),
+          _buildSummaryRow('Type', _getDocumentTypeDisplayName(_selectedType)),
+          _buildSummaryRow('Tags', _tags.isEmpty ? 'None' : _tags.join(', ')),
+          _buildSummaryRow('Smart Features', _currentMetadata != null ? 'Enabled' : 'Basic'),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _isLoading ? null : _saveDocument,
+              icon: Icon(_isEditing ? Icons.update : Icons.save),
+              label: Text(_isEditing ? 'Update Document' : 'Save Document'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 12),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getDocumentTypeDisplayName(DocumentType type) {
+    switch (type) {
+      case DocumentType.ktp:
+        return 'KTP (Identity Card)';
+      case DocumentType.sim:
+        return 'SIM (Driver License)';
+      case DocumentType.passport:
+        return 'Passport';
+      case DocumentType.sertifikat:
+        return 'Certificate';
+      case DocumentType.ijazah:
+        return 'Diploma';
+      case DocumentType.lainnya:
+        return 'Other Documents';
+    }
+  }
+
+  Future<void> _saveDocument() async {
+    if (!_formKey.currentState!.validate()) {
+      _showSnackBar('Please fix the errors above', isError: true);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final document = Document(
+        id: widget.documentId ?? '',
+        title: _titleController.text,
+        description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
+        type: _selectedType,
+        metadata: _currentMetadata ?? const DocumentMetadata.unknown({}),
+        tags: _tags,
+        isFavorite: _isFavorite,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        expiryDate: _expiryDate,
+      );
+
+      if (_isEditing) {
+        await _updateDocument(document);
+      } else {
+        await _addDocument(document);
+      }
+    } catch (e) {
+      _showSnackBar('Error saving document: $e', isError: true);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _addDocument(Document document) async {
+    final usecase = ref.read(addDocumentProvider);
+    final result = await usecase(document);
+    result.fold(
+      (failure) => _showSnackBar(failure.message, isError: true),
+      (_) {
+        Navigator.of(context).pop();
+        _showSnackBar('Document added successfully');
+      },
+    );
+  }
+
+  Future<void> _updateDocument(Document document) async {
+    final usecase = ref.read(updateDocumentProvider);
+    final result = await usecase(document);
+    result.fold(
+      (failure) => _showSnackBar(failure.message, isError: true),
+      (_) {
+        Navigator.of(context).pop();
+        _showSnackBar('Document updated successfully');
+      },
+    );
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? Colors.red.shade600 : Colors.green.shade600,
+        ),
+      );
+    }
   }
 }
