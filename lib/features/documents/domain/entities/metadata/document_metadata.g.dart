@@ -11,24 +11,12 @@ KTPMetadata _$KTPMetadataFromJson(Map<String, dynamic> json) => KTPMetadata(
   fullName: json['fullName'] as String,
   birthPlace: json['birthPlace'] as String,
   birthDate: DateTime.parse(json['birthDate'] as String),
-  gender: json['gender'] as String,
-  bloodType: json['bloodType'] as String?,
   address: json['address'] as String,
-  rt: json['rt'] as String?,
-  rw: json['rw'] as String?,
-  kelurahan: json['kelurahan'] as String?,
-  kecamatan: json['kecamatan'] as String?,
-  religion: json['religion'] as String?,
+  gender: json['gender'] as String,
+  berlakuHingga: json['berlakuHingga'] as String,
   maritalStatus: json['maritalStatus'] as String?,
   occupation: json['occupation'] as String?,
   citizenship: json['citizenship'] as String?,
-  issuedDate: json['issuedDate'] == null
-      ? null
-      : DateTime.parse(json['issuedDate'] as String),
-  issuedBy: json['issuedBy'] as String?,
-  expiryDate: json['expiryDate'] == null
-      ? null
-      : DateTime.parse(json['expiryDate'] as String),
   $type: json['runtimeType'] as String?,
 );
 
@@ -38,20 +26,12 @@ Map<String, dynamic> _$KTPMetadataToJson(KTPMetadata instance) =>
       'fullName': instance.fullName,
       'birthPlace': instance.birthPlace,
       'birthDate': instance.birthDate.toIso8601String(),
-      'gender': instance.gender,
-      'bloodType': instance.bloodType,
       'address': instance.address,
-      'rt': instance.rt,
-      'rw': instance.rw,
-      'kelurahan': instance.kelurahan,
-      'kecamatan': instance.kecamatan,
-      'religion': instance.religion,
+      'gender': instance.gender,
+      'berlakuHingga': instance.berlakuHingga,
       'maritalStatus': instance.maritalStatus,
       'occupation': instance.occupation,
       'citizenship': instance.citizenship,
-      'issuedDate': instance.issuedDate?.toIso8601String(),
-      'issuedBy': instance.issuedBy,
-      'expiryDate': instance.expiryDate?.toIso8601String(),
       'runtimeType': instance.$type,
     };
 

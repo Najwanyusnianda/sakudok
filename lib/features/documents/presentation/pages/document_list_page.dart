@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:io';
 import '../providers/document_providers.dart';
 import '../widgets/document_card.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import 'add_edit_document_page.dart';
+import 'quick_save_document_page.dart';
+import 'edit_document_smart_features_page.dart';
+import '../widgets/document_capture/document_source_bottom_sheet.dart';
 
-class DocumentListPage extends ConsumerWidget {
+class DocumentListPage extends ConsumerStatefulWidget {
   const DocumentListPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final searchQuery = ref.watch(searchQueryProvider);
+  ConsumerState<DocumentListPage> createState() => _DocumentListPageState();
+}
+
+class _DocumentListPageState extends ConsumerState<DocumentListPage> {
+  @override
+  Widget build(BuildContext context) {
     final documents = ref.watch(searchResultsProvider);
 
     return Scaffold(
@@ -21,13 +29,7 @@ class DocumentListPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const AddEditDocumentPage(),
-                ),
-              );
-            },
+            onPressed: () => _showDocumentSourceBottomSheet(context),
           ),
         ],
       ),
@@ -123,6 +125,26 @@ class DocumentListPage extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showDocumentSourceBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DocumentSourceBottomSheet(
+        onDocumentSelected: (File file) {
+          // Navigate to quick save page (Phase 3)
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => QuickSaveDocumentPage(
+                documentFile: file,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

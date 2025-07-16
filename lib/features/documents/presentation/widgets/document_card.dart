@@ -1,18 +1,29 @@
+//lib/features/documents/presentation/widgets/document_card.dart
 import 'package:flutter/material.dart';
 import '../../domain/entities/document.dart';
 import '../../domain/entities/document_type.dart';
 import '../../domain/entities/metadata/document_metadata.dart';
+import 'metadata_previews/ktp_preview.dart';
+import 'metadata_previews/sim_preview.dart';
+import 'metadata_previews/passport_preview.dart';
+import 'metadata_previews/ielts_preview.dart';
+import 'metadata_previews/transcript_preview.dart';
+import 'metadata_previews/cv_preview.dart';
+import 'metadata_previews/certificate_preview.dart';
+import 'metadata_previews/diploma_preview.dart';
 
 class DocumentCard extends StatelessWidget {
   final Document document;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback? onEnableSmartFeatures;
 
   const DocumentCard({
     super.key,
     required this.document,
     required this.onTap,
     required this.onDelete,
+    this.onEnableSmartFeatures,
   });
 
   @override
@@ -92,118 +103,77 @@ class DocumentCard extends StatelessWidget {
   }
 
   Widget _buildMetadataPreview(BuildContext context) {
+    final hasSmartMetadata = _hasSmartMetadata();
+    
+    return Column(
+      children: [
+        // Smart Features Banner
+        if (!hasSmartMetadata && onEnableSmartFeatures != null)
+          _buildEnableSmartFeaturesBanner(),
+        
+        // Metadata Preview using Composition Pattern
+        document.metadata.map(
+          ktp: (metadata) => KtpPreview(metadata: metadata),
+          sim: (metadata) => SimPreview(metadata: metadata),
+          passport: (metadata) => PassportPreview(metadata: metadata),
+          ielts: (metadata) => IeltsPreview(metadata: metadata),
+          transcript: (metadata) => TranscriptPreview(metadata: metadata),
+          cv: (metadata) => CvPreview(metadata: metadata),
+          certificate: (metadata) => CertificatePreview(metadata: metadata),
+          diploma: (metadata) => DiplomaPreview(metadata: metadata),
+          unknown: (_) => const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEnableSmartFeaturesBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.purple.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.purple.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.auto_awesome, color: Colors.purple.shade600, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Enable smart features for this document',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.purple.shade700,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onEnableSmartFeatures,
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.purple.shade600,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              minimumSize: Size.zero,
+            ),
+            child: const Text('Enable', style: TextStyle(fontSize: 11)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _hasSmartMetadata() {
     return document.metadata.when(
-      ktp: (nik, fullName, birthPlace, birthDate, gender, bloodType, address, rt,
-          rw, kelurahan, kecamatan, religion, maritalStatus, occupation,
-          citizenship, issuedDate, issuedBy, expiryDate) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('NIK: $nik'),
-              Text('Nama: $fullName'),
-              Text('Alamat: $address, RT $rt/RW $rw'),
-            ],
-          ),
-        );
-      },
-      sim: (simNumber, holderName, simType, issuedDate, expiryDate, issuingOffice, address, birthDate) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('SIM: $simNumber ($simType)'),
-              Text('Nama: $holderName'),
-              Text('Berlaku sampai: ${_formatDate(expiryDate)}'),
-            ],
-          ),
-        );
-      },
-      passport: (passportNumber, holderName, nationality, birthDate, birthPlace, gender, issuedDate, expiryDate, issuingAuthority, placeOfIssue) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Passport: $passportNumber'),
-              Text('Nama: $holderName'),
-              Text('Berlaku sampai: ${_formatDate(expiryDate)}'),
-            ],
-          ),
-        );
-      },
-      ielts: (candidateNumber, testReportNumber, testDate, expiryDate,
-          overallBand, listeningScore, readingScore, writingScore, speakingScore,
-          testCenter, candidateName) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Overall Band: $overallBand'),
-              Text('Test Date: ${_formatDate(testDate)}'),
-              Text('Expires: ${_formatDate(expiryDate)}'),
-            ],
-          ),
-        );
-      },
-      transcript: (studentId, studentName, university, degree, major, gpa, graduationDate, issuedDate, facultyDean) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Student: $studentName'),
-              Text('University: $university'),
-              Text('GPA: $gpa'),
-            ],
-          ),
-        );
-      },
-      cv: (fullName, profession, email, phoneNumber, lastUpdated, summary, yearsOfExperience) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Name: $fullName'),
-              Text('Profession: $profession'),
-              if (yearsOfExperience != null) Text('Experience: $yearsOfExperience years'),
-            ],
-          ),
-        );
-      },
-      certificate: (certificateName, holderName, issuingOrganization, issuedDate, expiryDate, certificateNumber, level) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Certificate: $certificateName'),
-              Text('Holder: $holderName'),
-              Text('Issued by: $issuingOrganization'),
-            ],
-          ),
-        );
-      },
-      diploma: (diplomaNumber, graduateName, institution, degree, major, graduationDate, gpa, honors) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Graduate: $graduateName'),
-              Text('Degree: $degree in $major'),
-              Text('Institution: $institution'),
-            ],
-          ),
-        );
-      },
-      unknown: (data) {
-        return const SizedBox.shrink();
-      },
+      ktp: (_, a, b, c, d, e, f, g, h, i) => true,
+      sim: (_, a, b, c, d, e, f, g) => true,
+      passport: (_, a, b, c, d, e, f, g, h, i) => true,
+      ielts: (_, a, b, c, d, e, f, g, h, i, j) => true,
+      transcript: (_, a, b, c, d, e, f, g, h) => true,
+      cv: (_, a, b, c, d, e, f) => true,
+      certificate: (_, a, b, c, d, e, f) => true,
+      diploma: (_, a, b, c, d, e, f, g) => true,
+      unknown: (_) => false,
     );
   }
 

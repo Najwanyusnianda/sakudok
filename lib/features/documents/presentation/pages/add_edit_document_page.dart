@@ -1,14 +1,13 @@
+// lib/features/documents/presentation/pages/add_edit_document_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
 import '../../domain/entities/document.dart';
 import '../../domain/entities/document_type.dart';
 import '../../domain/entities/metadata/document_metadata.dart';
 import '../providers/document_providers.dart';
-import '../widgets/document_form/document_type_selection_step.dart';
-import '../widgets/document_form/document_capture_step.dart';
-import '../widgets/document_form/document_basic_info_section.dart';
 import '../widgets/document_form/smart_metadata_section.dart';
+
 
 class AddEditDocumentPage extends ConsumerStatefulWidget {
   final String? documentId;
@@ -24,7 +23,6 @@ class AddEditDocumentPage extends ConsumerStatefulWidget {
 
 class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
   final _formKey = GlobalKey<FormState>();
-  final _pageController = PageController();
   
   // Controllers
   late TextEditingController _titleController;
@@ -33,17 +31,11 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
   
   // Form State
   DocumentType _selectedType = DocumentType.ktp;
-  File? _capturedDocument;
-  Map<String, dynamic>? _extractedData;
   bool _isFavorite = false;
   bool _isLoading = false;
   DateTime? _expiryDate;
   List<String> _tags = [];
   DocumentMetadata? _currentMetadata;
-  
-  // Flow State
-  int _currentStep = 0;
-  final int _totalSteps = 4;
 
   bool get _isEditing => widget.documentId != null;
 
@@ -99,7 +91,6 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
     _titleController.dispose();
     _descriptionController.dispose();
     _tagsController.dispose();
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -133,167 +124,183 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
   }
 
   Widget _buildBody() {
-    return Column(
-      children: [
-        // Progress Indicator
-        _buildProgressIndicator(),
-        
-        // Form Content
-        Expanded(
-          child: Form(
-            key: _formKey,
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Document Type Section
+            _buildDocumentTypeSection(),
+            const SizedBox(height: 24),
+            
+            // Basic Information Section
+            _buildBasicInfoSection(),
+            const SizedBox(height: 24),
+            
+            // Smart Metadata Section
+            _buildSmartMetadataSection(),
+            const SizedBox(height: 80), // Space for bottom button
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDocumentTypeSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Document Type',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<DocumentType>(
+              value: _selectedType,
+              decoration: const InputDecoration(
+                labelText: 'Select Document Type',
+                border: OutlineInputBorder(),
+              ),
+              items: DocumentType.values.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(_getDocumentTypeDisplayName(type)),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedType = value;
+                    _currentMetadata = null; // Reset metadata when type changes
+                  });
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBasicInfoSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Basic Information',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Title Field
+            TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: 'Document Title *',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter a document title';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            
+            // Description Field
+            TextFormField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description (Optional)',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            
+            // Tags Field
+            TextFormField(
+              controller: _tagsController,
+              decoration: const InputDecoration(
+                labelText: 'Tags (comma separated)',
+                border: OutlineInputBorder(),
+                hintText: 'e.g., important, personal, work',
+              ),
+              onChanged: (value) {
+                _tags = value.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+              },
+            ),
+            const SizedBox(height: 16),
+            
+            // Favorite Toggle
+            SwitchListTile(
+              title: const Text('Mark as Favorite'),
+              subtitle: const Text('Add to favorites for quick access'),
+              value: _isFavorite,
+              onChanged: (value) {
                 setState(() {
-                  _currentStep = index;
+                  _isFavorite = value;
                 });
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmartMetadataSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                // Step 1: Document Type Selection
-                _buildStepWrapper(
-                  DocumentTypeSelectionStep(
-                    selectedType: _selectedType,
-                    onTypeChanged: (type) {
-                      setState(() {
-                        _selectedType = type;
-                        // Reset subsequent steps when type changes
-                        _capturedDocument = null;
-                        _extractedData = null;
-                        _currentMetadata = null;
-                      });
-                    },
-                  ),
-                ),
-                
-                // Step 2: Document Capture
-                _buildStepWrapper(
-                  DocumentCaptureStep(
-                    capturedDocument: _capturedDocument,
-                    extractedData: _extractedData,
-                    onDocumentCaptured: (file) {
-                      setState(() {
-                        _capturedDocument = file;
-                        if (file == null) {
-                          _extractedData = null;
-                        }
-                      });
-                    },
-                    onOCRProcessing: _processOCRData,
-                  ),
-                ),
-                
-                // Step 3: Basic Information (Auto-populated)
-                _buildStepWrapper(
-                  DocumentBasicInfoSection(
-                    titleController: _titleController,
-                    descriptionController: _descriptionController,
-                    tagsController: _tagsController,
-                    isFavorite: _isFavorite,
-                    extractedData: _extractedData,
-                    isAutoPopulated: _extractedData != null,
-                    onFavoriteChanged: (value) {
-                      setState(() {
-                        _isFavorite = value;
-                      });
-                    },
-                    onTagsChanged: (tags) {
-                      setState(() {
-                        _tags = tags;
-                      });
-                    },
-                  ),
-                ),
-                
-                // Step 4: Smart Metadata
-                _buildStepWrapper(
-                  SmartMetadataSection(
-                    selectedType: _selectedType,
-                    currentMetadata: _currentMetadata,
-                    onMetadataChanged: (metadata) {
-                      setState(() {
-                        _currentMetadata = metadata;
-                      });
-                    },
+                Icon(Icons.auto_awesome, color: Colors.purple.shade600, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'Smart Features',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple.shade700,
                   ),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 8),
+            Text(
+              'Add intelligent metadata specific to your document type',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            SmartMetadataSection(
+              selectedType: _selectedType,
+              currentMetadata: _currentMetadata,
+              onMetadataChanged: (metadata) {
+                setState(() {
+                  _currentMetadata = metadata;
+                });
+              },
+            ),
+          ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildStepWrapper(Widget child) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: child,
-    );
-  }
-
-  Widget _buildProgressIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Progress Bar
-          Row(
-            children: List.generate(_totalSteps, (index) {
-              final isCompleted = index < _currentStep;
-              final isCurrent = index == _currentStep;
-              
-              return Expanded(
-                child: Container(
-                  height: 4,
-                  margin: EdgeInsets.only(
-                    right: index < _totalSteps - 1 ? 8 : 0,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isCompleted || isCurrent 
-                      ? Colors.blue.shade600 
-                      : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 12),
-          
-          // Step Info
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Step ${_currentStep + 1} of $_totalSteps',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
-                ),
-              ),
-              Text(
-                _getStepTitle(_currentStep),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blue.shade700,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -305,153 +312,24 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, -2),
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // Previous Button
-          if (_currentStep > 0)
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: _previousStep,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Previous'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          
-          if (_currentStep > 0) const SizedBox(width: 16),
-          
-          // Next/Save Button
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _isLoading ? null : _handleNextStep,
-              icon: Icon(_currentStep == _totalSteps - 1 
-                ? (_isEditing ? Icons.save : Icons.add)
-                : Icons.arrow_forward),
-              label: Text(_currentStep == _totalSteps - 1 
-                ? (_isEditing ? 'Update' : 'Save')
-                : 'Next'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade600,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
-          ),
-        ],
+      child: ElevatedButton.icon(
+        onPressed: _isLoading ? null : _saveDocument,
+        icon: Icon(_isEditing ? Icons.save : Icons.add),
+        label: Text(_isEditing ? 'Update Document' : 'Save Document'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue.shade600,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          minimumSize: const Size(double.infinity, 50),
+        ),
       ),
     );
-  }
-
-  String _getStepTitle(int step) {
-    switch (step) {
-      case 0:
-        return 'Document Type';
-      case 1:
-        return 'Capture Document';
-      case 2:
-        return 'Basic Information';
-      case 3:
-        return 'Smart Metadata';
-      default:
-        return 'Unknown';
-    }
-  }
-
-  void _previousStep() {
-    if (_currentStep > 0) {
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  void _handleNextStep() {
-    if (_currentStep < _totalSteps - 1) {
-      // Validate current step
-      if (_validateCurrentStep()) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    } else {
-      // Final step - save document
-      _saveDocument();
-    }
-  }
-
-  bool _validateCurrentStep() {
-    switch (_currentStep) {
-      case 0:
-        // Document type is always valid (has default)
-        return true;
-      case 1:
-        // Document capture - require document for new documents
-        if (!_isEditing && _capturedDocument == null) {
-          _showSnackBar('Please capture or upload a document', isError: true);
-          return false;
-        }
-        return true;
-      case 2:
-        // Basic information validation
-        return _formKey.currentState?.validate() ?? false;
-      case 3:
-        // Smart metadata is optional
-        return true;
-      default:
-        return true;
-    }
-  }
-
-  Future<void> _processOCRData() async {
-    // Simulate OCR processing and extract data
-    await Future.delayed(const Duration(seconds: 1));
-    
-    setState(() {
-      _extractedData = {
-        'title': '${_getDocumentTypeDisplayName(_selectedType)} Document',
-        'description': 'Auto-extracted description from document',
-        'issueDate': DateTime.now().toString(),
-        'expiryDate': DateTime.now().add(const Duration(days: 365)).toString(),
-      };
-      
-      // Auto-populate form fields
-      if (_extractedData != null) {
-        _titleController.text = _extractedData!['title'] ?? '';
-        _descriptionController.text = _extractedData!['description'] ?? '';
-        
-        // Auto-suggest tags based on document type
-        final suggestedTags = _getSuggestedTags(_selectedType);
-        _tags = suggestedTags;
-        _tagsController.text = suggestedTags.join(', ');
-      }
-    });
-  }
-
-  List<String> _getSuggestedTags(DocumentType type) {
-    switch (type) {
-      case DocumentType.ktp:
-        return ['identity', 'personal', 'official'];
-      case DocumentType.sim:
-        return ['license', 'driving', 'official'];
-      case DocumentType.passport:
-        return ['travel', 'identity', 'international'];
-      case DocumentType.sertifikat:
-        return ['certificate', 'achievement', 'professional'];
-      case DocumentType.ijazah:
-        return ['education', 'academic', 'achievement'];
-      case DocumentType.lainnya:
-        return ['document', 'general'];
-    }
   }
 
   String _getDocumentTypeDisplayName(DocumentType type) {

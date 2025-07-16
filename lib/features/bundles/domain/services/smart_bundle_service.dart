@@ -207,7 +207,17 @@ class SmartBundleService {
       
       // Extract expiry date from metadata
       if (metadata is KTPMetadata) {
-        expiryDate = metadata.expiryDate;
+        // KTP now uses berlakuHingga string instead of expiryDate
+        // For "SEUMUR HIDUP" we set expiryDate to null (no expiry)
+        if (metadata.berlakuHingga != "SEUMUR HIDUP") {
+          // Try to parse date from berlakuHingga if it's not "SEUMUR HIDUP"
+          try {
+            // This is a simplified implementation - in real app you'd need proper date parsing
+            expiryDate = null; // For now, treat all KTP as non-expiring
+          } catch (e) {
+            expiryDate = null;
+          }
+        }
       } else if (metadata is SIMMetadata) {
         expiryDate = metadata.expiryDate;
       } else if (metadata is PassportMetadata) {

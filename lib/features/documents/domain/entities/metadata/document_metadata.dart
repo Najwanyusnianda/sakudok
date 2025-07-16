@@ -8,24 +8,20 @@ part 'document_metadata.g.dart';
 abstract class DocumentMetadata with _$DocumentMetadata {
   // KTP - Indonesian Identity Card (Smart metadata for intelligent features)
   const factory DocumentMetadata.ktp({
+    // --- Kategori 1: Wajib Ada ---
     required String nik,
     required String fullName,
     required String birthPlace,
     required DateTime birthDate,
-    required String gender,
-    String? bloodType,
     required String address,
-    String? rt,
-    String? rw,
-    String? kelurahan,
-    String? kecamatan,
-    String? religion,
+    required String gender,
+    // Menggunakan String untuk menampung "SEUMUR HIDUP" atau tanggal
+    required String berlakuHingga,
+
+    // --- Kategori 2: Sangat Berguna (bisa nullable) ---
     String? maritalStatus,
     String? occupation,
     String? citizenship,
-    DateTime? issuedDate,
-    String? issuedBy,
-    DateTime? expiryDate, // For smart reminders - KTP doesn't expire but useful for tracking
   }) = KTPMetadata;
 
   // SIM - Driving License (Smart metadata for renewal reminders)

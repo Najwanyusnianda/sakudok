@@ -197,10 +197,10 @@ return unknown(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String nik,  String fullName,  String birthPlace,  DateTime birthDate,  String gender,  String? bloodType,  String address,  String? rt,  String? rw,  String? kelurahan,  String? kecamatan,  String? religion,  String? maritalStatus,  String? occupation,  String? citizenship,  DateTime? issuedDate,  String? issuedBy,  DateTime? expiryDate)?  ktp,TResult Function( String simNumber,  String holderName,  String simType,  DateTime issuedDate,  DateTime expiryDate,  String? issuingOffice,  String? address,  DateTime? birthDate)?  sim,TResult Function( String passportNumber,  String holderName,  String nationality,  DateTime birthDate,  String birthPlace,  String gender,  DateTime issuedDate,  DateTime expiryDate,  String? issuingAuthority,  String? placeOfIssue)?  passport,TResult Function( String candidateNumber,  String testReportNumber,  DateTime testDate,  DateTime expiryDate,  double overallBand,  double listeningScore,  double readingScore,  double writingScore,  double speakingScore,  String testCenter,  String? candidateName)?  ielts,TResult Function( String studentId,  String studentName,  String university,  String degree,  String major,  double gpa,  DateTime graduationDate,  DateTime? issuedDate,  String? facultyDean)?  transcript,TResult Function( String fullName,  String profession,  String email,  String phoneNumber,  DateTime? lastUpdated,  String? summary,  int? yearsOfExperience)?  cv,TResult Function( String certificateName,  String holderName,  String issuingOrganization,  DateTime issuedDate,  DateTime? expiryDate,  String? certificateNumber,  String? level)?  certificate,TResult Function( String diplomaNumber,  String graduateName,  String institution,  String degree,  String major,  DateTime graduationDate,  String? gpa,  String? honors)?  diploma,TResult Function( Map<String, dynamic> data)?  unknown,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String nik,  String fullName,  String birthPlace,  DateTime birthDate,  String address,  String gender,  String berlakuHingga,  String? maritalStatus,  String? occupation,  String? citizenship)?  ktp,TResult Function( String simNumber,  String holderName,  String simType,  DateTime issuedDate,  DateTime expiryDate,  String? issuingOffice,  String? address,  DateTime? birthDate)?  sim,TResult Function( String passportNumber,  String holderName,  String nationality,  DateTime birthDate,  String birthPlace,  String gender,  DateTime issuedDate,  DateTime expiryDate,  String? issuingAuthority,  String? placeOfIssue)?  passport,TResult Function( String candidateNumber,  String testReportNumber,  DateTime testDate,  DateTime expiryDate,  double overallBand,  double listeningScore,  double readingScore,  double writingScore,  double speakingScore,  String testCenter,  String? candidateName)?  ielts,TResult Function( String studentId,  String studentName,  String university,  String degree,  String major,  double gpa,  DateTime graduationDate,  DateTime? issuedDate,  String? facultyDean)?  transcript,TResult Function( String fullName,  String profession,  String email,  String phoneNumber,  DateTime? lastUpdated,  String? summary,  int? yearsOfExperience)?  cv,TResult Function( String certificateName,  String holderName,  String issuingOrganization,  DateTime issuedDate,  DateTime? expiryDate,  String? certificateNumber,  String? level)?  certificate,TResult Function( String diplomaNumber,  String graduateName,  String institution,  String degree,  String major,  DateTime graduationDate,  String? gpa,  String? honors)?  diploma,TResult Function( Map<String, dynamic> data)?  unknown,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case KTPMetadata() when ktp != null:
-return ktp(_that.nik,_that.fullName,_that.birthPlace,_that.birthDate,_that.gender,_that.bloodType,_that.address,_that.rt,_that.rw,_that.kelurahan,_that.kecamatan,_that.religion,_that.maritalStatus,_that.occupation,_that.citizenship,_that.issuedDate,_that.issuedBy,_that.expiryDate);case SIMMetadata() when sim != null:
+return ktp(_that.nik,_that.fullName,_that.birthPlace,_that.birthDate,_that.address,_that.gender,_that.berlakuHingga,_that.maritalStatus,_that.occupation,_that.citizenship);case SIMMetadata() when sim != null:
 return sim(_that.simNumber,_that.holderName,_that.simType,_that.issuedDate,_that.expiryDate,_that.issuingOffice,_that.address,_that.birthDate);case PassportMetadata() when passport != null:
 return passport(_that.passportNumber,_that.holderName,_that.nationality,_that.birthDate,_that.birthPlace,_that.gender,_that.issuedDate,_that.expiryDate,_that.issuingAuthority,_that.placeOfIssue);case IELTSMetadata() when ielts != null:
 return ielts(_that.candidateNumber,_that.testReportNumber,_that.testDate,_that.expiryDate,_that.overallBand,_that.listeningScore,_that.readingScore,_that.writingScore,_that.speakingScore,_that.testCenter,_that.candidateName);case TranscriptMetadata() when transcript != null:
@@ -226,10 +226,10 @@ return unknown(_that.data);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String nik,  String fullName,  String birthPlace,  DateTime birthDate,  String gender,  String? bloodType,  String address,  String? rt,  String? rw,  String? kelurahan,  String? kecamatan,  String? religion,  String? maritalStatus,  String? occupation,  String? citizenship,  DateTime? issuedDate,  String? issuedBy,  DateTime? expiryDate)  ktp,required TResult Function( String simNumber,  String holderName,  String simType,  DateTime issuedDate,  DateTime expiryDate,  String? issuingOffice,  String? address,  DateTime? birthDate)  sim,required TResult Function( String passportNumber,  String holderName,  String nationality,  DateTime birthDate,  String birthPlace,  String gender,  DateTime issuedDate,  DateTime expiryDate,  String? issuingAuthority,  String? placeOfIssue)  passport,required TResult Function( String candidateNumber,  String testReportNumber,  DateTime testDate,  DateTime expiryDate,  double overallBand,  double listeningScore,  double readingScore,  double writingScore,  double speakingScore,  String testCenter,  String? candidateName)  ielts,required TResult Function( String studentId,  String studentName,  String university,  String degree,  String major,  double gpa,  DateTime graduationDate,  DateTime? issuedDate,  String? facultyDean)  transcript,required TResult Function( String fullName,  String profession,  String email,  String phoneNumber,  DateTime? lastUpdated,  String? summary,  int? yearsOfExperience)  cv,required TResult Function( String certificateName,  String holderName,  String issuingOrganization,  DateTime issuedDate,  DateTime? expiryDate,  String? certificateNumber,  String? level)  certificate,required TResult Function( String diplomaNumber,  String graduateName,  String institution,  String degree,  String major,  DateTime graduationDate,  String? gpa,  String? honors)  diploma,required TResult Function( Map<String, dynamic> data)  unknown,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String nik,  String fullName,  String birthPlace,  DateTime birthDate,  String address,  String gender,  String berlakuHingga,  String? maritalStatus,  String? occupation,  String? citizenship)  ktp,required TResult Function( String simNumber,  String holderName,  String simType,  DateTime issuedDate,  DateTime expiryDate,  String? issuingOffice,  String? address,  DateTime? birthDate)  sim,required TResult Function( String passportNumber,  String holderName,  String nationality,  DateTime birthDate,  String birthPlace,  String gender,  DateTime issuedDate,  DateTime expiryDate,  String? issuingAuthority,  String? placeOfIssue)  passport,required TResult Function( String candidateNumber,  String testReportNumber,  DateTime testDate,  DateTime expiryDate,  double overallBand,  double listeningScore,  double readingScore,  double writingScore,  double speakingScore,  String testCenter,  String? candidateName)  ielts,required TResult Function( String studentId,  String studentName,  String university,  String degree,  String major,  double gpa,  DateTime graduationDate,  DateTime? issuedDate,  String? facultyDean)  transcript,required TResult Function( String fullName,  String profession,  String email,  String phoneNumber,  DateTime? lastUpdated,  String? summary,  int? yearsOfExperience)  cv,required TResult Function( String certificateName,  String holderName,  String issuingOrganization,  DateTime issuedDate,  DateTime? expiryDate,  String? certificateNumber,  String? level)  certificate,required TResult Function( String diplomaNumber,  String graduateName,  String institution,  String degree,  String major,  DateTime graduationDate,  String? gpa,  String? honors)  diploma,required TResult Function( Map<String, dynamic> data)  unknown,}) {final _that = this;
 switch (_that) {
 case KTPMetadata():
-return ktp(_that.nik,_that.fullName,_that.birthPlace,_that.birthDate,_that.gender,_that.bloodType,_that.address,_that.rt,_that.rw,_that.kelurahan,_that.kecamatan,_that.religion,_that.maritalStatus,_that.occupation,_that.citizenship,_that.issuedDate,_that.issuedBy,_that.expiryDate);case SIMMetadata():
+return ktp(_that.nik,_that.fullName,_that.birthPlace,_that.birthDate,_that.address,_that.gender,_that.berlakuHingga,_that.maritalStatus,_that.occupation,_that.citizenship);case SIMMetadata():
 return sim(_that.simNumber,_that.holderName,_that.simType,_that.issuedDate,_that.expiryDate,_that.issuingOffice,_that.address,_that.birthDate);case PassportMetadata():
 return passport(_that.passportNumber,_that.holderName,_that.nationality,_that.birthDate,_that.birthPlace,_that.gender,_that.issuedDate,_that.expiryDate,_that.issuingAuthority,_that.placeOfIssue);case IELTSMetadata():
 return ielts(_that.candidateNumber,_that.testReportNumber,_that.testDate,_that.expiryDate,_that.overallBand,_that.listeningScore,_that.readingScore,_that.writingScore,_that.speakingScore,_that.testCenter,_that.candidateName);case TranscriptMetadata():
@@ -254,10 +254,10 @@ return unknown(_that.data);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String nik,  String fullName,  String birthPlace,  DateTime birthDate,  String gender,  String? bloodType,  String address,  String? rt,  String? rw,  String? kelurahan,  String? kecamatan,  String? religion,  String? maritalStatus,  String? occupation,  String? citizenship,  DateTime? issuedDate,  String? issuedBy,  DateTime? expiryDate)?  ktp,TResult? Function( String simNumber,  String holderName,  String simType,  DateTime issuedDate,  DateTime expiryDate,  String? issuingOffice,  String? address,  DateTime? birthDate)?  sim,TResult? Function( String passportNumber,  String holderName,  String nationality,  DateTime birthDate,  String birthPlace,  String gender,  DateTime issuedDate,  DateTime expiryDate,  String? issuingAuthority,  String? placeOfIssue)?  passport,TResult? Function( String candidateNumber,  String testReportNumber,  DateTime testDate,  DateTime expiryDate,  double overallBand,  double listeningScore,  double readingScore,  double writingScore,  double speakingScore,  String testCenter,  String? candidateName)?  ielts,TResult? Function( String studentId,  String studentName,  String university,  String degree,  String major,  double gpa,  DateTime graduationDate,  DateTime? issuedDate,  String? facultyDean)?  transcript,TResult? Function( String fullName,  String profession,  String email,  String phoneNumber,  DateTime? lastUpdated,  String? summary,  int? yearsOfExperience)?  cv,TResult? Function( String certificateName,  String holderName,  String issuingOrganization,  DateTime issuedDate,  DateTime? expiryDate,  String? certificateNumber,  String? level)?  certificate,TResult? Function( String diplomaNumber,  String graduateName,  String institution,  String degree,  String major,  DateTime graduationDate,  String? gpa,  String? honors)?  diploma,TResult? Function( Map<String, dynamic> data)?  unknown,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String nik,  String fullName,  String birthPlace,  DateTime birthDate,  String address,  String gender,  String berlakuHingga,  String? maritalStatus,  String? occupation,  String? citizenship)?  ktp,TResult? Function( String simNumber,  String holderName,  String simType,  DateTime issuedDate,  DateTime expiryDate,  String? issuingOffice,  String? address,  DateTime? birthDate)?  sim,TResult? Function( String passportNumber,  String holderName,  String nationality,  DateTime birthDate,  String birthPlace,  String gender,  DateTime issuedDate,  DateTime expiryDate,  String? issuingAuthority,  String? placeOfIssue)?  passport,TResult? Function( String candidateNumber,  String testReportNumber,  DateTime testDate,  DateTime expiryDate,  double overallBand,  double listeningScore,  double readingScore,  double writingScore,  double speakingScore,  String testCenter,  String? candidateName)?  ielts,TResult? Function( String studentId,  String studentName,  String university,  String degree,  String major,  double gpa,  DateTime graduationDate,  DateTime? issuedDate,  String? facultyDean)?  transcript,TResult? Function( String fullName,  String profession,  String email,  String phoneNumber,  DateTime? lastUpdated,  String? summary,  int? yearsOfExperience)?  cv,TResult? Function( String certificateName,  String holderName,  String issuingOrganization,  DateTime issuedDate,  DateTime? expiryDate,  String? certificateNumber,  String? level)?  certificate,TResult? Function( String diplomaNumber,  String graduateName,  String institution,  String degree,  String major,  DateTime graduationDate,  String? gpa,  String? honors)?  diploma,TResult? Function( Map<String, dynamic> data)?  unknown,}) {final _that = this;
 switch (_that) {
 case KTPMetadata() when ktp != null:
-return ktp(_that.nik,_that.fullName,_that.birthPlace,_that.birthDate,_that.gender,_that.bloodType,_that.address,_that.rt,_that.rw,_that.kelurahan,_that.kecamatan,_that.religion,_that.maritalStatus,_that.occupation,_that.citizenship,_that.issuedDate,_that.issuedBy,_that.expiryDate);case SIMMetadata() when sim != null:
+return ktp(_that.nik,_that.fullName,_that.birthPlace,_that.birthDate,_that.address,_that.gender,_that.berlakuHingga,_that.maritalStatus,_that.occupation,_that.citizenship);case SIMMetadata() when sim != null:
 return sim(_that.simNumber,_that.holderName,_that.simType,_that.issuedDate,_that.expiryDate,_that.issuingOffice,_that.address,_that.birthDate);case PassportMetadata() when passport != null:
 return passport(_that.passportNumber,_that.holderName,_that.nationality,_that.birthDate,_that.birthPlace,_that.gender,_that.issuedDate,_that.expiryDate,_that.issuingAuthority,_that.placeOfIssue);case IELTSMetadata() when ielts != null:
 return ielts(_that.candidateNumber,_that.testReportNumber,_that.testDate,_that.expiryDate,_that.overallBand,_that.listeningScore,_that.readingScore,_that.writingScore,_that.speakingScore,_that.testCenter,_that.candidateName);case TranscriptMetadata() when transcript != null:
@@ -277,27 +277,22 @@ return unknown(_that.data);case _:
 @JsonSerializable()
 
 class KTPMetadata implements DocumentMetadata {
-  const KTPMetadata({required this.nik, required this.fullName, required this.birthPlace, required this.birthDate, required this.gender, this.bloodType, required this.address, this.rt, this.rw, this.kelurahan, this.kecamatan, this.religion, this.maritalStatus, this.occupation, this.citizenship, this.issuedDate, this.issuedBy, this.expiryDate, final  String? $type}): $type = $type ?? 'ktp';
+  const KTPMetadata({required this.nik, required this.fullName, required this.birthPlace, required this.birthDate, required this.address, required this.gender, required this.berlakuHingga, this.maritalStatus, this.occupation, this.citizenship, final  String? $type}): $type = $type ?? 'ktp';
   factory KTPMetadata.fromJson(Map<String, dynamic> json) => _$KTPMetadataFromJson(json);
 
+// --- Kategori 1: Wajib Ada ---
  final  String nik;
  final  String fullName;
  final  String birthPlace;
  final  DateTime birthDate;
- final  String gender;
- final  String? bloodType;
  final  String address;
- final  String? rt;
- final  String? rw;
- final  String? kelurahan;
- final  String? kecamatan;
- final  String? religion;
+ final  String gender;
+// Menggunakan String untuk menampung "SEUMUR HIDUP" atau tanggal
+ final  String berlakuHingga;
+// --- Kategori 2: Sangat Berguna (bisa nullable) ---
  final  String? maritalStatus;
  final  String? occupation;
  final  String? citizenship;
- final  DateTime? issuedDate;
- final  String? issuedBy;
- final  DateTime? expiryDate;
 
 @JsonKey(name: 'runtimeType')
 final String $type;
@@ -316,16 +311,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KTPMetadata&&(identical(other.nik, nik) || other.nik == nik)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.birthPlace, birthPlace) || other.birthPlace == birthPlace)&&(identical(other.birthDate, birthDate) || other.birthDate == birthDate)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.bloodType, bloodType) || other.bloodType == bloodType)&&(identical(other.address, address) || other.address == address)&&(identical(other.rt, rt) || other.rt == rt)&&(identical(other.rw, rw) || other.rw == rw)&&(identical(other.kelurahan, kelurahan) || other.kelurahan == kelurahan)&&(identical(other.kecamatan, kecamatan) || other.kecamatan == kecamatan)&&(identical(other.religion, religion) || other.religion == religion)&&(identical(other.maritalStatus, maritalStatus) || other.maritalStatus == maritalStatus)&&(identical(other.occupation, occupation) || other.occupation == occupation)&&(identical(other.citizenship, citizenship) || other.citizenship == citizenship)&&(identical(other.issuedDate, issuedDate) || other.issuedDate == issuedDate)&&(identical(other.issuedBy, issuedBy) || other.issuedBy == issuedBy)&&(identical(other.expiryDate, expiryDate) || other.expiryDate == expiryDate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is KTPMetadata&&(identical(other.nik, nik) || other.nik == nik)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.birthPlace, birthPlace) || other.birthPlace == birthPlace)&&(identical(other.birthDate, birthDate) || other.birthDate == birthDate)&&(identical(other.address, address) || other.address == address)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.berlakuHingga, berlakuHingga) || other.berlakuHingga == berlakuHingga)&&(identical(other.maritalStatus, maritalStatus) || other.maritalStatus == maritalStatus)&&(identical(other.occupation, occupation) || other.occupation == occupation)&&(identical(other.citizenship, citizenship) || other.citizenship == citizenship));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,nik,fullName,birthPlace,birthDate,gender,bloodType,address,rt,rw,kelurahan,kecamatan,religion,maritalStatus,occupation,citizenship,issuedDate,issuedBy,expiryDate);
+int get hashCode => Object.hash(runtimeType,nik,fullName,birthPlace,birthDate,address,gender,berlakuHingga,maritalStatus,occupation,citizenship);
 
 @override
 String toString() {
-  return 'DocumentMetadata.ktp(nik: $nik, fullName: $fullName, birthPlace: $birthPlace, birthDate: $birthDate, gender: $gender, bloodType: $bloodType, address: $address, rt: $rt, rw: $rw, kelurahan: $kelurahan, kecamatan: $kecamatan, religion: $religion, maritalStatus: $maritalStatus, occupation: $occupation, citizenship: $citizenship, issuedDate: $issuedDate, issuedBy: $issuedBy, expiryDate: $expiryDate)';
+  return 'DocumentMetadata.ktp(nik: $nik, fullName: $fullName, birthPlace: $birthPlace, birthDate: $birthDate, address: $address, gender: $gender, berlakuHingga: $berlakuHingga, maritalStatus: $maritalStatus, occupation: $occupation, citizenship: $citizenship)';
 }
 
 
@@ -336,7 +331,7 @@ abstract mixin class $KTPMetadataCopyWith<$Res> implements $DocumentMetadataCopy
   factory $KTPMetadataCopyWith(KTPMetadata value, $Res Function(KTPMetadata) _then) = _$KTPMetadataCopyWithImpl;
 @useResult
 $Res call({
- String nik, String fullName, String birthPlace, DateTime birthDate, String gender, String? bloodType, String address, String? rt, String? rw, String? kelurahan, String? kecamatan, String? religion, String? maritalStatus, String? occupation, String? citizenship, DateTime? issuedDate, String? issuedBy, DateTime? expiryDate
+ String nik, String fullName, String birthPlace, DateTime birthDate, String address, String gender, String berlakuHingga, String? maritalStatus, String? occupation, String? citizenship
 });
 
 
@@ -353,27 +348,19 @@ class _$KTPMetadataCopyWithImpl<$Res>
 
 /// Create a copy of DocumentMetadata
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? nik = null,Object? fullName = null,Object? birthPlace = null,Object? birthDate = null,Object? gender = null,Object? bloodType = freezed,Object? address = null,Object? rt = freezed,Object? rw = freezed,Object? kelurahan = freezed,Object? kecamatan = freezed,Object? religion = freezed,Object? maritalStatus = freezed,Object? occupation = freezed,Object? citizenship = freezed,Object? issuedDate = freezed,Object? issuedBy = freezed,Object? expiryDate = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? nik = null,Object? fullName = null,Object? birthPlace = null,Object? birthDate = null,Object? address = null,Object? gender = null,Object? berlakuHingga = null,Object? maritalStatus = freezed,Object? occupation = freezed,Object? citizenship = freezed,}) {
   return _then(KTPMetadata(
 nik: null == nik ? _self.nik : nik // ignore: cast_nullable_to_non_nullable
 as String,fullName: null == fullName ? _self.fullName : fullName // ignore: cast_nullable_to_non_nullable
 as String,birthPlace: null == birthPlace ? _self.birthPlace : birthPlace // ignore: cast_nullable_to_non_nullable
 as String,birthDate: null == birthDate ? _self.birthDate : birthDate // ignore: cast_nullable_to_non_nullable
-as DateTime,gender: null == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
-as String,bloodType: freezed == bloodType ? _self.bloodType : bloodType // ignore: cast_nullable_to_non_nullable
-as String?,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
-as String,rt: freezed == rt ? _self.rt : rt // ignore: cast_nullable_to_non_nullable
-as String?,rw: freezed == rw ? _self.rw : rw // ignore: cast_nullable_to_non_nullable
-as String?,kelurahan: freezed == kelurahan ? _self.kelurahan : kelurahan // ignore: cast_nullable_to_non_nullable
-as String?,kecamatan: freezed == kecamatan ? _self.kecamatan : kecamatan // ignore: cast_nullable_to_non_nullable
-as String?,religion: freezed == religion ? _self.religion : religion // ignore: cast_nullable_to_non_nullable
-as String?,maritalStatus: freezed == maritalStatus ? _self.maritalStatus : maritalStatus // ignore: cast_nullable_to_non_nullable
+as DateTime,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as String,gender: null == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
+as String,berlakuHingga: null == berlakuHingga ? _self.berlakuHingga : berlakuHingga // ignore: cast_nullable_to_non_nullable
+as String,maritalStatus: freezed == maritalStatus ? _self.maritalStatus : maritalStatus // ignore: cast_nullable_to_non_nullable
 as String?,occupation: freezed == occupation ? _self.occupation : occupation // ignore: cast_nullable_to_non_nullable
 as String?,citizenship: freezed == citizenship ? _self.citizenship : citizenship // ignore: cast_nullable_to_non_nullable
-as String?,issuedDate: freezed == issuedDate ? _self.issuedDate : issuedDate // ignore: cast_nullable_to_non_nullable
-as DateTime?,issuedBy: freezed == issuedBy ? _self.issuedBy : issuedBy // ignore: cast_nullable_to_non_nullable
-as String?,expiryDate: freezed == expiryDate ? _self.expiryDate : expiryDate // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as String?,
   ));
 }
 

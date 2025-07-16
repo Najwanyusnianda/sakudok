@@ -18,26 +18,19 @@ class KTPMetadataForm extends StatefulWidget {
 class _KTPMetadataFormState extends State<KTPMetadataForm> {
   final _formKey = GlobalKey<FormState>();
   
-  // Core Required Fields - Enable intelligent document recognition
+  // --- Kategori 1: Wajib Ada ---
   final _nikController = TextEditingController();
   final _fullNameController = TextEditingController();
   final _birthPlaceController = TextEditingController();
   final _addressController = TextEditingController();
+  final _berlakuHinggaController = TextEditingController();
   
-  // Additional Smart Fields - Enable context-aware features
-  final _bloodTypeController = TextEditingController();
-  final _rtController = TextEditingController();
-  final _rwController = TextEditingController();
-  final _kelurahanController = TextEditingController();
-  final _kecamatanController = TextEditingController();
-  final _religionController = TextEditingController();
+  // --- Kategori 2: Sangat Berguna (bisa nullable) ---
   final _maritalStatusController = TextEditingController();
   final _occupationController = TextEditingController();
   final _citizenshipController = TextEditingController();
-  final _issuedByController = TextEditingController();
   
   DateTime? _birthDate;
-  DateTime? _issuedDate;
   String _selectedGender = 'L';
 
   @override
@@ -51,26 +44,18 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
 
   void _loadInitialData() {
     widget.initialData!.when(
-      ktp: (nik, fullName, birthPlace, birthDate, gender, bloodType, address,
-          rt, rw, kelurahan, kecamatan, religion, maritalStatus, occupation,
-          citizenship, issuedDate, issuedBy, expiryDate) {
+      ktp: (nik, fullName, birthPlace, birthDate, address, gender, berlakuHingga,
+          maritalStatus, occupation, citizenship) {
         _nikController.text = nik;
         _fullNameController.text = fullName;
         _birthPlaceController.text = birthPlace;
         _birthDate = birthDate;
-        _selectedGender = gender;
-        _bloodTypeController.text = bloodType ?? '';
         _addressController.text = address;
-        _rtController.text = rt ?? '';
-        _rwController.text = rw ?? '';
-        _kelurahanController.text = kelurahan ?? '';
-        _kecamatanController.text = kecamatan ?? '';
-        _religionController.text = religion ?? '';
+        _selectedGender = gender;
+        _berlakuHinggaController.text = berlakuHingga;
         _maritalStatusController.text = maritalStatus ?? '';
         _occupationController.text = occupation ?? '';
         _citizenshipController.text = citizenship ?? '';
-        _issuedDate = issuedDate;
-        _issuedByController.text = issuedBy ?? '';
       },
       sim: (_, __, ___, ____, _____, ______, _______, ________) {},
       passport: (_, __, ___, ____, _____, ______, _______, ________, _________, __________) {},
@@ -88,6 +73,7 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
         _fullNameController.text.isNotEmpty && 
         _birthPlaceController.text.isNotEmpty &&
         _addressController.text.isNotEmpty &&
+        _berlakuHinggaController.text.isNotEmpty &&
         _birthDate != null) {
       
       final metadata = DocumentMetadata.ktp(
@@ -95,19 +81,12 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
         fullName: _fullNameController.text,
         birthPlace: _birthPlaceController.text,
         birthDate: _birthDate!,
-        gender: _selectedGender,
-        bloodType: _bloodTypeController.text.isEmpty ? null : _bloodTypeController.text,
         address: _addressController.text,
-        rt: _rtController.text.isEmpty ? null : _rtController.text,
-        rw: _rwController.text.isEmpty ? null : _rwController.text,
-        kelurahan: _kelurahanController.text.isEmpty ? null : _kelurahanController.text,
-        kecamatan: _kecamatanController.text.isEmpty ? null : _kecamatanController.text,
-        religion: _religionController.text.isEmpty ? null : _religionController.text,
+        gender: _selectedGender,
+        berlakuHingga: _berlakuHinggaController.text,
         maritalStatus: _maritalStatusController.text.isEmpty ? null : _maritalStatusController.text,
         occupation: _occupationController.text.isEmpty ? null : _occupationController.text,
         citizenship: _citizenshipController.text.isEmpty ? null : _citizenshipController.text,
-        issuedDate: _issuedDate,
-        issuedBy: _issuedByController.text.isEmpty ? null : _issuedByController.text,
       );
       
       widget.onDataChanged(metadata);
@@ -120,16 +99,10 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
     _fullNameController.dispose();
     _birthPlaceController.dispose();
     _addressController.dispose();
-    _bloodTypeController.dispose();
-    _rtController.dispose();
-    _rwController.dispose();
-    _kelurahanController.dispose();
-    _kecamatanController.dispose();
-    _religionController.dispose();
+    _berlakuHinggaController.dispose();
     _maritalStatusController.dispose();
     _occupationController.dispose();
     _citizenshipController.dispose();
-    _issuedByController.dispose();
     super.dispose();
   }
 
@@ -140,7 +113,7 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header explaining the intelligent approach
+          // Header explaining the streamlined approach
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -166,7 +139,7 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'These fields enable intelligent search, bundle organization, and smart reminders.',
+                  'Streamlined fields for better performance and usability while maintaining smart features.',
                   style: TextStyle(fontSize: 12),
                 ),
               ],
@@ -174,8 +147,8 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
           ),
           const SizedBox(height: 24),
 
-          // Core Required Fields Section
-          _buildSectionHeader('Essential Information', Icons.assignment_ind),
+          // --- Kategori 1: Wajib Ada ---
+          _buildSectionHeader('Essential Information (Required)', Icons.assignment_ind),
           const SizedBox(height: 16),
           
           // NIK - Critical for unique identification
@@ -205,30 +178,27 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
           ),
           const SizedBox(height: 16),
 
-          // Full Name - Critical for smart search
+          // Full Name - Critical for bundle organization
           TextFormField(
             controller: _fullNameController,
             decoration: const InputDecoration(
               labelText: 'Full Name (Required)*',
               border: OutlineInputBorder(),
-              hintText: 'As written on KTP',
+              hintText: 'Name as on KTP',
               prefixIcon: Icon(Icons.person),
             ),
             textCapitalization: TextCapitalization.words,
             onChanged: (_) => _updateMetadata(),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Full name is required for smart search';
-              }
-              if (value.length < 2) {
-                return 'Name is too short';
+                return 'Full name is required for bundle organization';
               }
               return null;
             },
           ),
           const SizedBox(height: 16),
 
-          // Birth Place & Date - Enable age-based smart features
+          // Birth Place & Date
           Row(
             children: [
               Expanded(
@@ -253,7 +223,7 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: InkWell(
-                  onTap: () => _selectDate(context, true),
+                  onTap: () => _selectDate(context),
                   child: InputDecorator(
                     decoration: const InputDecoration(
                       labelText: 'Birth Date*',
@@ -272,6 +242,27 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+
+          // Address - Required for smart location features
+          TextFormField(
+            controller: _addressController,
+            decoration: const InputDecoration(
+              labelText: 'Address (Required)*',
+              border: OutlineInputBorder(),
+              hintText: 'Complete address as on KTP',
+              prefixIcon: Icon(Icons.home),
+            ),
+            textCapitalization: TextCapitalization.words,
+            maxLines: 2,
+            onChanged: (_) => _updateMetadata(),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Address is required for location-based features';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 16),
 
@@ -296,201 +287,73 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
           ),
           const SizedBox(height: 16),
 
-          // Address - Required for smart location features
+          // Berlaku Hingga - Handle "SEUMUR HIDUP" or date
           TextFormField(
-            controller: _addressController,
+            controller: _berlakuHinggaController,
             decoration: const InputDecoration(
-              labelText: 'Address (Required)*',
+              labelText: 'Berlaku Hingga (Required)*',
               border: OutlineInputBorder(),
-              hintText: 'Complete address as on KTP',
-              prefixIcon: Icon(Icons.home),
+              hintText: 'SEUMUR HIDUP or specific date',
+              prefixIcon: Icon(Icons.schedule),
             ),
-            textCapitalization: TextCapitalization.words,
-            maxLines: 2,
             onChanged: (_) => _updateMetadata(),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Address is required for location-based features';
+                return 'Berlaku hingga is required';
               }
               return null;
             },
           ),
           const SizedBox(height: 24),
 
-          // Additional Smart Fields Section
-          _buildSectionHeader('Additional Smart Data', Icons.extension),
+          // --- Kategori 2: Sangat Berguna (Optional) ---
+          _buildSectionHeader('Additional Information (Optional)', Icons.extension),
           const SizedBox(height: 8),
           const Text(
-            'Optional fields that enable advanced intelligent features like bundle auto-completion.',
+            'These fields enable enhanced smart features like advanced bundle organization.',
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 16),
 
-          // Location Details - Enable smart regional grouping
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _rtController,
-                  decoration: const InputDecoration(
-                    labelText: 'RT',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextFormField(
-                  controller: _rwController,
-                  decoration: const InputDecoration(
-                    labelText: 'RW',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                flex: 2,
-                child: TextFormField(
-                  controller: _kelurahanController,
-                  decoration: const InputDecoration(
-                    labelText: 'Kelurahan',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-            ],
+          // Marital Status
+          TextFormField(
+            controller: _maritalStatusController,
+            decoration: const InputDecoration(
+              labelText: 'Marital Status',
+              border: OutlineInputBorder(),
+              hintText: 'e.g., Belum Kawin, Kawin, Cerai',
+              prefixIcon: Icon(Icons.favorite),
+            ),
+            textCapitalization: TextCapitalization.words,
+            onChanged: (_) => _updateMetadata(),
           ),
           const SizedBox(height: 16),
 
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _kecamatanController,
-                  decoration: const InputDecoration(
-                    labelText: 'Kecamatan',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  controller: _bloodTypeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Blood Type',
-                    border: OutlineInputBorder(),
-                    hintText: 'A, B, AB, O',
-                  ),
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-            ],
+          // Occupation
+          TextFormField(
+            controller: _occupationController,
+            decoration: const InputDecoration(
+              labelText: 'Occupation',
+              border: OutlineInputBorder(),
+              hintText: 'Professional occupation',
+              prefixIcon: Icon(Icons.work),
+            ),
+            textCapitalization: TextCapitalization.words,
+            onChanged: (_) => _updateMetadata(),
           ),
           const SizedBox(height: 16),
 
-          // Personal Details - Enable smart demographic features
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _religionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Religion',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  controller: _maritalStatusController,
-                  decoration: const InputDecoration(
-                    labelText: 'Marital Status',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: _occupationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Occupation',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  controller: _citizenshipController,
-                  decoration: const InputDecoration(
-                    labelText: 'Citizenship',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Issue Details - Enable smart document validity tracking
-          Row(
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () => _selectDate(context, false),
-                  child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Issue Date',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.date_range),
-                    ),
-                    child: Text(
-                      _issuedDate == null 
-                        ? 'Select date' 
-                        : '${_issuedDate!.day}/${_issuedDate!.month}/${_issuedDate!.year}',
-                      style: TextStyle(
-                        color: _issuedDate == null ? Colors.grey : null,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  controller: _issuedByController,
-                  decoration: const InputDecoration(
-                    labelText: 'Issued By',
-                    border: OutlineInputBorder(),
-                  ),
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (_) => _updateMetadata(),
-                ),
-              ),
-            ],
+          // Citizenship
+          TextFormField(
+            controller: _citizenshipController,
+            decoration: const InputDecoration(
+              labelText: 'Citizenship',
+              border: OutlineInputBorder(),
+              hintText: 'e.g., WNI, WNA',
+              prefixIcon: Icon(Icons.flag),
+            ),
+            textCapitalization: TextCapitalization.words,
+            onChanged: (_) => _updateMetadata(),
           ),
           const SizedBox(height: 24),
 
@@ -510,7 +373,7 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
                     Icon(Icons.lightbulb, color: Colors.green.shade700),
                     const SizedBox(width: 8),
                     Text(
-                      'Smart Features Unlocked',
+                      'Smart Features Enabled',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.green.shade700,
@@ -520,10 +383,10 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  '• Search by NIK instantly\n'
-                  '• Auto-complete job application bundles\n'
-                  '• Smart document organization by location\n'
-                  '• Contextual reminders based on document type',
+                  '• Instant search by NIK or name\n'
+                  '• Smart bundle organization by person\n'
+                  '• Enhanced document categorization\n'
+                  '• Better performance with focused metadata',
                   style: TextStyle(fontSize: 12),
                 ),
               ],
@@ -551,23 +414,17 @@ class _KTPMetadataFormState extends State<KTPMetadataForm> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context, bool isBirthDate) async {
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isBirthDate 
-        ? (_birthDate ?? DateTime(1990)) 
-        : (_issuedDate ?? DateTime.now()),
+      initialDate: _birthDate ?? DateTime(1990),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
     
     if (picked != null) {
       setState(() {
-        if (isBirthDate) {
-          _birthDate = picked;
-        } else {
-          _issuedDate = picked;
-        }
+        _birthDate = picked;
       });
       _updateMetadata();
     }
