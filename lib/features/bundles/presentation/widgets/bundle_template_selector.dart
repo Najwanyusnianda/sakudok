@@ -239,7 +239,7 @@ class BundleTemplateSelector extends ConsumerWidget {
                 type.toUpperCase(),
                 style: TextStyle(
                   fontSize: 10,
-                  color: color[700],
+                  color: HSLColor.fromColor(color).withLightness(0.2).toColor(),
                   fontWeight: FontWeight.w500,
                 ),
               ),

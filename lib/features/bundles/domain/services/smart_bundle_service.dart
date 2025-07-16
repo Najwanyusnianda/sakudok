@@ -3,7 +3,7 @@ import '../entities/bundle.dart';
 import '../entities/bundle_template.dart';
 import '../../../documents/domain/entities/document.dart';
 import '../../../documents/domain/entities/document_type.dart';
-import 'package:fpdart/fpdart.dart';
+import '../../../documents/domain/entities/metadata/document_metadata.dart';
 
 class SmartBundleService {
   // Analyze documents and suggest smart bundles
@@ -164,51 +164,33 @@ class SmartBundleService {
     
     for (final doc in documents) {
       String? personName;
+      final metadata = doc.metadata;
       
       // Extract person name from metadata based on document type
-      doc.metadata.when(
-        ktp: (nik, fullName, birthPlace, birthDate, gender, bloodType, address, 
-              rt, rw, kelurahan, kecamatan, religion, maritalStatus, occupation,
-              citizenship, issuedDate, issuedBy, expiryDate) {
-          personName = fullName;
-        },
-        sim: (simNumber, holderName, simType, issuedDate, expiryDate, 
-              issuingOffice, address, birthDate) {
-          personName = holderName;
-        },
-        passport: (passportNumber, holderName, nationality, birthDate, birthPlace, 
-                   gender, issuedDate, expiryDate, issuingAuthority, placeOfIssue) {
-          personName = holderName;
-        },
-        ielts: (candidateNumber, testReportNumber, testDate, expiryDate,
-                overallBand, listeningScore, readingScore, writingScore, 
-                speakingScore, testCenter, candidateName) {
-          personName = candidateName;
-        },
-        transcript: (studentId, studentName, university, degree, major, gpa, 
-                     graduationDate, issuedDate, facultyDean) {
-          personName = studentName;
-        },
-        cv: (fullName, profession, email, phoneNumber, lastUpdated, summary, yearsOfExperience) {
-          personName = fullName;
-        },
-        certificate: (certificateName, holderName, issuingOrganization, issuedDate, 
-                      expiryDate, certificateNumber, level) {
-          personName = holderName;
-        },
-        diploma: (diplomaNumber, graduateName, institution, degree, major, 
-                  graduationDate, gpa, honors) {
-          personName = graduateName;
-        },
-        unknown: (data) {
-          // Try to extract name from unknown data
-          if (data['name'] != null) personName = data['name'].toString();
-          if (data['fullName'] != null) personName = data['fullName'].toString();
-        },
-      );
+      if (metadata is KTPMetadata) {
+        personName = metadata.fullName;
+      } else if (metadata is SIMMetadata) {
+        personName = metadata.holderName;
+      } else if (metadata is PassportMetadata) {
+        personName = metadata.holderName;
+      } else if (metadata is IELTSMetadata) {
+        personName = metadata.candidateName;
+      } else if (metadata is TranscriptMetadata) {
+        personName = metadata.studentName;
+      } else if (metadata is CVMetadata) {
+        personName = metadata.fullName;
+      } else if (metadata is CertificateMetadata) {
+        personName = metadata.holderName;
+      } else if (metadata is DiplomaMetadata) {
+        personName = metadata.graduateName;
+      } else if (metadata is UnknownMetadata) {
+        // Try to extract name from unknown data
+        if (metadata.data['name'] != null) personName = metadata.data['name'].toString();
+        if (metadata.data['fullName'] != null) personName = metadata.data['fullName'].toString();
+      }
       
-      if (personName != null && personName!.isNotEmpty) {
-        groups.putIfAbsent(personName!, () => []).add(doc);
+      if (personName != null && personName.isNotEmpty) {
+        groups.putIfAbsent(personName, () => []).add(doc);
       }
     }
     
@@ -221,56 +203,32 @@ class SmartBundleService {
     
     for (final doc in documents) {
       DateTime? expiryDate;
+      final metadata = doc.metadata;
       
       // Extract expiry date from metadata
-      doc.metadata.when(
-        ktp: (nik, fullName, birthPlace, birthDate, gender, bloodType, address, 
-              rt, rw, kelurahan, kecamatan, religion, maritalStatus, occupation,
-              citizenship, issuedDate, issuedBy, expiry) {
-          expiryDate = expiry;
-        },
-        sim: (simNumber, holderName, simType, issuedDate, expiry, 
-              issuingOffice, address, birthDate) {
-          expiryDate = expiry;
-        },
-        passport: (passportNumber, holderName, nationality, birthDate, birthPlace, 
-                   gender, issuedDate, expiry, issuingAuthority, placeOfIssue) {
-          expiryDate = expiry;
-        },
-        ielts: (candidateNumber, testReportNumber, testDate, expiry,
-                overallBand, listeningScore, readingScore, writingScore, 
-                speakingScore, testCenter, candidateName) {
-          expiryDate = expiry;
-        },
-        certificate: (certificateName, holderName, issuingOrganization, issuedDate, 
-                      expiry, certificateNumber, level) {
-          expiryDate = expiry;
-        },
-        transcript: (studentId, studentName, university, degree, major, gpa, 
-                     graduationDate, issuedDate, facultyDean) {
-          // Transcripts don't typically expire
-        },
-        cv: (fullName, profession, email, phoneNumber, lastUpdated, summary, yearsOfExperience) {
-          // CVs don't expire
-        },
-        diploma: (diplomaNumber, graduateName, institution, degree, major, 
-                  graduationDate, gpa, honors) {
-          // Diplomas don't expire
-        },
-        unknown: (data) {
-          // Try to extract expiry from unknown data
-          if (data['expiryDate'] != null) {
-            try {
-              expiryDate = DateTime.parse(data['expiryDate'].toString());
-            } catch (e) {
-              // Ignore parse errors
-            }
+      if (metadata is KTPMetadata) {
+        expiryDate = metadata.expiryDate;
+      } else if (metadata is SIMMetadata) {
+        expiryDate = metadata.expiryDate;
+      } else if (metadata is PassportMetadata) {
+        expiryDate = metadata.expiryDate;
+      } else if (metadata is IELTSMetadata) {
+        expiryDate = metadata.expiryDate;
+      } else if (metadata is CertificateMetadata) {
+        expiryDate = metadata.expiryDate;
+      } else if (metadata is UnknownMetadata) {
+        // Try to extract expiry from unknown data
+        if (metadata.data['expiryDate'] != null) {
+          try {
+            expiryDate = DateTime.parse(metadata.data['expiryDate'].toString());
+          } catch (e) {
+            // Ignore parse errors
           }
-        },
-      );
+        }
+      }
       
       if (expiryDate != null) {
-        final daysUntilExpiry = expiryDate!.difference(now).inDays;
+        final daysUntilExpiry = expiryDate.difference(now).inDays;
         String period;
         
         if (daysUntilExpiry < 0) {

@@ -181,7 +181,7 @@ class SmartMetadataSection extends StatelessWidget {
                       ),
                     ],
                   ),
-                )).toList(),
+                )),
               ],
             ),
           ),

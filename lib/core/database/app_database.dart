@@ -107,7 +107,7 @@ class AppDatabase extends _$AppDatabase {
     ])..where(bundleDocuments.bundleId.equals(bundleId));
 
     final results = await query.get();
-    return results.map((row) => row.readTable(documents) as DriftDocument).toList();
+    return results.map((row) => row.readTable(documents)).toList();
   }
 
   Future<int> addDocumentToBundle(int documentId, int bundleId) async {

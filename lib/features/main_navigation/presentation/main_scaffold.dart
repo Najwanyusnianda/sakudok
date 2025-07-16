@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../documents/presentation/pages/document_list_page.dart';
 import '../../home/presentation/pages/home_page.dart';
-import '../../bundles/presentation/pages/bundle_main_page.dart';
 import '../../security/presentation/pages/settings_page.dart';
+import '../../bundles/presentation/pages/bundle_main_page.dart';
 import 'main_navigation_bar.dart';
 
 class MainScaffold extends StatefulWidget {
@@ -15,11 +15,11 @@ class MainScaffold extends StatefulWidget {
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    DocumentListPage(),
-    BundleMainPage(),
-    SettingsPage(),
+  final List<Widget> _pages = [
+    const HomePage(),
+    const DocumentListPage(),
+    const BundleMainPage(),
+    const SettingsPage(),
   ];
 
   @override

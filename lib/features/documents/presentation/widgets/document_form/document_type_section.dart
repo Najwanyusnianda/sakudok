@@ -129,7 +129,7 @@ class DocumentTypeSection extends StatelessWidget {
                 ),
               ],
             ),
-          )).toList(),
+          )),
         ],
       ),
     );
