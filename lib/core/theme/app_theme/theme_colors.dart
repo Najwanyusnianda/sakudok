@@ -39,11 +39,7 @@ class ThemeColors {
 
     // Outline
     outline: Color(0xFFD1D5DB), // Gray-300
-    outlineVariant: Color(0xFFF3F4F6), // Gray-100
-
-    // Background
-    background: Color(0xFFFAFAFA), // Very light gray
-    onBackground: Color(0xFF1F2937),
+    outlineVariant: Color(0xFFF3F4F6),
 
     // Shadow
     shadow: Color(0xFF000000),
@@ -84,11 +80,7 @@ class ThemeColors {
 
     // Outline
     outline: Color(0xFF475569), // Slate-600
-    outlineVariant: Color(0xFF334155), // Slate-700
-    
-    // Background
-    background: Color(0xFF0F172A), // Slate-900
-    onBackground: Color(0xFFF1F5F9),
+    outlineVariant: Color(0xFF334155),
     
     shadow: Color(0xFF000000),
     scrim: Color(0xFF000000),

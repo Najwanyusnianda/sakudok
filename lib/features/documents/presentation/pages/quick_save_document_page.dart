@@ -1,3 +1,4 @@
+//library/features/documents/presentation/pages/quick_save_document_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
@@ -21,6 +22,7 @@ class QuickSaveDocumentPage extends ConsumerStatefulWidget {
 
 class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
   final _titleController = TextEditingController();
+  DocumentType _selectedType = DocumentType.lainnya;
   bool _isLoading = false;
 
   @override
@@ -41,69 +43,148 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        title: const Text('Quick Save'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black87),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Save Document',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Document Preview
-                  _buildDocumentPreview(),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Title Field
-                  _buildTitleField(),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Smart Features Teaser
-                  _buildSmartFeaturesTeaser(),
-                ],
+        actions: [
+          TextButton(
+            onPressed: _isLoading ? null : _saveDocument,
+            child: Text(
+              'Save',
+              style: TextStyle(
+                color: _isLoading ? Colors.white54 : Colors.white,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          
-          // Bottom Action Buttons
-          _buildBottomActions(),
         ],
       ),
-    );
-  }
-
-  Widget _buildDocumentPreview() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: widget.documentFile.path.toLowerCase().endsWith('.pdf')
-            ? _buildPdfPreview()
-            : _buildImagePreview(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Document Preview
+            Expanded(
+              flex: 3,
+              child: Container(
+                width: double.infinity,
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: widget.documentFile.path.toLowerCase().endsWith('.pdf')
+                      ? _buildPdfPreview()
+                      : _buildImagePreview(),
+                ),
+              ),
+            ),
+            // Input Section
+            Expanded(
+              flex: 2,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Document Title Field
+                    TextField(
+                      controller: _titleController,
+                      decoration: InputDecoration(
+                        labelText: 'Document Title',
+                        hintText: 'Enter document title...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: const Icon(Icons.title),
+                      ),
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 16),
+                    // Document Type Selection
+                    DropdownButtonFormField<DocumentType>(
+                      value: _selectedType,
+                      decoration: InputDecoration(
+                        labelText: 'Document Type',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: const Icon(Icons.category),
+                      ),
+                      items: DocumentType.values.map((type) {
+                        return DropdownMenuItem<DocumentType>(
+                          value: type,
+                          child: Row(
+                            children: [
+                              Icon(
+                                _getIconForDocumentType(type),
+                                size: 20,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(type.name),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (DocumentType? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedType = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    const Spacer(),
+                    // Save Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _saveDocument,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Save Document',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -169,230 +250,21 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
     );
   }
 
-  Widget _buildTitleField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Document Title',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _titleController,
-          decoration: InputDecoration(
-            hintText: 'Give your document a name',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.blue, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-          ),
-          style: const TextStyle(fontSize: 16),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'You can always change this later',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSmartFeaturesTeaser() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.purple.shade50,
-            Colors.blue.shade50,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.purple.shade200),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.purple.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.auto_awesome,
-                  color: Colors.purple.shade700,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Unlock Smart Features',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.purple.shade800,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Want automatic data extraction, smart reminders, and intelligent organization? Add document details after saving!',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.purple.shade700,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(Icons.check_circle_outline, 
-                   color: Colors.green.shade600, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Auto-detect document type (KTP, SIM, etc.)',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.check_circle_outline, 
-                   color: Colors.green.shade600, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Smart reminders for expiry dates',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.check_circle_outline, 
-                   color: Colors.green.shade600, size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Automatic bundle organization',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomActions() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Primary Save Button
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _saveDocument,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade600,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : const Text(
-                      'SAVE',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          // Secondary Smart Details Button
-          TextButton.icon(
-            onPressed: _isLoading ? null : _goToSmartDetails,
-            icon: Icon(Icons.auto_awesome, color: Colors.purple.shade600),
-            label: Text(
-              '✨ Complete Details & Enable Smart Features',
-              style: TextStyle(
-                color: Colors.purple.shade600,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  IconData _getIconForDocumentType(DocumentType type) {
+    switch (type) {
+      case DocumentType.ktp:
+        return Icons.badge;
+      case DocumentType.sim:
+        return Icons.directions_car;
+      case DocumentType.passport:
+        return Icons.flight;
+      case DocumentType.ijazah:
+        return Icons.school;
+      case DocumentType.sertifikat:
+        return Icons.verified;
+      case DocumentType.lainnya:
+        return Icons.description;
+    }
   }
 
   Future<void> _saveDocument() async {
@@ -406,11 +278,11 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
     });
 
     try {
-      // Create minimal document
+      // Create minimal document with selected type
       final document = Document(
         id: '', // Will be assigned by repository
         title: _titleController.text.trim(),
-        type: DocumentType.lainnya, // Default to "Other"
+        type: _selectedType, // Use selected document type
         metadata: const DocumentMetadata.unknown({}), // No metadata
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -436,18 +308,6 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
       });
     }
   }
-
-  void _goToSmartDetails() {
-    // Navigate to the full document form for smart features
-    Navigator.of(context).pushReplacementNamed(
-      '/documents/add',
-      arguments: {
-        'file': widget.documentFile,
-        'title': _titleController.text,
-      },
-    );
-  }
-
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

@@ -83,7 +83,7 @@ class AppTheme {
       brightness: Brightness.dark,
       colorScheme: colorScheme,
       fontFamily: fontFamily,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: colorScheme.surface,
       textTheme: ThemeTypography.getTextTheme(colorScheme),
       
       // Component themes

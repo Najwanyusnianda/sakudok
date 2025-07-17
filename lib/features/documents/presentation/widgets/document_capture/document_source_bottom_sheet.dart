@@ -14,78 +14,81 @@ class DocumentSourceBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(2),
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          
-          // Title
-          Text(
-            'Add Document to SakuDok',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 24),
+
+            // Title
+            Text(
+              'Add Document to SakuDok',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Choose how you want to add your document',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade600,
+            const SizedBox(height: 8),
+            Text(
+              'Choose how you want to add your document',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
             ),
-          ),
-          const SizedBox(height: 32),
-          
-          // Camera Option
-          _buildSourceOption(
-            context: context,
-            icon: Icons.camera_alt,
-            title: 'Take Photo',
-            subtitle: 'Capture document with camera',
-            color: Colors.blue,
-            onTap: () => _captureFromCamera(context),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // File Picker Option
-          _buildSourceOption(
-            context: context,
-            icon: Icons.folder_open,
-            title: 'Choose from Storage',
-            subtitle: 'Select image or PDF file',
-            color: Colors.green,
-            onTap: () => _pickFromStorage(context),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Cancel Button
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          
-          const SizedBox(height: 8),
-        ],
+            const SizedBox(height: 32),
+
+            // Camera Option
+            _buildSourceOption(
+              context: context,
+              icon: Icons.camera_alt,
+              title: 'Take Photo',
+              subtitle: 'Capture document with camera',
+              color: Colors.blue,
+              onTap: () => _captureFromCamera(context),
+            ),
+
+            const SizedBox(height: 16),
+
+            // File Picker Option
+            _buildSourceOption(
+              context: context,
+              icon: Icons.folder_open,
+              title: 'Choose from Storage',
+              subtitle: 'Select image or PDF file',
+              color: Colors.green,
+              onTap: () => _pickFromStorage(context),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Cancel Button
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
 
+  /// Builds a UI option for a document source (e.g., Camera, Storage).
   Widget _buildSourceOption({
     required BuildContext context,
     required IconData icon,
@@ -153,6 +156,7 @@ class DocumentSourceBottomSheet extends StatelessWidget {
     );
   }
 
+  /// Captures an image from the camera.
   Future<void> _captureFromCamera(BuildContext context) async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -173,12 +177,13 @@ class DocumentSourceBottomSheet extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        _showErrorDialog(context, 'Camera Error', 
-          'SakuDok needs camera permission to capture documents. Please enable camera access in your device settings.');
+        _showErrorDialog(context, 'Camera Error',
+            'SakuDok needs camera permission to capture documents. Please enable camera access in your device settings.');
       }
     }
   }
 
+  /// Picks a file from the device storage.
   Future<void> _pickFromStorage(BuildContext context) async {
     try {
       final FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -198,11 +203,12 @@ class DocumentSourceBottomSheet extends StatelessWidget {
     } catch (e) {
       if (context.mounted) {
         _showErrorDialog(context, 'Storage Access Error',
-          'SakuDok needs storage permission to access your files. Please enable storage access in your device settings.');
+            'SakuDok needs storage permission to access your files. Please enable storage access in your device settings.');
       }
     }
   }
 
+  /// Shows an error dialog to the user.
   void _showErrorDialog(BuildContext context, String title, String message) {
     showDialog(
       context: context,
