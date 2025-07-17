@@ -164,10 +164,12 @@ class DocumentSourceBottomSheet extends StatelessWidget {
       );
 
       if (image != null) {
-        onDocumentSelected(File(image.path));
+        // Close the bottom sheet first
         if (context.mounted) {
           Navigator.of(context).pop();
         }
+        // Then call the callback to navigate to next page
+        onDocumentSelected(File(image.path));
       }
     } catch (e) {
       if (context.mounted) {
@@ -186,10 +188,12 @@ class DocumentSourceBottomSheet extends StatelessWidget {
       );
 
       if (result != null && result.files.single.path != null) {
-        onDocumentSelected(File(result.files.single.path!));
+        // Close the bottom sheet first
         if (context.mounted) {
           Navigator.of(context).pop();
         }
+        // Then call the callback to navigate to next page
+        onDocumentSelected(File(result.files.single.path!));
       }
     } catch (e) {
       if (context.mounted) {

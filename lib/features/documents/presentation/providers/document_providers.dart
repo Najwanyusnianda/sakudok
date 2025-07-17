@@ -54,14 +54,18 @@ class DocumentNotifier extends StateNotifier<AsyncValue<List<Document>>> {
     );
   }
 
-  Future<void> addDocument(Document document) async {
+  Future<bool> addDocument(Document document) async {
     final usecase = _ref.read(addDocumentProvider);
     final result = await usecase(document);
-    result.fold(
+    return result.fold(
       (failure) {
-        // Optionally handle error state specifically, for now, we just let the list state show it
+        // Return false to indicate failure
+        return false;
       },
-      (_) => loadDocuments(), // Refresh list on success
+      (_) {
+        loadDocuments(); // Refresh list on success
+        return true; // Return true to indicate success
+      },
     );
   }
 

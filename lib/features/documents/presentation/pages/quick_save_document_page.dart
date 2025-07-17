@@ -417,20 +417,17 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
         images: [widget.documentFile.path], // Store file path
       );
 
-      // Save using AddDocumentUseCase
-      final usecase = ref.read(addDocumentProvider);
-      final result = await usecase(document);
+      // Save using DocumentNotifier (this will auto-refresh the list)
+      final notifier = ref.read(documentsNotifierProvider.notifier);
+      final success = await notifier.addDocument(document);
       
-      result.fold(
-        (failure) {
-          _showSnackBar(failure.message, isError: true);
-        },
-        (_) {
-          _showSnackBar('Document saved successfully!');
-          // Navigate back to home (pop until home)
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        },
-      );
+      if (success) {
+        _showSnackBar('Document saved successfully!');
+        // Navigate back to home (pop until home)
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } else {
+        _showSnackBar('Failed to save document', isError: true);
+      }
     } catch (e) {
       _showSnackBar('Failed to save document: $e', isError: true);
     } finally {
