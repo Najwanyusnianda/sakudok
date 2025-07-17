@@ -1,5 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+// ADDED: Import the Syncfusion PDF Viewer package
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+
+import '../../../../../core/theme/app_theme.dart'; // Make sure you have your AppTheme imported
 import '../../../domain/entities/document.dart';
 import '../../pages/add_edit_document_page.dart';
 
@@ -17,28 +21,40 @@ class DocumentViewerBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if document has any files
+    //check path
+    print('Document images: ${document.images}');
     if (document.images.isEmpty) {
       return _buildNoImageState(context);
     }
 
-    if (document.images.length == 1) {
-      return _buildSingleImage(document.images.first);
+    // Case A: The document is a PDF
+    // Check if the first file in the list is a PDF
+    final firstFile = document.images.first;
+    if (firstFile.toLowerCase().endsWith('.pdf')) {
+      return _buildPdfViewer(context, firstFile);
     }
 
-    return _buildImageGallery();
+    // Case B: The document contains only images
+    if (document.images.length == 1) {
+      return _buildSingleItem(context, document.images.first);
+    }
+
+    // Multiple images
+    return _buildItemGallery(context);
   }
 
-  Widget _buildSingleImage(String imagePath) {
+  Widget _buildSingleItem(BuildContext context, String path) {
     return Center(
       child: InteractiveViewer(
         minScale: 0.5,
         maxScale: 4.0,
-        child: _buildImageWidget(imagePath),
+        child: _buildItemWidget(context, path),
       ),
     );
   }
 
-  Widget _buildImageGallery() {
+  Widget _buildItemGallery(BuildContext context) {
     return PageView.builder(
       controller: pageController,
       onPageChanged: onPageChanged,
@@ -48,79 +64,80 @@ class DocumentViewerBody extends StatelessWidget {
           child: InteractiveViewer(
             minScale: 0.5,
             maxScale: 4.0,
-            child: _buildImageWidget(document.images[index]),
+            child: _buildItemWidget(context, document.images[index]),
           ),
         );
       },
     );
   }
 
-  Widget _buildImageWidget(String imagePath) {
-    final file = File(imagePath);
+  Widget _buildItemWidget(BuildContext context, String path) {
+    final file = File(path);
 
     if (!file.existsSync()) {
-      return _buildErrorState('File not found');
+      return _buildErrorState(context, 'File not found at path: $path');
     }
 
-    // Check if it's a PDF
-    if (imagePath.toLowerCase().endsWith('.pdf')) {
-      return _buildPdfPreview();
-    }
-
-    // Display image
+    // Only handle images here, as PDFs are routed to their own viewer.
     return Image.file(
       file,
       fit: BoxFit.contain,
       errorBuilder: (context, error, stackTrace) {
-        return _buildErrorState('Cannot display image');
+        return _buildErrorState(context, 'Cannot display image: ${error.toString()}');
       },
     );
   }
 
-  Widget _buildPdfPreview() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.picture_as_pdf, size: 120, color: Colors.red.shade400),
-          const SizedBox(height: 24),
-          const Text('PDF Document',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white)),
-          const SizedBox(height: 32),
-          Text(
-            'PDF viewing is not yet supported in this preview.',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+  Widget _buildPdfViewer(BuildContext context, String path) {
+    final file = File(path);
+
+    if (!file.existsSync()) {
+      return _buildErrorState(context, 'PDF file not found at path: $path');
+    }
+
+    // The SfPdfViewer widget handles its own loading and error states.
+    return SfPdfViewer.file(
+      file,
+      // The onDocumentLoadFailed callback is for logic (like logging), not for UI.
+      // The viewer will show its own default error message if a document fails to load.
+      onDocumentLoadFailed: (PdfDocumentLoadFailedDetails details) {
+        // You can add logging or analytics here.
+        debugPrint('Error loading PDF: ${details.error}');
+        debugPrint(details.description);
+      },
     );
   }
 
   Widget _buildNoImageState(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(AppTheme.spaceXl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.image_not_supported, size: 120, color: Colors.grey.shade600),
-          const SizedBox(height: 24),
-          const Text('No Images Available',
-              style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white)),
-          const SizedBox(height: 8),
+          Icon(
+            Icons.image_not_supported_outlined,
+            size: 120,
+            color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+          ),
+          const SizedBox(height: AppTheme.spaceLg),
           Text(
-            "This document doesn't have any images attached.",
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade400),
+            'No Files Available',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: AppTheme.spaceSm),
+          Text(
+            "This document doesn't have any files attached.",
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppTheme.spaceXl),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -128,37 +145,42 @@ class DocumentViewerBody extends StatelessWidget {
                     AddEditDocumentPage(documentId: document.id),
               ));
             },
-            icon: const Icon(Icons.edit),
+            icon: const Icon(Icons.edit_outlined),
             label: const Text('Edit Document'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue.shade600,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildErrorState(String message) {
+  Widget _buildErrorState(BuildContext context, String message) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(AppTheme.spaceXl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 120, color: Colors.orange.shade400),
-          const SizedBox(height: 24),
-          Text(message,
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 8),
+          Icon(
+            Icons.error_outline,
+            size: 120,
+            color: colorScheme.error.withOpacity(0.7),
+          ),
+          const SizedBox(height: AppTheme.spaceLg),
           Text(
-            'The document file may have been moved or deleted.',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+            'Error Loading File',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: colorScheme.onSurface,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppTheme.spaceSm),
+          Text(
+            message,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

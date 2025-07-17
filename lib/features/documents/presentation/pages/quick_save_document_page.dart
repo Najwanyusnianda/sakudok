@@ -6,6 +6,7 @@ import '../../domain/entities/document.dart';
 import '../../domain/entities/document_type.dart';
 import '../../domain/entities/metadata/document_metadata.dart';
 import '../providers/document_providers.dart';
+import '../../../../core/providers/file_service_provider.dart';
 import 'package:intl/intl.dart';
 
 class QuickSaveDocumentPage extends ConsumerStatefulWidget {
@@ -278,7 +279,17 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
     });
 
     try {
-      // Create minimal document with selected type
+      // Show progress for file copying
+      _showSnackBar('Securing document in app storage...', isError: false);
+      
+      // Copy file to app's private directory using FileService
+      final fileService = ref.read(fileServiceProvider);
+      final savedFilePath = await fileService.copyFileToAppDirectory(
+        sourceFile: widget.documentFile,
+        documentType: _selectedType,
+      );
+
+      // Create document with the saved file path (in app's private directory)
       final document = Document(
         id: '', // Will be assigned by repository
         title: _titleController.text.trim(),
@@ -286,7 +297,7 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
         metadata: const DocumentMetadata.unknown({}), // No metadata
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-        images: [widget.documentFile.path], // Store file path
+        images: [savedFilePath], // Store the private app directory path
       );
 
       // Save using DocumentNotifier (this will auto-refresh the list)
@@ -294,10 +305,12 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
       final success = await notifier.addDocument(document);
       
       if (success) {
-        _showSnackBar('Document saved successfully!');
+        _showSnackBar('Document saved successfully! Your files are now safely stored in the app.');
         // Navigate back to home (pop until home)
         Navigator.of(context).popUntil((route) => route.isFirst);
       } else {
+        // If document save failed, clean up the copied file
+        await fileService.deleteFile(savedFilePath);
         _showSnackBar('Failed to save document', isError: true);
       }
     } catch (e) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../documents/presentation/widgets/document_migration_dialog.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -87,6 +88,12 @@ class SettingsPage extends ConsumerWidget {
                 onTap: () => _showComingSoon(context, 'Penyimpanan'),
               ),
               _buildSettingsTile(
+                icon: Icons.shield,
+                title: 'Migrasi Dokumen',
+                subtitle: 'Amankan dokumen ke penyimpanan aplikasi',
+                onTap: () => _showDocumentMigration(context),
+              ),
+              _buildSettingsTile(
                 icon: Icons.info,
                 title: 'Tentang Aplikasi',
                 subtitle: 'SakuDok v1.0.0',
@@ -143,6 +150,19 @@ class SettingsPage extends ConsumerWidget {
         content: Text('$feature akan segera hadir!'),
       ),
     );
+  }
+
+  void _showDocumentMigration(BuildContext context) {
+    showDocumentMigrationDialog(context).then((migrated) {
+      if (migrated == true && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Document migration completed successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
   }
 
   void _showAboutDialog(BuildContext context) {
