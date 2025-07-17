@@ -4,6 +4,7 @@ import 'dart:io';
 import '../providers/document_providers.dart';
 import '../widgets/document_list/document_list_widget.dart';
 import '../widgets/document_list/document_sliver_app_bar.dart';
+import '../widgets/document_list/filter_drawer.dart';
 import '../widgets/document_capture/document_source_bottom_sheet.dart';
 import '../../domain/entities/document.dart'; // Assuming you have this entity
 import '../../domain/entities/document_type.dart';
@@ -26,6 +27,7 @@ class _DocumentListPageState extends ConsumerState<DocumentListPage>
   late Animation<double> _fabAnimation;
   final ScrollController _scrollController = ScrollController();
   bool _showScrollToTop = false;
+  bool _isSearchMode = false;
 
   DocumentFilter _selectedFilter = DocumentFilter.all;
   SortOption _selectedSort = SortOption.dateUpdated;
@@ -68,6 +70,12 @@ class _DocumentListPageState extends ConsumerState<DocumentListPage>
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
+      drawer: FilterDrawer(
+        selectedFilter: _selectedFilter,
+        onFilterChanged: (filter) {
+          setState(() => _selectedFilter = filter);
+        },
+      ),
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(documentsNotifierProvider.notifier).loadDocuments(),
@@ -79,6 +87,8 @@ class _DocumentListPageState extends ConsumerState<DocumentListPage>
               onFilterChanged: (filter) =>
                   setState(() => _selectedFilter = filter),
               onSortTap: () => _showSortBottomSheet(context),
+              isSearchMode: _isSearchMode,
+              onSearchToggle: () => setState(() => _isSearchMode = !_isSearchMode),
             ),
             documentsAsync.when(
               data: (docs) {

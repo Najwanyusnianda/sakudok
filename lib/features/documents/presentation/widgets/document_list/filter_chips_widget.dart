@@ -16,7 +16,7 @@ class FilterChipsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12.0), // Adjusted padding
       child: Row(
         children: DocumentFilter.values.map((filter) {
           return _buildFilterChip(
@@ -37,20 +37,25 @@ class FilterChipsWidget extends StatelessWidget {
     required DocumentFilter filter,
   }) {
     final isSelected = selectedFilter == filter;
+    // --- IMPROVEMENT: Use theme colors for consistent styling ---
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    // Define colors for selected and unselected states based on the theme
+    final selectedColor = colorScheme.primaryContainer;
+    final unselectedColor = colorScheme.surfaceContainerHighest;
+    final selectedContentColor = colorScheme.onPrimaryContainer;
+    final unselectedContentColor = colorScheme.onSurfaceVariant;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
       child: FilterChip(
-        label: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon,
-                size: 16,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.white70),
-            const SizedBox(width: 6),
-            Text(label),
-          ],
+        label: Text(label),
+        avatar: Icon(
+          icon,
+          size: 18,
+          // Use theme-aware colors for the icon
+          color: isSelected ? selectedContentColor : unselectedContentColor,
         ),
         selected: isSelected,
         onSelected: (selected) {
@@ -58,15 +63,23 @@ class FilterChipsWidget extends StatelessWidget {
             onFilterChanged(filter);
           }
         },
-        backgroundColor: Colors.white.withOpacity(0.2),
-        selectedColor: Colors.white,
+        // --- FIX: Use theme colors for background ---
+        backgroundColor: unselectedColor,
+        selectedColor: selectedColor,
         labelStyle: TextStyle(
-          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          // --- FIX: Use theme colors for text ---
+          color: isSelected ? selectedContentColor : unselectedContentColor,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
         ),
-        checkmarkColor: Theme.of(context).colorScheme.primary,
+        // The checkmark is often redundant when background color changes.
+        // Set to transparent to hide it for a cleaner look.
+        checkmarkColor: Colors.transparent,
         side: BorderSide(
-          color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
+          color: isSelected ? colorScheme.primary.withOpacity(0.5) : Colors.transparent,
+          width: 1.5,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
         ),
       ),
     );
@@ -96,9 +109,9 @@ class FilterChipsWidget extends StatelessWidget {
       case DocumentFilter.expiring:
         return Icons.warning_amber_outlined;
       case DocumentFilter.cards:
-        return Icons.credit_card;
+        return Icons.credit_card_outlined;
       case DocumentFilter.documents:
-        return Icons.description;
+        return Icons.description_outlined;
     }
   }
 }

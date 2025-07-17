@@ -1,3 +1,4 @@
+///lib/core/database/tables/documents.dart
 import 'package:drift/drift.dart';
 
 class Documents extends Table {

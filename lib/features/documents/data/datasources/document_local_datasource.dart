@@ -1,4 +1,5 @@
 // lib/features/documents/data/datasources/document_local_datasource.dart
+import 'package:flutter/foundation.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/exceptions/database_exception.dart';
 
@@ -18,11 +19,24 @@ class DocumentLocalDataSourceImpl implements DocumentLocalDataSource {
 
   @override
   Future<List<DriftDocument>> getAllDocuments() async {
+    // --- START DEBUGGING ---
     try {
-      return await _database.getAllDocuments();
-    } catch (e) {
-      throw DatabaseException('Failed to get documents: $e');
+      debugPrint("--- DATASOURCE: Calling _database.getAllDocuments() ---");
+      final result = await _database.getAllDocuments();
+      debugPrint("--- DATASOURCE: Successfully retrieved ${result.length} documents from the database. ---");
+      return result;
+    } catch (e, stackTrace) {
+      // This will catch any error that happens during the database query itself.
+      debugPrint("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      debugPrint("CRITICAL ERROR: FAILED TO GET DOCUMENTS FROM DATABASE.");
+      debugPrint("The error is in your Drift/database query logic.");
+      debugPrint("Error: $e");
+      debugPrint("StackTrace: $stackTrace");
+      debugPrint("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      // Re-throw the error as a specific exception.
+      throw DatabaseException('Failed to get documents from datasource: $e');
     }
+    // --- END DEBUGGING ---
   }
 
   @override
@@ -48,7 +62,9 @@ class DocumentLocalDataSourceImpl implements DocumentLocalDataSource {
   @override
   Future<void> addDocument(DocumentsCompanion document) async {
     try {
+      debugPrint("--- DATASOURCE: Inserting document into database... ---");
       await _database.insertDocument(document);
+      debugPrint("--- DATASOURCE: Document inserted successfully. ---");
     } catch (e) {
       throw DatabaseException('Failed to add document: $e');
     }

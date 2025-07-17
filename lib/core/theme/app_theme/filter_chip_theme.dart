@@ -17,7 +17,8 @@ class FilterChipTheme {
       // Background colors
       backgroundColor: colorScheme.surfaceContainerHighest,
       selectedColor: colorScheme.primaryContainer,
-      disabledColor: colorScheme.onSurface.withValues(alpha: 0.12),
+      // CORRECTED: Used .withOpacity() instead of .withValues()
+      disabledColor: colorScheme.onSurface.withOpacity(0.12),
       
       // Border
       side: BorderSide.none,
@@ -32,7 +33,8 @@ class FilterChipTheme {
         fontFamily: fontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w500,
-        color: colorScheme.onSurface,
+        // --- FIX: Use onSurfaceVariant for better contrast on unselected chips ---
+        color: colorScheme.onSurfaceVariant,
         letterSpacing: 0.1,
       ),
       secondaryLabelStyle: TextStyle(
@@ -63,7 +65,8 @@ class FilterChipTheme {
       
       // Selection indicators
       checkmarkColor: colorScheme.onPrimaryContainer,
-      selectedShadowColor: colorScheme.primary.withValues(alpha: 0.12),
+      // CORRECTED: Used .withOpacity() instead of .withValues()
+      selectedShadowColor: colorScheme.primary.withOpacity(0.12),
       showCheckmark: true,
       
       // Brightness adjustments for dark mode
@@ -112,9 +115,10 @@ class FilterChipTheme {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
+                // CORRECTED: Used .withOpacity() instead of .withValues()
                 color: isSelected 
-                    ? colorScheme?.onPrimaryContainer.withValues(alpha: 0.2)
-                    : colorScheme?.primary.withValues(alpha: 0.1),
+                    ? colorScheme?.onPrimaryContainer.withOpacity(0.2)
+                    : colorScheme?.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
