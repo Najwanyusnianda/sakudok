@@ -68,7 +68,7 @@ class DocumentInfoSheet extends StatelessWidget {
                   if (document.expiryDate != null)
                     _buildInfoRow(
                         'Expires', _formatDateTime(document.expiryDate!)),
-                  _buildInfoRow('Images', '${document.images.length} file(s)'),
+                  _buildInfoRow('Files', '${document.filePaths.length} file(s)'),
                   if (document.tags.isNotEmpty)
                     _buildInfoRow('Tags', document.tags.join(', ')),
                   _buildInfoRow('Favorite', document.isFavorite ? 'Yes' : 'No'),

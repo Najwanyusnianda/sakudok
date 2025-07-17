@@ -40,12 +40,12 @@ class $DocumentsTable extends Documents
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _filePathMeta = const VerificationMeta(
-    'filePath',
+  static const VerificationMeta _filePathsMeta = const VerificationMeta(
+    'filePaths',
   );
   @override
-  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
-    'file_path',
+  late final GeneratedColumn<String> filePaths = GeneratedColumn<String>(
+    'file_paths',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -175,7 +175,7 @@ class $DocumentsTable extends Documents
     id,
     title,
     type,
-    filePath,
+    filePaths,
     createdAt,
     updatedAt,
     description,
@@ -218,13 +218,13 @@ class $DocumentsTable extends Documents
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
-    if (data.containsKey('file_path')) {
+    if (data.containsKey('file_paths')) {
       context.handle(
-        _filePathMeta,
-        filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta),
+        _filePathsMeta,
+        filePaths.isAcceptableOrUnknown(data['file_paths']!, _filePathsMeta),
       );
     } else if (isInserting) {
-      context.missing(_filePathMeta);
+      context.missing(_filePathsMeta);
     }
     if (data.containsKey('created_at')) {
       context.handle(
@@ -322,9 +322,9 @@ class $DocumentsTable extends Documents
         DriftSqlType.string,
         data['${effectivePrefix}type'],
       )!,
-      filePath: attachedDatabase.typeMapping.read(
+      filePaths: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}file_path'],
+        data['${effectivePrefix}file_paths'],
       )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
@@ -379,7 +379,7 @@ class Document extends DataClass implements Insertable<Document> {
   final int id;
   final String title;
   final String type;
-  final String filePath;
+  final String filePaths;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? description;
@@ -394,7 +394,7 @@ class Document extends DataClass implements Insertable<Document> {
     required this.id,
     required this.title,
     required this.type,
-    required this.filePath,
+    required this.filePaths,
     required this.createdAt,
     required this.updatedAt,
     this.description,
@@ -412,7 +412,7 @@ class Document extends DataClass implements Insertable<Document> {
     map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
     map['type'] = Variable<String>(type);
-    map['file_path'] = Variable<String>(filePath);
+    map['file_paths'] = Variable<String>(filePaths);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || description != null) {
@@ -441,7 +441,7 @@ class Document extends DataClass implements Insertable<Document> {
       id: Value(id),
       title: Value(title),
       type: Value(type),
-      filePath: Value(filePath),
+      filePaths: Value(filePaths),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       description: description == null && nullToAbsent
@@ -472,7 +472,7 @@ class Document extends DataClass implements Insertable<Document> {
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       type: serializer.fromJson<String>(json['type']),
-      filePath: serializer.fromJson<String>(json['filePath']),
+      filePaths: serializer.fromJson<String>(json['filePaths']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       description: serializer.fromJson<String?>(json['description']),
@@ -492,7 +492,7 @@ class Document extends DataClass implements Insertable<Document> {
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'type': serializer.toJson<String>(type),
-      'filePath': serializer.toJson<String>(filePath),
+      'filePaths': serializer.toJson<String>(filePaths),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'description': serializer.toJson<String?>(description),
@@ -510,7 +510,7 @@ class Document extends DataClass implements Insertable<Document> {
     int? id,
     String? title,
     String? type,
-    String? filePath,
+    String? filePaths,
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<String?> description = const Value.absent(),
@@ -525,7 +525,7 @@ class Document extends DataClass implements Insertable<Document> {
     id: id ?? this.id,
     title: title ?? this.title,
     type: type ?? this.type,
-    filePath: filePath ?? this.filePath,
+    filePaths: filePaths ?? this.filePaths,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     description: description.present ? description.value : this.description,
@@ -542,7 +542,7 @@ class Document extends DataClass implements Insertable<Document> {
       id: data.id.present ? data.id.value : this.id,
       title: data.title.present ? data.title.value : this.title,
       type: data.type.present ? data.type.value : this.type,
-      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      filePaths: data.filePaths.present ? data.filePaths.value : this.filePaths,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       description: data.description.present
@@ -572,7 +572,7 @@ class Document extends DataClass implements Insertable<Document> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('type: $type, ')
-          ..write('filePath: $filePath, ')
+          ..write('filePaths: $filePaths, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('description: $description, ')
@@ -592,7 +592,7 @@ class Document extends DataClass implements Insertable<Document> {
     id,
     title,
     type,
-    filePath,
+    filePaths,
     createdAt,
     updatedAt,
     description,
@@ -611,7 +611,7 @@ class Document extends DataClass implements Insertable<Document> {
           other.id == this.id &&
           other.title == this.title &&
           other.type == this.type &&
-          other.filePath == this.filePath &&
+          other.filePaths == this.filePaths &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.description == this.description &&
@@ -628,7 +628,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
   final Value<int> id;
   final Value<String> title;
   final Value<String> type;
-  final Value<String> filePath;
+  final Value<String> filePaths;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String?> description;
@@ -643,7 +643,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.type = const Value.absent(),
-    this.filePath = const Value.absent(),
+    this.filePaths = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.description = const Value.absent(),
@@ -659,7 +659,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     this.id = const Value.absent(),
     required String title,
     required String type,
-    required String filePath,
+    required String filePaths,
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.description = const Value.absent(),
@@ -672,12 +672,12 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     this.metadata = const Value.absent(),
   }) : title = Value(title),
        type = Value(type),
-       filePath = Value(filePath);
+       filePaths = Value(filePaths);
   static Insertable<Document> custom({
     Expression<int>? id,
     Expression<String>? title,
     Expression<String>? type,
-    Expression<String>? filePath,
+    Expression<String>? filePaths,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? description,
@@ -693,7 +693,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (type != null) 'type': type,
-      if (filePath != null) 'file_path': filePath,
+      if (filePaths != null) 'file_paths': filePaths,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (description != null) 'description': description,
@@ -711,7 +711,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     Value<int>? id,
     Value<String>? title,
     Value<String>? type,
-    Value<String>? filePath,
+    Value<String>? filePaths,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String?>? description,
@@ -727,7 +727,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
       id: id ?? this.id,
       title: title ?? this.title,
       type: type ?? this.type,
-      filePath: filePath ?? this.filePath,
+      filePaths: filePaths ?? this.filePaths,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       description: description ?? this.description,
@@ -753,8 +753,8 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     if (type.present) {
       map['type'] = Variable<String>(type.value);
     }
-    if (filePath.present) {
-      map['file_path'] = Variable<String>(filePath.value);
+    if (filePaths.present) {
+      map['file_paths'] = Variable<String>(filePaths.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -795,7 +795,7 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('type: $type, ')
-          ..write('filePath: $filePath, ')
+          ..write('filePaths: $filePaths, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('description: $description, ')
@@ -1596,7 +1596,7 @@ typedef $$DocumentsTableCreateCompanionBuilder =
       Value<int> id,
       required String title,
       required String type,
-      required String filePath,
+      required String filePaths,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<String?> description,
@@ -1613,7 +1613,7 @@ typedef $$DocumentsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> title,
       Value<String> type,
-      Value<String> filePath,
+      Value<String> filePaths,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<String?> description,
@@ -1678,8 +1678,8 @@ class $$DocumentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get filePath => $composableBuilder(
-    column: $table.filePath,
+  ColumnFilters<String> get filePaths => $composableBuilder(
+    column: $table.filePaths,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1783,8 +1783,8 @@ class $$DocumentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get filePath => $composableBuilder(
-    column: $table.filePath,
+  ColumnOrderings<String> get filePaths => $composableBuilder(
+    column: $table.filePaths,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1857,8 +1857,8 @@ class $$DocumentsTableAnnotationComposer
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
 
-  GeneratedColumn<String> get filePath =>
-      $composableBuilder(column: $table.filePath, builder: (column) => column);
+  GeneratedColumn<String> get filePaths =>
+      $composableBuilder(column: $table.filePaths, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1957,7 +1957,7 @@ class $$DocumentsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String> type = const Value.absent(),
-                Value<String> filePath = const Value.absent(),
+                Value<String> filePaths = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> description = const Value.absent(),
@@ -1972,7 +1972,7 @@ class $$DocumentsTableTableManager
                 id: id,
                 title: title,
                 type: type,
-                filePath: filePath,
+                filePaths: filePaths,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 description: description,
@@ -1989,7 +1989,7 @@ class $$DocumentsTableTableManager
                 Value<int> id = const Value.absent(),
                 required String title,
                 required String type,
-                required String filePath,
+                required String filePaths,
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> description = const Value.absent(),
@@ -2004,7 +2004,7 @@ class $$DocumentsTableTableManager
                 id: id,
                 title: title,
                 type: type,
-                filePath: filePath,
+                filePaths: filePaths,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 description: description,

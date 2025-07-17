@@ -36,9 +36,18 @@ class DocumentListWidget extends ConsumerWidget {
             final doc = documents[index];
             return DocumentCard(
               document: doc,
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => DocumentViewerPage(document: doc),
-              )),
+              onTap: () {
+                // --- START DEBUGGING ---
+                // Print the document details when the card is tapped.
+                // This helps verify the path being sent to the viewer.
+                debugPrint("DEBUG: Tapped on document: '${doc.title}'");
+                debugPrint("DEBUG: File path being passed to viewer: ${doc.filePaths.isNotEmpty ? doc.filePaths.first : 'No file path'}");
+                // --- END DEBUGGING ---
+
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => DocumentViewerPage(document: doc),
+                ));
+              },
               onEdit: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => AddEditDocumentPage(documentId: doc.id),
               )),

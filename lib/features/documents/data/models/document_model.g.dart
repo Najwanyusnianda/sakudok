@@ -24,8 +24,8 @@ DocumentModel _$DocumentModelFromJson(
   bundleCount: (json['bundleCount'] as num?)?.toInt() ?? 0,
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
-  images:
-      (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+  filePaths:
+      (json['filePaths'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
   ocrText: json['ocrText'] as String?,
   metadata: DocumentMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
@@ -45,7 +45,7 @@ Map<String, dynamic> _$DocumentModelToJson(DocumentModel instance) =>
       'bundleCount': instance.bundleCount,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
-      'images': instance.images,
+      'filePaths': instance.filePaths,
       'ocrText': instance.ocrText,
       'metadata': instance.metadata.toJson(),
       'extractedData': instance.extractedData,

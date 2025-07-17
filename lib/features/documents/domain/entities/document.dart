@@ -20,7 +20,7 @@ abstract class Document with _$Document {
     @Default(0) int bundleCount,
     required DateTime createdAt,
     required DateTime updatedAt,
-    @Default([]) List<String> images,
+    @Default([]) List<String> filePaths,
     String? ocrText,
     required DocumentMetadata metadata,
     @Default({}) Map<String, dynamic> extractedData,

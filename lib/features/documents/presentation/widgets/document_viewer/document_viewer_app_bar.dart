@@ -1,3 +1,4 @@
+//lib/features/documents/presentation/widgets/document_viewer/document_viewer_app_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../domain/entities/document.dart';
@@ -19,31 +20,41 @@ class DocumentViewerAppBar extends StatelessWidget implements PreferredSizeWidge
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    // Determine the color for text and icons based on the viewer's background
+    final onSurfaceColor = theme.brightness == Brightness.dark ? colorScheme.onSurface : Colors.white;
+    // Determine the background color for the gradient
+    final viewerBackgroundColor = theme.brightness == Brightness.dark ? colorScheme.surface : Colors.black;
+
     return AppBar(
-      backgroundColor: Colors.black.withOpacity(0.7),
-      foregroundColor: Colors.white,
+      // Make the AppBar itself transparent to allow the gradient to show through.
+      backgroundColor: Colors.transparent,
+      foregroundColor: onSurfaceColor,
       elevation: 0,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            document.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+      title: Text(
+        document.title,
+        style: theme.textTheme.titleLarge?.copyWith(
+            color: onSurfaceColor,
+            fontWeight: FontWeight.w600,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      // --- FIX: Use flexibleSpace to apply a gradient background ---
+      // This creates a visual separation for the title without a hard edge.
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              viewerBackgroundColor,
+              viewerBackgroundColor.withOpacity(0.0),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: const [0.5, 1.0], // Gradient starts fading halfway down the app bar
           ),
-          if (document.images.length > 1)
-            Text(
-              '${currentIndex + 1} of ${document.images.length}',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-        ],
+        ),
       ),
       actions: [
         IconButton(
@@ -91,6 +102,7 @@ class DocumentViewerAppBar extends StatelessWidget implements PreferredSizeWidge
           ],
         ),
       ],
+      // Make the status bar icons (time, battery) light to contrast with the dark background
       systemOverlayStyle: SystemUiOverlayStyle.light,
     );
   }

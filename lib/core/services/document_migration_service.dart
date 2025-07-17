@@ -50,19 +50,19 @@ class DocumentMigrationService {
 
   /// Migrate a single document
   Future<bool> _migrateDocument(Document document) async {
-    if (document.images.isEmpty) {
+    if (document.filePaths.isEmpty) {
       return false; // Nothing to migrate
     }
 
-    List<String> newImagePaths = [];
+    List<String> newFilePaths = [];
     bool needsUpdate = false;
 
-    for (final imagePath in document.images) {
-      final file = File(imagePath);
-      
+    for (final filePath in document.filePaths) {
+      final file = File(filePath);
+
       // Check if file is already in app's private directory
-      if (await _isFileInAppDirectory(imagePath)) {
-        newImagePaths.add(imagePath); // Keep existing path
+      if (await _isFileInAppDirectory(filePath)) {
+        newFilePaths.add(filePath); // Keep existing path
         continue;
       }
 
@@ -78,7 +78,7 @@ class DocumentMigrationService {
           sourceFile: file,
           documentType: document.type,
         );
-        newImagePaths.add(newPath);
+        newFilePaths.add(newPath);
         needsUpdate = true;
       } catch (e) {
         // If copy fails, skip this file
@@ -87,9 +87,9 @@ class DocumentMigrationService {
     }
 
     // Update document if needed
-    if (needsUpdate && newImagePaths.isNotEmpty) {
+    if (needsUpdate && newFilePaths.isNotEmpty) {
       final updatedDocument = document.copyWith(
-        images: newImagePaths,
+        filePaths: newFilePaths,
         updatedAt: DateTime.now(),
       );
 
@@ -117,7 +117,7 @@ class DocumentMigrationService {
     try {
       final documents = _ref.read(documentsNotifierProvider).value ?? [];
       final referencedFiles = documents
-          .expand((doc) => doc.images)
+          .expand((doc) => doc.filePaths)
           .toList();
 
       return await _fileService.cleanupOrphanedFiles(referencedFiles);

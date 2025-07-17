@@ -4,7 +4,7 @@ class Documents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   TextColumn get type => text()();
-  TextColumn get filePath => text()();
+  TextColumn get filePaths => text()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   

@@ -23,21 +23,21 @@ class DocumentViewerBody extends StatelessWidget {
   Widget build(BuildContext context) {
     // Check if document has any files
     //check path
-    print('Document images: ${document.images}');
-    if (document.images.isEmpty) {
+    print('Document images: ${document.filePaths}');
+    if (document.filePaths.isEmpty) {
       return _buildNoImageState(context);
     }
 
     // Case A: The document is a PDF
     // Check if the first file in the list is a PDF
-    final firstFile = document.images.first;
+    final firstFile = document.filePaths.first;
     if (firstFile.toLowerCase().endsWith('.pdf')) {
       return _buildPdfViewer(context, firstFile);
     }
 
     // Case B: The document contains only images
-    if (document.images.length == 1) {
-      return _buildSingleItem(context, document.images.first);
+    if (document.filePaths.length == 1) {
+      return _buildSingleItem(context, document.filePaths.first);
     }
 
     // Multiple images
@@ -58,13 +58,13 @@ class DocumentViewerBody extends StatelessWidget {
     return PageView.builder(
       controller: pageController,
       onPageChanged: onPageChanged,
-      itemCount: document.images.length,
+      itemCount: document.filePaths.length,
       itemBuilder: (context, index) {
         return Center(
           child: InteractiveViewer(
             minScale: 0.5,
             maxScale: 4.0,
-            child: _buildItemWidget(context, document.images[index]),
+            child: _buildItemWidget(context, document.filePaths[index]),
           ),
         );
       },

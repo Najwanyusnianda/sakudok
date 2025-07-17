@@ -6,26 +6,33 @@ import '../../domain/entities/document_type.dart';
 import '../../domain/entities/metadata/document_metadata.dart';
 
 class DocumentMapper {
-  static domain.Document fromDb(db.Document dbDoc) {
+  /// Maps a database row (`db.DriftDocument`) to a domain entity (`domain.Document`).
+  static domain.Document fromDb(db.DriftDocument dbDoc) {
     return domain.Document(
       id: dbDoc.id.toString(),
       title: dbDoc.title,
       description: dbDoc.description,
-      thumbnail: null, // Not in database schema yet
       type: DocumentType.values.byName(dbDoc.type),
       tags: dbDoc.tags != null ? (json.decode(dbDoc.tags!) as List).cast<String>() : [],
-      expiryDate: null, // Not in database schema yet
-      isFavorite: false, // Not in database schema yet
       createdAt: dbDoc.createdAt,
       updatedAt: dbDoc.updatedAt,
-      images: [], // Not in database schema yet
-      ocrText: null, // Not in database schema yet
       metadata: DocumentMetadata.fromJson(json.decode(dbDoc.metadata)),
-      bundleCount: 0, // Not in database schema yet
-      extractedData: {}, // Not in database schema yet
+      
+      // --- FIX: Use the new 'filePaths' field name from the database object ---
+      // This correctly populates the filePaths list when loading a document.
+      filePaths: dbDoc.filePaths != null ? (json.decode(dbDoc.filePaths!) as List).cast<String>() : [],
+
+      // These fields are not in the database schema yet, so they are set to default values.
+      thumbnail: null,
+      expiryDate: null,
+      isFavorite: false,
+      ocrText: null,
+      bundleCount: 0,
+      extractedData: {},
     );
   }
 
+  /// Maps a domain entity (`domain.Document`) to a database companion (`db.DocumentsCompanion`) for writing.
   static db.DocumentsCompanion toDb(domain.Document domainDoc) {
     final id = int.tryParse(domainDoc.id);
     return db.DocumentsCompanion(
@@ -33,13 +40,14 @@ class DocumentMapper {
       title: Value(domainDoc.title),
       description: Value(domainDoc.description),
       type: Value(domainDoc.type.name),
-      filePath: const Value(''), // Default empty, will be updated when file is saved
       tags: Value(json.encode(domainDoc.tags)),
       createdAt: Value(domainDoc.createdAt),
       updatedAt: Value(domainDoc.updatedAt),
       metadata: Value(json.encode(domainDoc.metadata.toJson())),
-      // Fields not yet in database schema:
-      // thumbnail, expiryDate, isFavorite, bundleCount, images, ocrText, extractedData
+
+      // --- FIX: Use the new 'filePaths' field name from the domain entity ---
+      // This ensures the list of file paths is saved correctly.
+      filePaths: Value(json.encode(domainDoc.filePaths)),
     );
   }
-} 
+}

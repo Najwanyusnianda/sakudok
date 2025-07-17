@@ -1,3 +1,4 @@
+//lib/features/documents/data/models/document_model.dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/document.dart';
 import '../../domain/entities/document_type.dart';
@@ -18,7 +19,8 @@ class DocumentModel {
   final int bundleCount;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final List<String> images;
+  // --- RENAMED THIS FIELD ---
+  final List<String> filePaths;
   final String? ocrText;
   final DocumentMetadata metadata;
   final Map<String, dynamic> extractedData;
@@ -35,7 +37,8 @@ class DocumentModel {
     this.bundleCount = 0,
     required this.createdAt,
     required this.updatedAt,
-    this.images = const [],
+    // --- AND RENAMED THIS PARAMETER ---
+    this.filePaths = const [],
     this.ocrText,
     required this.metadata,
     this.extractedData = const {},
@@ -45,38 +48,40 @@ class DocumentModel {
   Map<String, dynamic> toJson() => _$DocumentModelToJson(this);
 
   factory DocumentModel.fromEntity(Document doc) => DocumentModel(
-    id: doc.id,
-    title: doc.title,
-    description: doc.description,
-    thumbnail: doc.thumbnail,
-    type: doc.type,
-    tags: doc.tags,
-    expiryDate: doc.expiryDate,
-    isFavorite: doc.isFavorite,
-    bundleCount: doc.bundleCount,
-    createdAt: doc.createdAt,
-    updatedAt: doc.updatedAt,
-    images: doc.images,
-    ocrText: doc.ocrText,
-    metadata: doc.metadata,
-    extractedData: doc.extractedData,
-  );
+        id: doc.id,
+        title: doc.title,
+        description: doc.description,
+        thumbnail: doc.thumbnail,
+        type: doc.type,
+        tags: doc.tags,
+        expiryDate: doc.expiryDate,
+        isFavorite: doc.isFavorite,
+        bundleCount: doc.bundleCount,
+        createdAt: doc.createdAt,
+        updatedAt: doc.updatedAt,
+        // This line is now correct because the constructor parameter was renamed.
+        filePaths: doc.filePaths,
+        ocrText: doc.ocrText,
+        metadata: doc.metadata,
+        extractedData: doc.extractedData,
+      );
 
   Document toEntity() => Document(
-    id: id,
-    title: title,
-    description: description,
-    thumbnail: thumbnail,
-    type: type,
-    tags: tags,
-    expiryDate: expiryDate,
-    isFavorite: isFavorite,
-    bundleCount: bundleCount,
-    createdAt: createdAt,
-    updatedAt: updatedAt,
-    images: images,
-    ocrText: ocrText,
-    metadata: metadata,
-    extractedData: extractedData,
-  );
-} 
+        id: id,
+        title: title,
+        description: description,
+        thumbnail: thumbnail,
+        type: type,
+        tags: tags,
+        expiryDate: expiryDate,
+        isFavorite: isFavorite,
+        bundleCount: bundleCount,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        // This line is now correct because the class field was renamed.
+        filePaths: filePaths,
+        ocrText: ocrText,
+        metadata: metadata,
+        extractedData: extractedData,
+      );
+}

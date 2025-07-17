@@ -1,4 +1,3 @@
-//library/features/documents/presentation/pages/quick_save_document_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
@@ -40,6 +39,77 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
     _titleController.dispose();
     super.dispose();
   }
+
+  Future<void> _saveDocument() async {
+    if (_titleController.text.trim().isEmpty) {
+      _showSnackBar('Please enter a document title', isError: true);
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // --- START DEBUGGING ---
+      // 1. Print the original path of the file you are saving.
+      // This should be a temporary path or a path from a public directory (e.g., Downloads).
+      debugPrint("DEBUG: Original file path: ${widget.documentFile.path}");
+      // --- END DEBUGGING ---
+
+      // Copy file to app's private directory using FileService
+      final fileService = ref.read(fileServiceProvider);
+      final savedFilePath = await fileService.copyFileToAppDirectory(
+        sourceFile: widget.documentFile,
+        documentType: _selectedType,
+      );
+
+      // --- START DEBUGGING ---
+      // 2. Print the new path returned by your FileService.
+      // This should be a path inside your app's private data directory.
+      debugPrint("DEBUG: New saved file path: $savedFilePath");
+      // --- END DEBUGGING ---
+
+      // Create document with the saved file path
+      final document = Document(
+        id: '', // Will be assigned by repository
+        title: _titleController.text.trim(),
+        type: _selectedType,
+        metadata: const DocumentMetadata.unknown({}),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        filePaths: [savedFilePath], // Store the private app directory path
+      );
+
+      // --- START DEBUGGING ---
+      // 3. Print the path that is actually being saved in the Document object.
+      // This confirms you are using the new path.
+      debugPrint("DEBUG: Path being saved to database: ${document.filePaths.first}");
+      // --- END DEBUGGING ---
+
+      // Save using DocumentNotifier
+      final notifier = ref.read(documentsNotifierProvider.notifier);
+      final success = await notifier.addDocument(document);
+      
+      if (success) {
+        _showSnackBar('Document saved successfully!');
+        if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+      } else {
+        await fileService.deleteFile(savedFilePath);
+        _showSnackBar('Failed to save document', isError: true);
+      }
+    } catch (e) {
+      _showSnackBar('Failed to save document: $e', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // --- No changes to the UI or other methods below this line ---
 
   @override
   Widget build(BuildContext context) {
@@ -191,34 +261,24 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
   }
 
   Widget _buildPdfPreview() {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.picture_as_pdf,
-            size: 64,
-            color: Colors.red.shade400,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.picture_as_pdf,
+          size: 64,
+          color: Colors.red.shade400,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'PDF Document',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade700,
           ),
-          const SizedBox(height: 8),
-          Text(
-            'PDF Document',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade700,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Ready to save',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -227,26 +287,7 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
       widget.documentFile,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) {
-        return Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.image_not_supported,
-                size: 64,
-                color: Colors.grey.shade400,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Cannot preview image',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            ],
-          ),
-        );
+        return const Center(child: Text('Cannot preview image'));
       },
     );
   }
@@ -264,64 +305,13 @@ class _QuickSaveDocumentPageState extends ConsumerState<QuickSaveDocumentPage> {
       case DocumentType.sertifikat:
         return Icons.verified;
       case DocumentType.lainnya:
+      default:
         return Icons.description;
     }
   }
 
-  Future<void> _saveDocument() async {
-    if (_titleController.text.trim().isEmpty) {
-      _showSnackBar('Please enter a document title', isError: true);
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Show progress for file copying
-      _showSnackBar('Securing document in app storage...', isError: false);
-      
-      // Copy file to app's private directory using FileService
-      final fileService = ref.read(fileServiceProvider);
-      final savedFilePath = await fileService.copyFileToAppDirectory(
-        sourceFile: widget.documentFile,
-        documentType: _selectedType,
-      );
-
-      // Create document with the saved file path (in app's private directory)
-      final document = Document(
-        id: '', // Will be assigned by repository
-        title: _titleController.text.trim(),
-        type: _selectedType, // Use selected document type
-        metadata: const DocumentMetadata.unknown({}), // No metadata
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        images: [savedFilePath], // Store the private app directory path
-      );
-
-      // Save using DocumentNotifier (this will auto-refresh the list)
-      final notifier = ref.read(documentsNotifierProvider.notifier);
-      final success = await notifier.addDocument(document);
-      
-      if (success) {
-        _showSnackBar('Document saved successfully! Your files are now safely stored in the app.');
-        // Navigate back to home (pop until home)
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      } else {
-        // If document save failed, clean up the copied file
-        await fileService.deleteFile(savedFilePath);
-        _showSnackBar('Failed to save document', isError: true);
-      }
-    } catch (e) {
-      _showSnackBar('Failed to save document: $e', isError: true);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
   void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
