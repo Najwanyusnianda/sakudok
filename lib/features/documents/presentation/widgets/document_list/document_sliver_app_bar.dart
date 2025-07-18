@@ -26,7 +26,7 @@ class DocumentSliverAppBar extends ConsumerWidget {
       floating: true,
       pinned: true,
       snap: true,
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.0),
       foregroundColor: Colors.white,
       elevation: 0,
       leading: Builder(
