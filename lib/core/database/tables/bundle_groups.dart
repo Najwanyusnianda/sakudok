@@ -1,12 +1,11 @@
 import 'package:drift/drift.dart';
 
-class Bundles extends Table {
+class BundleGroups extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
-  TextColumn get description => text().nullable()();
-  TextColumn get template => text().nullable()();
-  IntColumn get groupId => integer().nullable()();
+  TextColumn get iconName => text().nullable()();
+  TextColumn get colorHex => text().nullable()();
+  IntColumn get displayOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-  BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
 }

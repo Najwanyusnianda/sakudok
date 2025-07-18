@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/bundle.dart';
 import '../providers/bundle_providers.dart';
 import '../widgets/bundle_template_selector.dart';
+import '../../../bundle_groups/presentation/providers/bundle_group_providers.dart';
+import '../../../bundle_groups/domain/entities/bundle_group.dart';
 
 
 class AddEditBundlePage extends ConsumerStatefulWidget {
@@ -18,6 +20,7 @@ class _AddEditBundlePageState extends ConsumerState<AddEditBundlePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
+  int? _selectedGroupId;
   bool _isEditing = false;
 
   @override
@@ -34,6 +37,7 @@ class _AddEditBundlePageState extends ConsumerState<AddEditBundlePage> {
         final bundle = bundlesState.value!.firstWhere((b) => b.id == widget.bundleId);
         _nameController.text = bundle.name;
         _descriptionController.text = bundle.description ?? '';
+        _selectedGroupId = bundle.groupId;
       }
     }
   }
@@ -51,6 +55,7 @@ class _AddEditBundlePageState extends ConsumerState<AddEditBundlePage> {
         id: widget.bundleId ?? DateTime.now().toIso8601String(),
         name: _nameController.text,
         description: _descriptionController.text,
+        groupId: _selectedGroupId, // Include selected group
         createdAt: _isEditing
             ? ref
                 .read(bundlesNotifierProvider)
@@ -72,6 +77,8 @@ class _AddEditBundlePageState extends ConsumerState<AddEditBundlePage> {
 
   @override
   Widget build(BuildContext context) {
+    final bundleGroupsAsync = ref.watch(bundleGroupsNotifierProvider);
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Bundle' : 'Create Bundle'),
@@ -111,7 +118,59 @@ class _AddEditBundlePageState extends ConsumerState<AddEditBundlePage> {
                 ),
                 maxLines: 3,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              
+              // Bundle Group Selection
+              bundleGroupsAsync.when(
+                data: (groups) {
+                  if (groups.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Bundle Group (Optional)',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int?>(
+                        value: _selectedGroupId,
+                        decoration: const InputDecoration(
+                          hintText: 'Select a group',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem<int?>(
+                            value: null,
+                            child: Text('No Group (Uncategorized)'),
+                          ),
+                          ...groups.map((group) => DropdownMenuItem<int?>(
+                            value: group.id,
+                            child: Row(
+                              children: [
+                                Icon(group.icon, size: 16, color: group.color),
+                                const SizedBox(width: 8),
+                                Text(group.name),
+                              ],
+                            ),
+                          )),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedGroupId = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (error, stack) => Text('Error loading groups: $error'),
+              ),
+              
               if (!_isEditing) ...[
                 const Divider(),
                 const SizedBox(height: 16),

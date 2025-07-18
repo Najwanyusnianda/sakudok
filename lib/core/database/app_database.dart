@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'tables/documents.dart';
 import 'tables/bundles.dart';
 import 'tables/bundle_documents.dart';
+import 'tables/bundle_groups.dart';
 
 part 'app_database.g.dart';
 
@@ -16,12 +17,14 @@ typedef DriftBundle = Bundle;
 
 typedef DriftBundleDocument = BundleDocument;
 
-@DriftDatabase(tables: [Documents, Bundles, BundleDocuments])
+typedef DriftBundleGroup = BundleGroup;
+
+@DriftDatabase(tables: [Documents, Bundles, BundleDocuments, BundleGroups])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -32,6 +35,8 @@ class AppDatabase extends _$AppDatabase {
       onUpgrade: (Migrator m, int from, int to) async {
         if (from < 2) {
           await m.addColumn(documents, documents.metadata);
+          await m.createTable(bundleGroups);
+          await m.addColumn(bundles, bundles.groupId);
         }
       },
     );
@@ -123,6 +128,40 @@ class AppDatabase extends _$AppDatabase {
     return await (delete(bundleDocuments)
           ..where((bd) => bd.documentId.equals(documentId) & bd.bundleId.equals(bundleId)))
         .go();
+  }
+
+  // Bundle Group operations
+  Future<List<DriftBundleGroup>> getAllBundleGroups() async {
+    return await (select(bundleGroups)..orderBy([(bg) => OrderingTerm.asc(bg.displayOrder)])).get();
+  }
+
+  Future<DriftBundleGroup?> getBundleGroupById(int id) async {
+    return await (select(bundleGroups)..where((bg) => bg.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<int> insertBundleGroup(BundleGroupsCompanion bundleGroup) async {
+    return await into(bundleGroups).insert(bundleGroup);
+  }
+
+  Future<bool> updateBundleGroup(BundleGroupsCompanion bundleGroup) async {
+    return await update(bundleGroups).replace(bundleGroup);
+  }
+
+  Future<int> deleteBundleGroup(int id) async {
+    // First, set groupId to null for all bundles in this group
+    await (update(bundles)..where((b) => b.groupId.equals(id)))
+        .write(BundlesCompanion(groupId: Value(null)));
+    
+    // Then delete the group
+    return await (delete(bundleGroups)..where((bg) => bg.id.equals(id))).go();
+  }
+
+  Future<List<DriftBundle>> getBundlesByGroup(int? groupId) async {
+    if (groupId == null) {
+      return await (select(bundles)..where((b) => b.groupId.isNull())).get();
+    } else {
+      return await (select(bundles)..where((b) => b.groupId.equals(groupId))).get();
+    }
   }
 }
 

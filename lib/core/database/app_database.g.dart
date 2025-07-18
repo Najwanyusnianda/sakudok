@@ -860,6 +860,17 @@ class $BundlesTable extends Bundles with TableInfo<$BundlesTable, Bundle> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<int> groupId = GeneratedColumn<int>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -905,6 +916,7 @@ class $BundlesTable extends Bundles with TableInfo<$BundlesTable, Bundle> {
     name,
     description,
     template,
+    groupId,
     createdAt,
     updatedAt,
     isDefault,
@@ -945,6 +957,12 @@ class $BundlesTable extends Bundles with TableInfo<$BundlesTable, Bundle> {
       context.handle(
         _templateMeta,
         template.isAcceptableOrUnknown(data['template']!, _templateMeta),
+      );
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
       );
     }
     if (data.containsKey('created_at')) {
@@ -990,6 +1008,10 @@ class $BundlesTable extends Bundles with TableInfo<$BundlesTable, Bundle> {
         DriftSqlType.string,
         data['${effectivePrefix}template'],
       ),
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}group_id'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1016,6 +1038,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
   final String name;
   final String? description;
   final String? template;
+  final int? groupId;
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool isDefault;
@@ -1024,6 +1047,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
     required this.name,
     this.description,
     this.template,
+    this.groupId,
     required this.createdAt,
     required this.updatedAt,
     required this.isDefault,
@@ -1038,6 +1062,9 @@ class Bundle extends DataClass implements Insertable<Bundle> {
     }
     if (!nullToAbsent || template != null) {
       map['template'] = Variable<String>(template);
+    }
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<int>(groupId);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1055,6 +1082,9 @@ class Bundle extends DataClass implements Insertable<Bundle> {
       template: template == null && nullToAbsent
           ? const Value.absent()
           : Value(template),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       isDefault: Value(isDefault),
@@ -1071,6 +1101,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
       template: serializer.fromJson<String?>(json['template']),
+      groupId: serializer.fromJson<int?>(json['groupId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
@@ -1084,6 +1115,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
       'template': serializer.toJson<String?>(template),
+      'groupId': serializer.toJson<int?>(groupId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'isDefault': serializer.toJson<bool>(isDefault),
@@ -1095,6 +1127,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
     String? name,
     Value<String?> description = const Value.absent(),
     Value<String?> template = const Value.absent(),
+    Value<int?> groupId = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isDefault,
@@ -1103,6 +1136,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
     name: name ?? this.name,
     description: description.present ? description.value : this.description,
     template: template.present ? template.value : this.template,
+    groupId: groupId.present ? groupId.value : this.groupId,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     isDefault: isDefault ?? this.isDefault,
@@ -1115,6 +1149,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
           ? data.description.value
           : this.description,
       template: data.template.present ? data.template.value : this.template,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
@@ -1128,6 +1163,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('template: $template, ')
+          ..write('groupId: $groupId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('isDefault: $isDefault')
@@ -1141,6 +1177,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
     name,
     description,
     template,
+    groupId,
     createdAt,
     updatedAt,
     isDefault,
@@ -1153,6 +1190,7 @@ class Bundle extends DataClass implements Insertable<Bundle> {
           other.name == this.name &&
           other.description == this.description &&
           other.template == this.template &&
+          other.groupId == this.groupId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.isDefault == this.isDefault);
@@ -1163,6 +1201,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
   final Value<String> name;
   final Value<String?> description;
   final Value<String?> template;
+  final Value<int?> groupId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<bool> isDefault;
@@ -1171,6 +1210,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.template = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.isDefault = const Value.absent(),
@@ -1180,6 +1220,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
     required String name,
     this.description = const Value.absent(),
     this.template = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.isDefault = const Value.absent(),
@@ -1189,6 +1230,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
     Expression<String>? name,
     Expression<String>? description,
     Expression<String>? template,
+    Expression<int>? groupId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<bool>? isDefault,
@@ -1198,6 +1240,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
       if (name != null) 'name': name,
       if (description != null) 'description': description,
       if (template != null) 'template': template,
+      if (groupId != null) 'group_id': groupId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (isDefault != null) 'is_default': isDefault,
@@ -1209,6 +1252,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
     Value<String>? name,
     Value<String?>? description,
     Value<String?>? template,
+    Value<int?>? groupId,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<bool>? isDefault,
@@ -1218,6 +1262,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
       name: name ?? this.name,
       description: description ?? this.description,
       template: template ?? this.template,
+      groupId: groupId ?? this.groupId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isDefault: isDefault ?? this.isDefault,
@@ -1239,6 +1284,9 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
     if (template.present) {
       map['template'] = Variable<String>(template.value);
     }
+    if (groupId.present) {
+      map['group_id'] = Variable<int>(groupId.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1258,6 +1306,7 @@ class BundlesCompanion extends UpdateCompanion<Bundle> {
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('template: $template, ')
+          ..write('groupId: $groupId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('isDefault: $isDefault')
@@ -1572,6 +1621,459 @@ class BundleDocumentsCompanion extends UpdateCompanion<BundleDocument> {
   }
 }
 
+class $BundleGroupsTable extends BundleGroups
+    with TableInfo<$BundleGroupsTable, BundleGroup> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BundleGroupsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _iconNameMeta = const VerificationMeta(
+    'iconName',
+  );
+  @override
+  late final GeneratedColumn<String> iconName = GeneratedColumn<String>(
+    'icon_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _colorHexMeta = const VerificationMeta(
+    'colorHex',
+  );
+  @override
+  late final GeneratedColumn<String> colorHex = GeneratedColumn<String>(
+    'color_hex',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _displayOrderMeta = const VerificationMeta(
+    'displayOrder',
+  );
+  @override
+  late final GeneratedColumn<int> displayOrder = GeneratedColumn<int>(
+    'display_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    iconName,
+    colorHex,
+    displayOrder,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bundle_groups';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BundleGroup> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('icon_name')) {
+      context.handle(
+        _iconNameMeta,
+        iconName.isAcceptableOrUnknown(data['icon_name']!, _iconNameMeta),
+      );
+    }
+    if (data.containsKey('color_hex')) {
+      context.handle(
+        _colorHexMeta,
+        colorHex.isAcceptableOrUnknown(data['color_hex']!, _colorHexMeta),
+      );
+    }
+    if (data.containsKey('display_order')) {
+      context.handle(
+        _displayOrderMeta,
+        displayOrder.isAcceptableOrUnknown(
+          data['display_order']!,
+          _displayOrderMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BundleGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BundleGroup(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      iconName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon_name'],
+      ),
+      colorHex: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}color_hex'],
+      ),
+      displayOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}display_order'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $BundleGroupsTable createAlias(String alias) {
+    return $BundleGroupsTable(attachedDatabase, alias);
+  }
+}
+
+class BundleGroup extends DataClass implements Insertable<BundleGroup> {
+  final int id;
+  final String name;
+  final String? iconName;
+  final String? colorHex;
+  final int displayOrder;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const BundleGroup({
+    required this.id,
+    required this.name,
+    this.iconName,
+    this.colorHex,
+    required this.displayOrder,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || iconName != null) {
+      map['icon_name'] = Variable<String>(iconName);
+    }
+    if (!nullToAbsent || colorHex != null) {
+      map['color_hex'] = Variable<String>(colorHex);
+    }
+    map['display_order'] = Variable<int>(displayOrder);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  BundleGroupsCompanion toCompanion(bool nullToAbsent) {
+    return BundleGroupsCompanion(
+      id: Value(id),
+      name: Value(name),
+      iconName: iconName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconName),
+      colorHex: colorHex == null && nullToAbsent
+          ? const Value.absent()
+          : Value(colorHex),
+      displayOrder: Value(displayOrder),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory BundleGroup.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BundleGroup(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      iconName: serializer.fromJson<String?>(json['iconName']),
+      colorHex: serializer.fromJson<String?>(json['colorHex']),
+      displayOrder: serializer.fromJson<int>(json['displayOrder']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'iconName': serializer.toJson<String?>(iconName),
+      'colorHex': serializer.toJson<String?>(colorHex),
+      'displayOrder': serializer.toJson<int>(displayOrder),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  BundleGroup copyWith({
+    int? id,
+    String? name,
+    Value<String?> iconName = const Value.absent(),
+    Value<String?> colorHex = const Value.absent(),
+    int? displayOrder,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => BundleGroup(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    iconName: iconName.present ? iconName.value : this.iconName,
+    colorHex: colorHex.present ? colorHex.value : this.colorHex,
+    displayOrder: displayOrder ?? this.displayOrder,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  BundleGroup copyWithCompanion(BundleGroupsCompanion data) {
+    return BundleGroup(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      iconName: data.iconName.present ? data.iconName.value : this.iconName,
+      colorHex: data.colorHex.present ? data.colorHex.value : this.colorHex,
+      displayOrder: data.displayOrder.present
+          ? data.displayOrder.value
+          : this.displayOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BundleGroup(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('iconName: $iconName, ')
+          ..write('colorHex: $colorHex, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    iconName,
+    colorHex,
+    displayOrder,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BundleGroup &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.iconName == this.iconName &&
+          other.colorHex == this.colorHex &&
+          other.displayOrder == this.displayOrder &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class BundleGroupsCompanion extends UpdateCompanion<BundleGroup> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<String?> iconName;
+  final Value<String?> colorHex;
+  final Value<int> displayOrder;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const BundleGroupsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.iconName = const Value.absent(),
+    this.colorHex = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  BundleGroupsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.iconName = const Value.absent(),
+    this.colorHex = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<BundleGroup> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<String>? iconName,
+    Expression<String>? colorHex,
+    Expression<int>? displayOrder,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (iconName != null) 'icon_name': iconName,
+      if (colorHex != null) 'color_hex': colorHex,
+      if (displayOrder != null) 'display_order': displayOrder,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  BundleGroupsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<String?>? iconName,
+    Value<String?>? colorHex,
+    Value<int>? displayOrder,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return BundleGroupsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      iconName: iconName ?? this.iconName,
+      colorHex: colorHex ?? this.colorHex,
+      displayOrder: displayOrder ?? this.displayOrder,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (iconName.present) {
+      map['icon_name'] = Variable<String>(iconName.value);
+    }
+    if (colorHex.present) {
+      map['color_hex'] = Variable<String>(colorHex.value);
+    }
+    if (displayOrder.present) {
+      map['display_order'] = Variable<int>(displayOrder.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BundleGroupsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('iconName: $iconName, ')
+          ..write('colorHex: $colorHex, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1580,6 +2082,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BundleDocumentsTable bundleDocuments = $BundleDocumentsTable(
     this,
   );
+  late final $BundleGroupsTable bundleGroups = $BundleGroupsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1588,6 +2091,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     documents,
     bundles,
     bundleDocuments,
+    bundleGroups,
   ];
 }
 
@@ -2080,6 +2584,7 @@ typedef $$BundlesTableCreateCompanionBuilder =
       required String name,
       Value<String?> description,
       Value<String?> template,
+      Value<int?> groupId,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<bool> isDefault,
@@ -2090,6 +2595,7 @@ typedef $$BundlesTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> description,
       Value<String?> template,
+      Value<int?> groupId,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<bool> isDefault,
@@ -2146,6 +2652,11 @@ class $$BundlesTableFilterComposer
 
   ColumnFilters<String> get template => $composableBuilder(
     column: $table.template,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get groupId => $composableBuilder(
+    column: $table.groupId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2219,6 +2730,11 @@ class $$BundlesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get groupId => $composableBuilder(
+    column: $table.groupId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -2257,6 +2773,9 @@ class $$BundlesTableAnnotationComposer
 
   GeneratedColumn<String> get template =>
       $composableBuilder(column: $table.template, builder: (column) => column);
+
+  GeneratedColumn<int> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2325,6 +2844,7 @@ class $$BundlesTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<String?> template = const Value.absent(),
+                Value<int?> groupId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
@@ -2333,6 +2853,7 @@ class $$BundlesTableTableManager
                 name: name,
                 description: description,
                 template: template,
+                groupId: groupId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 isDefault: isDefault,
@@ -2343,6 +2864,7 @@ class $$BundlesTableTableManager
                 required String name,
                 Value<String?> description = const Value.absent(),
                 Value<String?> template = const Value.absent(),
+                Value<int?> groupId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
@@ -2351,6 +2873,7 @@ class $$BundlesTableTableManager
                 name: name,
                 description: description,
                 template: template,
+                groupId: groupId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 isDefault: isDefault,
@@ -2805,6 +3328,240 @@ typedef $$BundleDocumentsTableProcessedTableManager =
       BundleDocument,
       PrefetchHooks Function({bool bundleId, bool documentId})
     >;
+typedef $$BundleGroupsTableCreateCompanionBuilder =
+    BundleGroupsCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<String?> iconName,
+      Value<String?> colorHex,
+      Value<int> displayOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$BundleGroupsTableUpdateCompanionBuilder =
+    BundleGroupsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<String?> iconName,
+      Value<String?> colorHex,
+      Value<int> displayOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$BundleGroupsTableFilterComposer
+    extends Composer<_$AppDatabase, $BundleGroupsTable> {
+  $$BundleGroupsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get iconName => $composableBuilder(
+    column: $table.iconName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get colorHex => $composableBuilder(
+    column: $table.colorHex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BundleGroupsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BundleGroupsTable> {
+  $$BundleGroupsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get iconName => $composableBuilder(
+    column: $table.iconName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get colorHex => $composableBuilder(
+    column: $table.colorHex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BundleGroupsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BundleGroupsTable> {
+  $$BundleGroupsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get iconName =>
+      $composableBuilder(column: $table.iconName, builder: (column) => column);
+
+  GeneratedColumn<String> get colorHex =>
+      $composableBuilder(column: $table.colorHex, builder: (column) => column);
+
+  GeneratedColumn<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$BundleGroupsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BundleGroupsTable,
+          BundleGroup,
+          $$BundleGroupsTableFilterComposer,
+          $$BundleGroupsTableOrderingComposer,
+          $$BundleGroupsTableAnnotationComposer,
+          $$BundleGroupsTableCreateCompanionBuilder,
+          $$BundleGroupsTableUpdateCompanionBuilder,
+          (
+            BundleGroup,
+            BaseReferences<_$AppDatabase, $BundleGroupsTable, BundleGroup>,
+          ),
+          BundleGroup,
+          PrefetchHooks Function()
+        > {
+  $$BundleGroupsTableTableManager(_$AppDatabase db, $BundleGroupsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BundleGroupsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BundleGroupsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BundleGroupsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> iconName = const Value.absent(),
+                Value<String?> colorHex = const Value.absent(),
+                Value<int> displayOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => BundleGroupsCompanion(
+                id: id,
+                name: name,
+                iconName: iconName,
+                colorHex: colorHex,
+                displayOrder: displayOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<String?> iconName = const Value.absent(),
+                Value<String?> colorHex = const Value.absent(),
+                Value<int> displayOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => BundleGroupsCompanion.insert(
+                id: id,
+                name: name,
+                iconName: iconName,
+                colorHex: colorHex,
+                displayOrder: displayOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BundleGroupsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BundleGroupsTable,
+      BundleGroup,
+      $$BundleGroupsTableFilterComposer,
+      $$BundleGroupsTableOrderingComposer,
+      $$BundleGroupsTableAnnotationComposer,
+      $$BundleGroupsTableCreateCompanionBuilder,
+      $$BundleGroupsTableUpdateCompanionBuilder,
+      (
+        BundleGroup,
+        BaseReferences<_$AppDatabase, $BundleGroupsTable, BundleGroup>,
+      ),
+      BundleGroup,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2815,4 +3572,6 @@ class $AppDatabaseManager {
       $$BundlesTableTableManager(_db, _db.bundles);
   $$BundleDocumentsTableTableManager get bundleDocuments =>
       $$BundleDocumentsTableTableManager(_db, _db.bundleDocuments);
+  $$BundleGroupsTableTableManager get bundleGroups =>
+      $$BundleGroupsTableTableManager(_db, _db.bundleGroups);
 }

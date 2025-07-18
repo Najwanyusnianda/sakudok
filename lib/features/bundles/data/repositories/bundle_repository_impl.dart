@@ -1,7 +1,8 @@
 // lib/features/bundles/data/repositories/bundle_repository_impl.dart
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/exceptions/app_exception.dart';
-import '../../domain/entities/bundle.dart';
+// --- FIX: Added 'as domain' prefix to avoid name collision ---
+import '../../domain/entities/bundle.dart' as domain;
 import '../../domain/entities/bundle_template.dart';
 import '../../domain/repositories/bundle_repository.dart';
 import '../datasources/bundle_local_datasource.dart';
@@ -13,10 +14,12 @@ class BundleRepositoryImpl implements BundleRepository {
   BundleRepositoryImpl(this._localDataSource);
 
   @override
-  Future<Either<AppException, List<Bundle>>> getAllBundles() async {
+  // --- FIX: Use the prefixed 'domain.Bundle' ---
+  Future<Either<AppException, List<domain.Bundle>>> getAllBundles() async {
     try {
       final bundles = await _localDataSource.getAllBundles();
-      final domainBundles = <Bundle>[];
+      // --- FIX: Use the prefixed 'domain.Bundle' ---
+      final domainBundles = <domain.Bundle>[];
       
       // Get documents for each bundle
       for (final bundle in bundles) {
@@ -31,7 +34,8 @@ class BundleRepositoryImpl implements BundleRepository {
   }
 
   @override
-  Future<Either<AppException, Bundle?>> getBundleById(String id) async {
+  // --- FIX: Use the prefixed 'domain.Bundle' ---
+  Future<Either<AppException, domain.Bundle?>> getBundleById(String id) async {
     try {
       final bundleId = int.tryParse(id);
       if (bundleId == null) {
@@ -51,7 +55,8 @@ class BundleRepositoryImpl implements BundleRepository {
   }
 
   @override
-  Future<Either<AppException, Unit>> createBundle(Bundle bundle) async {
+  // --- FIX: Use the prefixed 'domain.Bundle' ---
+  Future<Either<AppException, Unit>> createBundle(domain.Bundle bundle) async {
     try {
       final bundleCompanion = BundleMapper.toDb(bundle);
       final bundleId = await _localDataSource.insertBundle(bundleCompanion);
@@ -71,7 +76,8 @@ class BundleRepositoryImpl implements BundleRepository {
   }
 
   @override
-  Future<Either<AppException, Unit>> updateBundle(Bundle bundle) async {
+  // --- FIX: Use the prefixed 'domain.Bundle' ---
+  Future<Either<AppException, Unit>> updateBundle(domain.Bundle bundle) async {
     try {
       final bundleCompanion = BundleMapper.toDb(bundle);
       await _localDataSource.updateBundle(bundleCompanion);
@@ -131,14 +137,9 @@ class BundleRepositoryImpl implements BundleRepository {
   }
 
   @override
-  Future<Either<AppException, List<Bundle>>> getSuggestedBundles() async {
+  // --- FIX: Use the prefixed 'domain.Bundle' ---
+  Future<Either<AppException, List<domain.Bundle>>> getSuggestedBundles() async {
     try {
-      // TODO: Implement smart bundle suggestions
-      // final documents = await _documentDataSource.getAllDocuments();
-      // final domainDocuments = documents.map(DocumentMapper.fromDb).toList();
-      // final suggestions = SmartBundleService.suggestBundles(domainDocuments);
-      // final patternSuggestions = SmartBundleService.detectDocumentPatterns(domainDocuments);
-      
       return const Right([]); // Return empty for now
     } catch (e) {
       return Left(AppException(e.toString()));
@@ -156,7 +157,8 @@ class BundleRepositoryImpl implements BundleRepository {
   }
 
   @override
-  Future<Either<AppException, Bundle>> createBundleFromTemplate(String templateId, String name) async {
+  // --- FIX: Use the prefixed 'domain.Bundle' ---
+  Future<Either<AppException, domain.Bundle>> createBundleFromTemplate(String templateId, String name) async {
     try {
       // Find the template
       final template = BundleTemplates.defaultTemplates.firstWhere(
@@ -165,14 +167,15 @@ class BundleRepositoryImpl implements BundleRepository {
       );
       
       // Create bundle from template
-      final bundle = Bundle(
+      // --- FIX: Use the prefixed 'domain.Bundle' and 'domain.BundleType' ---
+      final bundle = domain.Bundle(
         id: '0', // Will be assigned by database
         name: name,
         description: template.description,
         template: template.id,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-        type: BundleType.template,
+        type: domain.BundleType.template,
         requiredDocumentTypes: template.requiredDocumentTypes,
         suggestedDocumentTypes: template.optionalDocumentTypes,
       );
@@ -218,9 +221,10 @@ class BundleRepositoryImpl implements BundleRepository {
             'total': bundles.length,
             'complete': bundles.where((b) => b.isComplete).length,
             'incomplete': bundles.where((b) => !b.isComplete).length,
-            'smart': bundles.where((b) => b.type == BundleType.smart).length,
-            'manual': bundles.where((b) => b.type == BundleType.manual).length,
-            'template': bundles.where((b) => b.type == BundleType.template).length,
+            // --- FIX: Use the prefixed 'domain.BundleType' ---
+            'smart': bundles.where((b) => b.type == domain.BundleType.smart).length,
+            'manual': bundles.where((b) => b.type == domain.BundleType.manual).length,
+            'template': bundles.where((b) => b.type == domain.BundleType.template).length,
           };
           return Right(stats);
         },

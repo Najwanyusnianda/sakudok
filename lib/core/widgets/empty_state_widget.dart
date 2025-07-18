@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class EmptyStateWidget extends StatelessWidget {
   final String message;
   final IconData icon;
+  final String? actionText;
+  final VoidCallback? onAction;
 
   const EmptyStateWidget({
     super.key,
     required this.message,
     required this.icon,
+    this.actionText,
+    this.onAction,
   });
 
   @override
@@ -29,6 +33,13 @@ class EmptyStateWidget extends StatelessWidget {
                 ),
             textAlign: TextAlign.center,
           ),
+          if (actionText != null && onAction != null) ...[
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: onAction,
+              child: Text(actionText!),
+            ),
+          ],
         ],
       ),
     );

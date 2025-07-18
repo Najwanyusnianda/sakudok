@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/bundle.dart';
 
+// --- MAIN WIDGET (Now much simpler) ---
+
 class BundleCard extends StatelessWidget {
   final Bundle bundle;
   final VoidCallback onTap;
@@ -18,73 +20,27 @@ class BundleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The Card's style is now controlled by the CardTheme in your AppTheme
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12), // Should match Card's shape radius
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
-              Row(
-                children: [
-                  _buildTypeIcon(),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          bundle.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (bundle.description != null)
-                          Text(
-                            bundle.description!,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      ],
-                    ),
-                  ),
-                  _buildActions(),
-                ],
-              ),
-              
+              BundleCardHeader(bundle: bundle, onEdit: onEdit, onDelete: onDelete),
+              const SizedBox(height: 16),
+              BundleProgressBar(bundle: bundle),
+              const SizedBox(height: 16),
+              const Divider(),
               const SizedBox(height: 12),
-              
-              // Progress indicator
-              _buildProgressIndicator(context),
-              
-              const SizedBox(height: 12),
-              
-              // Document count and type tags
-              Row(
-                children: [
-                  Icon(Icons.description, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${bundle.documents.length} documents',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const Spacer(),
-                  _buildTypeChip(),
-                ],
-              ),
-              
-              // Required document types (if it's a template-based bundle)
+              BundleCardFooter(bundle: bundle),
               if (bundle.requiredDocumentTypes.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                _buildRequiredDocuments(context),
+                const SizedBox(height: 12),
+                RequiredDocuments(bundle: bundle),
               ],
             ],
           ),
@@ -92,27 +48,88 @@ class BundleCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildTypeIcon() {
+// --- REFACTORED WIDGETS ---
+
+/// Displays the top section of the card with icon, title, and actions.
+class BundleCardHeader extends StatelessWidget {
+  final Bundle bundle;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+
+  const BundleCardHeader({super.key, required this.bundle, this.onEdit, this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTypeIcon(context),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                bundle.name,
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              if (bundle.description != null && bundle.description!.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  bundle.description!,
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ]
+            ],
+          ),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onEdit != null)
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                onPressed: onEdit,
+                tooltip: 'Edit Bundle',
+              ),
+            if (onDelete != null)
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: onDelete,
+                tooltip: 'Delete Bundle',
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTypeIcon(BuildContext context) {
+    final theme = Theme.of(context);
     IconData icon;
     Color color;
-    
+
     switch (bundle.type) {
       case BundleType.smart:
         icon = Icons.auto_awesome;
-        color = Colors.purple;
+        color = theme.colorScheme.secondary;
         break;
       case BundleType.template:
         icon = Icons.content_copy;
-        color = Colors.blue;
+        color = theme.colorScheme.tertiary;
         break;
       case BundleType.manual:
       default:
-        icon = Icons.folder;
-        color = Colors.orange;
+        icon = Icons.folder_copy_outlined;
+        color = theme.colorScheme.primary;
         break;
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -122,153 +139,148 @@ class BundleCard extends StatelessWidget {
       child: Icon(icon, color: color, size: 24),
     );
   }
+}
 
-  Widget _buildActions() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (onEdit != null)
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: onEdit,
-            tooltip: 'Edit Bundle',
-          ),
-        if (onDelete != null)
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: onDelete,
-            tooltip: 'Delete Bundle',
-          ),
-      ],
-    );
+/// Displays the completion progress bar for the bundle.
+class BundleProgressBar extends StatelessWidget {
+  final Bundle bundle;
+
+  const BundleProgressBar({super.key, required this.bundle});
+
+  double _calculateProgress() {
+    if (bundle.requiredDocumentTypes.isEmpty) return 1.0;
+    final presentTypes = bundle.documents.map((doc) => doc.type.name).toSet();
+    final requiredCount = bundle.requiredDocumentTypes.length;
+    final presentRequiredCount =
+        bundle.requiredDocumentTypes.where((type) => presentTypes.contains(type)).length;
+    return requiredCount == 0 ? 1.0 : presentRequiredCount / requiredCount;
   }
 
-  Widget _buildProgressIndicator(BuildContext context) {
+  Color _getProgressColor(double progress, BuildContext context) {
+    if (progress >= 1.0) return Colors.green.shade600;
+    if (progress >= 0.5) return Theme.of(context).colorScheme.tertiary;
+    return Theme.of(context).colorScheme.error;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final progress = _calculateProgress();
-    final progressText = bundle.requiredDocumentTypes.isEmpty 
-        ? 'No requirements'
+    final progressColor = _getProgressColor(progress, context);
+    final progressText = bundle.requiredDocumentTypes.isEmpty
+        ? '${bundle.documents.length} items'
         : '${(progress * 100).round()}% complete';
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Completion',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              progressText,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: _getProgressColor(progress),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            Text('Progress', style: theme.textTheme.bodySmall),
+            Text(progressText, style: theme.textTheme.bodySmall?.copyWith(color: progressColor, fontWeight: FontWeight.bold)),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         LinearProgressIndicator(
           value: progress,
-          backgroundColor: Colors.grey[300],
-          valueColor: AlwaysStoppedAnimation(_getProgressColor(progress)),
+          backgroundColor: theme.colorScheme.surfaceContainerHighest,
+          valueColor: AlwaysStoppedAnimation(progressColor),
+          borderRadius: BorderRadius.circular(4),
         ),
       ],
     );
   }
+}
 
-  Widget _buildTypeChip() {
+/// Displays the footer with document count and bundle type chip.
+class BundleCardFooter extends StatelessWidget {
+  final Bundle bundle;
+  const BundleCardFooter({super.key, required this.bundle});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Icon(Icons.description_outlined, size: 16, color: theme.colorScheme.onSurfaceVariant),
+        const SizedBox(width: 6),
+        Text(
+          '${bundle.documents.length} documents',
+          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        ),
+        const Spacer(),
+        _buildTypeChip(context),
+      ],
+    );
+  }
+
+  Widget _buildTypeChip(BuildContext context) {
+    final theme = Theme.of(context);
     String label;
     Color color;
-    
+
     switch (bundle.type) {
       case BundleType.smart:
         label = 'Smart';
-        color = Colors.purple;
+        color = theme.colorScheme.secondary;
         break;
       case BundleType.template:
         label = 'Template';
-        color = Colors.blue;
+        color = theme.colorScheme.tertiary;
         break;
       case BundleType.manual:
       default:
         label = 'Manual';
-        color = Colors.orange;
+        color = theme.colorScheme.primary;
         break;
     }
-    
+
     return Chip(
-      label: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      label: Text(label),
+      labelStyle: theme.textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
       backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color.withOpacity(0.3)),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      side: BorderSide.none,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      visualDensity: VisualDensity.compact,
     );
   }
+}
 
-  Widget _buildRequiredDocuments(BuildContext context) {
+/// Displays the list of required documents and their status.
+class RequiredDocuments extends StatelessWidget {
+  final Bundle bundle;
+  const RequiredDocuments({super.key, required this.bundle});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final presentTypes = bundle.documents.map((doc) => doc.type.name).toSet();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Required Documents:',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
+        Text('Requirements:', style: theme.textTheme.bodySmall),
+        const SizedBox(height: 6),
         Wrap(
-          spacing: 4,
-          runSpacing: 4,
+          spacing: 6,
+          runSpacing: 6,
           children: bundle.requiredDocumentTypes.map((type) {
             final isPresent = presentTypes.contains(type);
+            final color = isPresent ? Colors.green.shade700 : theme.colorScheme.error;
+            final bgColor = isPresent ? Colors.green.shade50 : theme.colorScheme.errorContainer;
             return Chip(
-              label: Text(
-                type.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: isPresent ? Colors.green[700] : Colors.red[700],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              backgroundColor: isPresent ? Colors.green[50] : Colors.red[50],
-              side: BorderSide(
-                color: isPresent ? Colors.green[300]! : Colors.red[300]!,
-              ),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              avatar: Icon(isPresent ? Icons.check_circle : Icons.cancel, size: 14, color: color),
+              label: Text(type.toUpperCase()),
+              labelStyle: theme.textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
+              backgroundColor: bgColor,
+              side: BorderSide.none,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
             );
           }).toList(),
         ),
       ],
     );
-  }
-
-  double _calculateProgress() {
-    if (bundle.requiredDocumentTypes.isEmpty) return 1.0;
-    
-    final presentTypes = bundle.documents.map((doc) => doc.type.name).toSet();
-    final requiredCount = bundle.requiredDocumentTypes.length;
-    final presentRequiredCount = bundle.requiredDocumentTypes
-        .where((type) => presentTypes.contains(type))
-        .length;
-    
-    return presentRequiredCount / requiredCount;
-  }
-
-  Color _getProgressColor(double progress) {
-    if (progress >= 1.0) return Colors.green;
-    if (progress >= 0.7) return Colors.orange;
-    return Colors.red;
   }
 }

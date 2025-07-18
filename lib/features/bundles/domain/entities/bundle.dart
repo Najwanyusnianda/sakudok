@@ -6,6 +6,7 @@ class Bundle {
   final String name;
   final String? description;
   final String? template;
+  final int? groupId; // New field for bundle group association
   final bool isDefault;
   final List<Document> documents;
   final DateTime createdAt;
@@ -20,6 +21,7 @@ class Bundle {
     required this.name,
     this.description,
     this.template,
+    this.groupId, // New optional parameter
     this.isDefault = false,
     this.documents = const [],
     required this.createdAt,
@@ -35,6 +37,7 @@ class Bundle {
     String? name,
     String? description,
     String? template,
+    int? groupId, // New parameter
     bool? isDefault,
     List<Document>? documents,
     DateTime? createdAt,
@@ -49,6 +52,7 @@ class Bundle {
       name: name ?? this.name,
       description: description ?? this.description,
       template: template ?? this.template,
+      groupId: groupId ?? this.groupId, // New field
       isDefault: isDefault ?? this.isDefault,
       documents: documents ?? this.documents,
       createdAt: createdAt ?? this.createdAt,
@@ -59,6 +63,7 @@ class Bundle {
       suggestedDocumentTypes: suggestedDocumentTypes ?? this.suggestedDocumentTypes,
     );
   }
+  // --- FIX: Removed the duplicated block of code that was here ---
 
   Map<String, dynamic> toJson() {
     return {
@@ -66,6 +71,7 @@ class Bundle {
       'name': name,
       'description': description,
       'template': template,
+      'groupId': groupId, // New field
       'isDefault': isDefault,
       'documents': documents.map((doc) => doc.toJson()).toList(),
       'createdAt': createdAt.toIso8601String(),
@@ -83,6 +89,7 @@ class Bundle {
       name: json['name'],
       description: json['description'],
       template: json['template'],
+      groupId: json['groupId'], // New field
       isDefault: json['isDefault'] ?? false,
       documents: (json['documents'] as List?)
           ?.map((doc) => Document.fromJson(doc))
