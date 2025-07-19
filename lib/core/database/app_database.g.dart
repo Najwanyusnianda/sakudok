@@ -2074,6 +2074,590 @@ class BundleGroupsCompanion extends UpdateCompanion<BundleGroup> {
   }
 }
 
+class $BundleSlotsTable extends BundleSlots
+    with TableInfo<$BundleSlotsTable, BundleSlot> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BundleSlotsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _bundleIdMeta = const VerificationMeta(
+    'bundleId',
+  );
+  @override
+  late final GeneratedColumn<int> bundleId = GeneratedColumn<int>(
+    'bundle_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bundles (id)',
+    ),
+  );
+  static const VerificationMeta _requirementNameMeta = const VerificationMeta(
+    'requirementName',
+  );
+  @override
+  late final GeneratedColumn<String> requirementName = GeneratedColumn<String>(
+    'requirement_name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 255,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _requiredDocTypeMeta = const VerificationMeta(
+    'requiredDocType',
+  );
+  @override
+  late final GeneratedColumn<String> requiredDocType = GeneratedColumn<String>(
+    'required_doc_type',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 100,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _attachedDocIdMeta = const VerificationMeta(
+    'attachedDocId',
+  );
+  @override
+  late final GeneratedColumn<int> attachedDocId = GeneratedColumn<int>(
+    'attached_doc_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES documents (id)',
+    ),
+  );
+  static const VerificationMeta _isRequiredMeta = const VerificationMeta(
+    'isRequired',
+  );
+  @override
+  late final GeneratedColumn<bool> isRequired = GeneratedColumn<bool>(
+    'is_required',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_required" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _displayOrderMeta = const VerificationMeta(
+    'displayOrder',
+  );
+  @override
+  late final GeneratedColumn<int> displayOrder = GeneratedColumn<int>(
+    'display_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bundleId,
+    requirementName,
+    requiredDocType,
+    attachedDocId,
+    isRequired,
+    displayOrder,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bundle_slots';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BundleSlot> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('bundle_id')) {
+      context.handle(
+        _bundleIdMeta,
+        bundleId.isAcceptableOrUnknown(data['bundle_id']!, _bundleIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bundleIdMeta);
+    }
+    if (data.containsKey('requirement_name')) {
+      context.handle(
+        _requirementNameMeta,
+        requirementName.isAcceptableOrUnknown(
+          data['requirement_name']!,
+          _requirementNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_requirementNameMeta);
+    }
+    if (data.containsKey('required_doc_type')) {
+      context.handle(
+        _requiredDocTypeMeta,
+        requiredDocType.isAcceptableOrUnknown(
+          data['required_doc_type']!,
+          _requiredDocTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_requiredDocTypeMeta);
+    }
+    if (data.containsKey('attached_doc_id')) {
+      context.handle(
+        _attachedDocIdMeta,
+        attachedDocId.isAcceptableOrUnknown(
+          data['attached_doc_id']!,
+          _attachedDocIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_required')) {
+      context.handle(
+        _isRequiredMeta,
+        isRequired.isAcceptableOrUnknown(data['is_required']!, _isRequiredMeta),
+      );
+    }
+    if (data.containsKey('display_order')) {
+      context.handle(
+        _displayOrderMeta,
+        displayOrder.isAcceptableOrUnknown(
+          data['display_order']!,
+          _displayOrderMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BundleSlot map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BundleSlot(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      bundleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bundle_id'],
+      )!,
+      requirementName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}requirement_name'],
+      )!,
+      requiredDocType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}required_doc_type'],
+      )!,
+      attachedDocId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attached_doc_id'],
+      ),
+      isRequired: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_required'],
+      )!,
+      displayOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}display_order'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $BundleSlotsTable createAlias(String alias) {
+    return $BundleSlotsTable(attachedDatabase, alias);
+  }
+}
+
+class BundleSlot extends DataClass implements Insertable<BundleSlot> {
+  final int id;
+  final int bundleId;
+  final String requirementName;
+  final String requiredDocType;
+  final int? attachedDocId;
+  final bool isRequired;
+  final int displayOrder;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const BundleSlot({
+    required this.id,
+    required this.bundleId,
+    required this.requirementName,
+    required this.requiredDocType,
+    this.attachedDocId,
+    required this.isRequired,
+    required this.displayOrder,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['bundle_id'] = Variable<int>(bundleId);
+    map['requirement_name'] = Variable<String>(requirementName);
+    map['required_doc_type'] = Variable<String>(requiredDocType);
+    if (!nullToAbsent || attachedDocId != null) {
+      map['attached_doc_id'] = Variable<int>(attachedDocId);
+    }
+    map['is_required'] = Variable<bool>(isRequired);
+    map['display_order'] = Variable<int>(displayOrder);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  BundleSlotsCompanion toCompanion(bool nullToAbsent) {
+    return BundleSlotsCompanion(
+      id: Value(id),
+      bundleId: Value(bundleId),
+      requirementName: Value(requirementName),
+      requiredDocType: Value(requiredDocType),
+      attachedDocId: attachedDocId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(attachedDocId),
+      isRequired: Value(isRequired),
+      displayOrder: Value(displayOrder),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory BundleSlot.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BundleSlot(
+      id: serializer.fromJson<int>(json['id']),
+      bundleId: serializer.fromJson<int>(json['bundleId']),
+      requirementName: serializer.fromJson<String>(json['requirementName']),
+      requiredDocType: serializer.fromJson<String>(json['requiredDocType']),
+      attachedDocId: serializer.fromJson<int?>(json['attachedDocId']),
+      isRequired: serializer.fromJson<bool>(json['isRequired']),
+      displayOrder: serializer.fromJson<int>(json['displayOrder']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'bundleId': serializer.toJson<int>(bundleId),
+      'requirementName': serializer.toJson<String>(requirementName),
+      'requiredDocType': serializer.toJson<String>(requiredDocType),
+      'attachedDocId': serializer.toJson<int?>(attachedDocId),
+      'isRequired': serializer.toJson<bool>(isRequired),
+      'displayOrder': serializer.toJson<int>(displayOrder),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  BundleSlot copyWith({
+    int? id,
+    int? bundleId,
+    String? requirementName,
+    String? requiredDocType,
+    Value<int?> attachedDocId = const Value.absent(),
+    bool? isRequired,
+    int? displayOrder,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => BundleSlot(
+    id: id ?? this.id,
+    bundleId: bundleId ?? this.bundleId,
+    requirementName: requirementName ?? this.requirementName,
+    requiredDocType: requiredDocType ?? this.requiredDocType,
+    attachedDocId: attachedDocId.present
+        ? attachedDocId.value
+        : this.attachedDocId,
+    isRequired: isRequired ?? this.isRequired,
+    displayOrder: displayOrder ?? this.displayOrder,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  BundleSlot copyWithCompanion(BundleSlotsCompanion data) {
+    return BundleSlot(
+      id: data.id.present ? data.id.value : this.id,
+      bundleId: data.bundleId.present ? data.bundleId.value : this.bundleId,
+      requirementName: data.requirementName.present
+          ? data.requirementName.value
+          : this.requirementName,
+      requiredDocType: data.requiredDocType.present
+          ? data.requiredDocType.value
+          : this.requiredDocType,
+      attachedDocId: data.attachedDocId.present
+          ? data.attachedDocId.value
+          : this.attachedDocId,
+      isRequired: data.isRequired.present
+          ? data.isRequired.value
+          : this.isRequired,
+      displayOrder: data.displayOrder.present
+          ? data.displayOrder.value
+          : this.displayOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BundleSlot(')
+          ..write('id: $id, ')
+          ..write('bundleId: $bundleId, ')
+          ..write('requirementName: $requirementName, ')
+          ..write('requiredDocType: $requiredDocType, ')
+          ..write('attachedDocId: $attachedDocId, ')
+          ..write('isRequired: $isRequired, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    bundleId,
+    requirementName,
+    requiredDocType,
+    attachedDocId,
+    isRequired,
+    displayOrder,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BundleSlot &&
+          other.id == this.id &&
+          other.bundleId == this.bundleId &&
+          other.requirementName == this.requirementName &&
+          other.requiredDocType == this.requiredDocType &&
+          other.attachedDocId == this.attachedDocId &&
+          other.isRequired == this.isRequired &&
+          other.displayOrder == this.displayOrder &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class BundleSlotsCompanion extends UpdateCompanion<BundleSlot> {
+  final Value<int> id;
+  final Value<int> bundleId;
+  final Value<String> requirementName;
+  final Value<String> requiredDocType;
+  final Value<int?> attachedDocId;
+  final Value<bool> isRequired;
+  final Value<int> displayOrder;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const BundleSlotsCompanion({
+    this.id = const Value.absent(),
+    this.bundleId = const Value.absent(),
+    this.requirementName = const Value.absent(),
+    this.requiredDocType = const Value.absent(),
+    this.attachedDocId = const Value.absent(),
+    this.isRequired = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  BundleSlotsCompanion.insert({
+    this.id = const Value.absent(),
+    required int bundleId,
+    required String requirementName,
+    required String requiredDocType,
+    this.attachedDocId = const Value.absent(),
+    this.isRequired = const Value.absent(),
+    this.displayOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : bundleId = Value(bundleId),
+       requirementName = Value(requirementName),
+       requiredDocType = Value(requiredDocType);
+  static Insertable<BundleSlot> custom({
+    Expression<int>? id,
+    Expression<int>? bundleId,
+    Expression<String>? requirementName,
+    Expression<String>? requiredDocType,
+    Expression<int>? attachedDocId,
+    Expression<bool>? isRequired,
+    Expression<int>? displayOrder,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bundleId != null) 'bundle_id': bundleId,
+      if (requirementName != null) 'requirement_name': requirementName,
+      if (requiredDocType != null) 'required_doc_type': requiredDocType,
+      if (attachedDocId != null) 'attached_doc_id': attachedDocId,
+      if (isRequired != null) 'is_required': isRequired,
+      if (displayOrder != null) 'display_order': displayOrder,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  BundleSlotsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? bundleId,
+    Value<String>? requirementName,
+    Value<String>? requiredDocType,
+    Value<int?>? attachedDocId,
+    Value<bool>? isRequired,
+    Value<int>? displayOrder,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return BundleSlotsCompanion(
+      id: id ?? this.id,
+      bundleId: bundleId ?? this.bundleId,
+      requirementName: requirementName ?? this.requirementName,
+      requiredDocType: requiredDocType ?? this.requiredDocType,
+      attachedDocId: attachedDocId ?? this.attachedDocId,
+      isRequired: isRequired ?? this.isRequired,
+      displayOrder: displayOrder ?? this.displayOrder,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (bundleId.present) {
+      map['bundle_id'] = Variable<int>(bundleId.value);
+    }
+    if (requirementName.present) {
+      map['requirement_name'] = Variable<String>(requirementName.value);
+    }
+    if (requiredDocType.present) {
+      map['required_doc_type'] = Variable<String>(requiredDocType.value);
+    }
+    if (attachedDocId.present) {
+      map['attached_doc_id'] = Variable<int>(attachedDocId.value);
+    }
+    if (isRequired.present) {
+      map['is_required'] = Variable<bool>(isRequired.value);
+    }
+    if (displayOrder.present) {
+      map['display_order'] = Variable<int>(displayOrder.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BundleSlotsCompanion(')
+          ..write('id: $id, ')
+          ..write('bundleId: $bundleId, ')
+          ..write('requirementName: $requirementName, ')
+          ..write('requiredDocType: $requiredDocType, ')
+          ..write('attachedDocId: $attachedDocId, ')
+          ..write('isRequired: $isRequired, ')
+          ..write('displayOrder: $displayOrder, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2083,6 +2667,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $BundleGroupsTable bundleGroups = $BundleGroupsTable(this);
+  late final $BundleSlotsTable bundleSlots = $BundleSlotsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2092,6 +2677,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     bundles,
     bundleDocuments,
     bundleGroups,
+    bundleSlots,
   ];
 }
 
@@ -2152,6 +2738,27 @@ final class $$DocumentsTableReferences
     final cache = $_typedResult.readTableOrNull(
       _bundleDocumentsRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$BundleSlotsTable, List<BundleSlot>>
+  _bundleSlotsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.bundleSlots,
+    aliasName: $_aliasNameGenerator(
+      db.documents.id,
+      db.bundleSlots.attachedDocId,
+    ),
+  );
+
+  $$BundleSlotsTableProcessedTableManager get bundleSlotsRefs {
+    final manager = $$BundleSlotsTableTableManager(
+      $_db,
+      $_db.bundleSlots,
+    ).filter((f) => f.attachedDocId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_bundleSlotsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -2253,6 +2860,31 @@ class $$DocumentsTableFilterComposer
           }) => $$BundleDocumentsTableFilterComposer(
             $db: $db,
             $table: $db.bundleDocuments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> bundleSlotsRefs(
+    Expression<bool> Function($$BundleSlotsTableFilterComposer f) f,
+  ) {
+    final $$BundleSlotsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.bundleSlots,
+      getReferencedColumn: (t) => t.attachedDocId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BundleSlotsTableFilterComposer(
+            $db: $db,
+            $table: $db.bundleSlots,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2428,6 +3060,31 @@ class $$DocumentsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> bundleSlotsRefs<T extends Object>(
+    Expression<T> Function($$BundleSlotsTableAnnotationComposer a) f,
+  ) {
+    final $$BundleSlotsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.bundleSlots,
+      getReferencedColumn: (t) => t.attachedDocId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BundleSlotsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bundleSlots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$DocumentsTableTableManager
@@ -2443,7 +3100,10 @@ class $$DocumentsTableTableManager
           $$DocumentsTableUpdateCompanionBuilder,
           (Document, $$DocumentsTableReferences),
           Document,
-          PrefetchHooks Function({bool bundleDocumentsRefs})
+          PrefetchHooks Function({
+            bool bundleDocumentsRefs,
+            bool bundleSlotsRefs,
+          })
         > {
   $$DocumentsTableTableManager(_$AppDatabase db, $DocumentsTable table)
     : super(
@@ -2528,38 +3188,63 @@ class $$DocumentsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({bundleDocumentsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (bundleDocumentsRefs) db.bundleDocuments,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (bundleDocumentsRefs)
-                    await $_getPrefetchedData<
-                      Document,
-                      $DocumentsTable,
-                      BundleDocument
-                    >(
-                      currentTable: table,
-                      referencedTable: $$DocumentsTableReferences
-                          ._bundleDocumentsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$DocumentsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).bundleDocumentsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.documentId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({bundleDocumentsRefs = false, bundleSlotsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (bundleDocumentsRefs) db.bundleDocuments,
+                    if (bundleSlotsRefs) db.bundleSlots,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (bundleDocumentsRefs)
+                        await $_getPrefetchedData<
+                          Document,
+                          $DocumentsTable,
+                          BundleDocument
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DocumentsTableReferences
+                              ._bundleDocumentsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DocumentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).bundleDocumentsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.documentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (bundleSlotsRefs)
+                        await $_getPrefetchedData<
+                          Document,
+                          $DocumentsTable,
+                          BundleSlot
+                        >(
+                          currentTable: table,
+                          referencedTable: $$DocumentsTableReferences
+                              ._bundleSlotsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$DocumentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).bundleSlotsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.attachedDocId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2576,7 +3261,7 @@ typedef $$DocumentsTableProcessedTableManager =
       $$DocumentsTableUpdateCompanionBuilder,
       (Document, $$DocumentsTableReferences),
       Document,
-      PrefetchHooks Function({bool bundleDocumentsRefs})
+      PrefetchHooks Function({bool bundleDocumentsRefs, bool bundleSlotsRefs})
     >;
 typedef $$BundlesTableCreateCompanionBuilder =
     BundlesCompanion Function({
@@ -2620,6 +3305,24 @@ final class $$BundlesTableReferences
     final cache = $_typedResult.readTableOrNull(
       _bundleDocumentsRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$BundleSlotsTable, List<BundleSlot>>
+  _bundleSlotsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.bundleSlots,
+    aliasName: $_aliasNameGenerator(db.bundles.id, db.bundleSlots.bundleId),
+  );
+
+  $$BundleSlotsTableProcessedTableManager get bundleSlotsRefs {
+    final manager = $$BundleSlotsTableTableManager(
+      $_db,
+      $_db.bundleSlots,
+    ).filter((f) => f.bundleId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_bundleSlotsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -2691,6 +3394,31 @@ class $$BundlesTableFilterComposer
           }) => $$BundleDocumentsTableFilterComposer(
             $db: $db,
             $table: $db.bundleDocuments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> bundleSlotsRefs(
+    Expression<bool> Function($$BundleSlotsTableFilterComposer f) f,
+  ) {
+    final $$BundleSlotsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.bundleSlots,
+      getReferencedColumn: (t) => t.bundleId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BundleSlotsTableFilterComposer(
+            $db: $db,
+            $table: $db.bundleSlots,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2810,6 +3538,31 @@ class $$BundlesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> bundleSlotsRefs<T extends Object>(
+    Expression<T> Function($$BundleSlotsTableAnnotationComposer a) f,
+  ) {
+    final $$BundleSlotsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.bundleSlots,
+      getReferencedColumn: (t) => t.bundleId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BundleSlotsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bundleSlots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BundlesTableTableManager
@@ -2825,7 +3578,10 @@ class $$BundlesTableTableManager
           $$BundlesTableUpdateCompanionBuilder,
           (Bundle, $$BundlesTableReferences),
           Bundle,
-          PrefetchHooks Function({bool bundleDocumentsRefs})
+          PrefetchHooks Function({
+            bool bundleDocumentsRefs,
+            bool bundleSlotsRefs,
+          })
         > {
   $$BundlesTableTableManager(_$AppDatabase db, $BundlesTable table)
     : super(
@@ -2886,37 +3642,63 @@ class $$BundlesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({bundleDocumentsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (bundleDocumentsRefs) db.bundleDocuments,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (bundleDocumentsRefs)
-                    await $_getPrefetchedData<
-                      Bundle,
-                      $BundlesTable,
-                      BundleDocument
-                    >(
-                      currentTable: table,
-                      referencedTable: $$BundlesTableReferences
-                          ._bundleDocumentsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$BundlesTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).bundleDocumentsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.bundleId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({bundleDocumentsRefs = false, bundleSlotsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (bundleDocumentsRefs) db.bundleDocuments,
+                    if (bundleSlotsRefs) db.bundleSlots,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (bundleDocumentsRefs)
+                        await $_getPrefetchedData<
+                          Bundle,
+                          $BundlesTable,
+                          BundleDocument
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BundlesTableReferences
+                              ._bundleDocumentsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BundlesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).bundleDocumentsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bundleId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (bundleSlotsRefs)
+                        await $_getPrefetchedData<
+                          Bundle,
+                          $BundlesTable,
+                          BundleSlot
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BundlesTableReferences
+                              ._bundleSlotsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BundlesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).bundleSlotsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bundleId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2933,7 +3715,7 @@ typedef $$BundlesTableProcessedTableManager =
       $$BundlesTableUpdateCompanionBuilder,
       (Bundle, $$BundlesTableReferences),
       Bundle,
-      PrefetchHooks Function({bool bundleDocumentsRefs})
+      PrefetchHooks Function({bool bundleDocumentsRefs, bool bundleSlotsRefs})
     >;
 typedef $$BundleDocumentsTableCreateCompanionBuilder =
     BundleDocumentsCompanion Function({
@@ -3562,6 +4344,491 @@ typedef $$BundleGroupsTableProcessedTableManager =
       BundleGroup,
       PrefetchHooks Function()
     >;
+typedef $$BundleSlotsTableCreateCompanionBuilder =
+    BundleSlotsCompanion Function({
+      Value<int> id,
+      required int bundleId,
+      required String requirementName,
+      required String requiredDocType,
+      Value<int?> attachedDocId,
+      Value<bool> isRequired,
+      Value<int> displayOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$BundleSlotsTableUpdateCompanionBuilder =
+    BundleSlotsCompanion Function({
+      Value<int> id,
+      Value<int> bundleId,
+      Value<String> requirementName,
+      Value<String> requiredDocType,
+      Value<int?> attachedDocId,
+      Value<bool> isRequired,
+      Value<int> displayOrder,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$BundleSlotsTableReferences
+    extends BaseReferences<_$AppDatabase, $BundleSlotsTable, BundleSlot> {
+  $$BundleSlotsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BundlesTable _bundleIdTable(_$AppDatabase db) =>
+      db.bundles.createAlias(
+        $_aliasNameGenerator(db.bundleSlots.bundleId, db.bundles.id),
+      );
+
+  $$BundlesTableProcessedTableManager get bundleId {
+    final $_column = $_itemColumn<int>('bundle_id')!;
+
+    final manager = $$BundlesTableTableManager(
+      $_db,
+      $_db.bundles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bundleIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $DocumentsTable _attachedDocIdTable(_$AppDatabase db) =>
+      db.documents.createAlias(
+        $_aliasNameGenerator(db.bundleSlots.attachedDocId, db.documents.id),
+      );
+
+  $$DocumentsTableProcessedTableManager? get attachedDocId {
+    final $_column = $_itemColumn<int>('attached_doc_id');
+    if ($_column == null) return null;
+    final manager = $$DocumentsTableTableManager(
+      $_db,
+      $_db.documents,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_attachedDocIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$BundleSlotsTableFilterComposer
+    extends Composer<_$AppDatabase, $BundleSlotsTable> {
+  $$BundleSlotsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get requirementName => $composableBuilder(
+    column: $table.requirementName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get requiredDocType => $composableBuilder(
+    column: $table.requiredDocType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isRequired => $composableBuilder(
+    column: $table.isRequired,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BundlesTableFilterComposer get bundleId {
+    final $$BundlesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bundleId,
+      referencedTable: $db.bundles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BundlesTableFilterComposer(
+            $db: $db,
+            $table: $db.bundles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DocumentsTableFilterComposer get attachedDocId {
+    final $$DocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachedDocId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BundleSlotsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BundleSlotsTable> {
+  $$BundleSlotsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get requirementName => $composableBuilder(
+    column: $table.requirementName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get requiredDocType => $composableBuilder(
+    column: $table.requiredDocType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isRequired => $composableBuilder(
+    column: $table.isRequired,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BundlesTableOrderingComposer get bundleId {
+    final $$BundlesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bundleId,
+      referencedTable: $db.bundles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BundlesTableOrderingComposer(
+            $db: $db,
+            $table: $db.bundles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DocumentsTableOrderingComposer get attachedDocId {
+    final $$DocumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachedDocId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BundleSlotsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BundleSlotsTable> {
+  $$BundleSlotsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get requirementName => $composableBuilder(
+    column: $table.requirementName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get requiredDocType => $composableBuilder(
+    column: $table.requiredDocType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isRequired => $composableBuilder(
+    column: $table.isRequired,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get displayOrder => $composableBuilder(
+    column: $table.displayOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$BundlesTableAnnotationComposer get bundleId {
+    final $$BundlesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bundleId,
+      referencedTable: $db.bundles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BundlesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bundles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DocumentsTableAnnotationComposer get attachedDocId {
+    final $$DocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachedDocId,
+      referencedTable: $db.documents,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.documents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BundleSlotsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BundleSlotsTable,
+          BundleSlot,
+          $$BundleSlotsTableFilterComposer,
+          $$BundleSlotsTableOrderingComposer,
+          $$BundleSlotsTableAnnotationComposer,
+          $$BundleSlotsTableCreateCompanionBuilder,
+          $$BundleSlotsTableUpdateCompanionBuilder,
+          (BundleSlot, $$BundleSlotsTableReferences),
+          BundleSlot,
+          PrefetchHooks Function({bool bundleId, bool attachedDocId})
+        > {
+  $$BundleSlotsTableTableManager(_$AppDatabase db, $BundleSlotsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BundleSlotsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BundleSlotsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BundleSlotsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> bundleId = const Value.absent(),
+                Value<String> requirementName = const Value.absent(),
+                Value<String> requiredDocType = const Value.absent(),
+                Value<int?> attachedDocId = const Value.absent(),
+                Value<bool> isRequired = const Value.absent(),
+                Value<int> displayOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => BundleSlotsCompanion(
+                id: id,
+                bundleId: bundleId,
+                requirementName: requirementName,
+                requiredDocType: requiredDocType,
+                attachedDocId: attachedDocId,
+                isRequired: isRequired,
+                displayOrder: displayOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int bundleId,
+                required String requirementName,
+                required String requiredDocType,
+                Value<int?> attachedDocId = const Value.absent(),
+                Value<bool> isRequired = const Value.absent(),
+                Value<int> displayOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => BundleSlotsCompanion.insert(
+                id: id,
+                bundleId: bundleId,
+                requirementName: requirementName,
+                requiredDocType: requiredDocType,
+                attachedDocId: attachedDocId,
+                isRequired: isRequired,
+                displayOrder: displayOrder,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$BundleSlotsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({bundleId = false, attachedDocId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (bundleId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.bundleId,
+                                referencedTable: $$BundleSlotsTableReferences
+                                    ._bundleIdTable(db),
+                                referencedColumn: $$BundleSlotsTableReferences
+                                    ._bundleIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (attachedDocId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.attachedDocId,
+                                referencedTable: $$BundleSlotsTableReferences
+                                    ._attachedDocIdTable(db),
+                                referencedColumn: $$BundleSlotsTableReferences
+                                    ._attachedDocIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$BundleSlotsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BundleSlotsTable,
+      BundleSlot,
+      $$BundleSlotsTableFilterComposer,
+      $$BundleSlotsTableOrderingComposer,
+      $$BundleSlotsTableAnnotationComposer,
+      $$BundleSlotsTableCreateCompanionBuilder,
+      $$BundleSlotsTableUpdateCompanionBuilder,
+      (BundleSlot, $$BundleSlotsTableReferences),
+      BundleSlot,
+      PrefetchHooks Function({bool bundleId, bool attachedDocId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3574,4 +4841,6 @@ class $AppDatabaseManager {
       $$BundleDocumentsTableTableManager(_db, _db.bundleDocuments);
   $$BundleGroupsTableTableManager get bundleGroups =>
       $$BundleGroupsTableTableManager(_db, _db.bundleGroups);
+  $$BundleSlotsTableTableManager get bundleSlots =>
+      $$BundleSlotsTableTableManager(_db, _db.bundleSlots);
 }

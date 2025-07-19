@@ -113,7 +113,7 @@ class DocumentViewerBody extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(AppTheme.spaceXl),
+      padding: const EdgeInsets.all(AppTheme.spaceLg),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -137,7 +137,7 @@ class DocumentViewerBody extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppTheme.spaceXl),
+          const SizedBox(height: AppTheme.spaceLg),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
@@ -158,7 +158,7 @@ class DocumentViewerBody extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(AppTheme.spaceXl),
+      padding: const EdgeInsets.all(AppTheme.spaceLg),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

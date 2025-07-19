@@ -8,6 +8,7 @@ import 'tables/documents.dart';
 import 'tables/bundles.dart';
 import 'tables/bundle_documents.dart';
 import 'tables/bundle_groups.dart';
+import 'tables/bundle_slots.dart';
 
 part 'app_database.g.dart';
 
@@ -19,12 +20,14 @@ typedef DriftBundleDocument = BundleDocument;
 
 typedef DriftBundleGroup = BundleGroup;
 
-@DriftDatabase(tables: [Documents, Bundles, BundleDocuments, BundleGroups])
+typedef DriftBundleSlot = BundleSlot;
+
+@DriftDatabase(tables: [Documents, Bundles, BundleDocuments, BundleGroups, BundleSlots])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -37,6 +40,10 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(documents, documents.metadata);
           await m.createTable(bundleGroups);
           await m.addColumn(bundles, bundles.groupId);
+        }
+        if (from < 3) {
+          // Create the new BundleSlots table
+          await m.createTable(bundleSlots);
         }
       },
     );
@@ -128,6 +135,46 @@ class AppDatabase extends _$AppDatabase {
     return await (delete(bundleDocuments)
           ..where((bd) => bd.documentId.equals(documentId) & bd.bundleId.equals(bundleId)))
         .go();
+  }
+
+  // Bundle Slots operations
+  Future<List<BundleSlot>> getBundleSlots(int bundleId) async {
+    return await (select(bundleSlots)
+          ..where((bs) => bs.bundleId.equals(bundleId))
+          ..orderBy([(bs) => OrderingTerm.asc(bs.displayOrder)]))
+        .get();
+  }
+
+  Future<BundleSlot?> getBundleSlotById(int id) async {
+    return await (select(bundleSlots)..where((bs) => bs.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<int> insertBundleSlot(BundleSlotsCompanion bundleSlot) async {
+    return await into(bundleSlots).insert(bundleSlot);
+  }
+
+  Future<bool> updateBundleSlot(BundleSlotsCompanion bundleSlot) async {
+    return await update(bundleSlots).replace(bundleSlot);
+  }
+
+  Future<int> deleteBundleSlot(int id) async {
+    return await (delete(bundleSlots)..where((bs) => bs.id.equals(id))).go();
+  }
+
+  Future<int> attachDocumentToSlot(int slotId, int documentId) async {
+    return await (update(bundleSlots)..where((bs) => bs.id.equals(slotId)))
+        .write(BundleSlotsCompanion(
+          attachedDocId: Value(documentId),
+          updatedAt: Value(DateTime.now()),
+        ));
+  }
+
+  Future<int> detachDocumentFromSlot(int slotId) async {
+    return await (update(bundleSlots)..where((bs) => bs.id.equals(slotId)))
+        .write(BundleSlotsCompanion(
+          attachedDocId: const Value(null),
+          updatedAt: Value(DateTime.now()),
+        ));
   }
 
   // Bundle Group operations

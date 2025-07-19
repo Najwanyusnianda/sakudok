@@ -11,6 +11,7 @@ class EmptyStateWidget extends StatelessWidget {
     required this.message,
     required this.icon,
     this.actionText,
+    //this.details,
     this.onAction,
   });
 

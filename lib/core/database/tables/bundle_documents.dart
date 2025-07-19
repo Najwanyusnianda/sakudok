@@ -1,3 +1,4 @@
+//lib/core/database/tables/bundle_documents.dart
 import 'package:drift/drift.dart';
 import 'bundles.dart';
 import 'documents.dart';

@@ -2,19 +2,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/bundle_template.dart';
+import '../../domain/entities/bundle_user_template.dart';
 import '../providers/bundle_providers.dart';
 
 class BundleTemplateSelector extends ConsumerWidget {
   final Function(BundleTemplate) onTemplateSelected;
+  final Function(BundleUserTemplate)? onUserTemplateSelected;
 
   const BundleTemplateSelector({
     super.key,
     required this.onTemplateSelected,
+    this.onUserTemplateSelected,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final templatesAsync = ref.watch(bundleTemplatesProvider);
+    final userTemplatesAsync = ref.watch(userTemplatesProvider);
 
     return Dialog(
       child: Container(
@@ -30,7 +34,7 @@ class BundleTemplateSelector extends ConsumerWidget {
                 Icon(Icons.auto_awesome, color: Colors.purple),
                 const SizedBox(width: 8),
                 Text(
-                  'Smart Bundle Templates',
+                  'Choose Bundle Template',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -46,7 +50,7 @@ class BundleTemplateSelector extends ConsumerWidget {
             const SizedBox(height: 8),
             
             Text(
-              'Choose a pre-configured bundle template that automatically organizes related documents for specific purposes.',
+              'Start with a template to speed up bundle creation. Choose from built-in templates or your custom ones.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Colors.grey[600],
               ),
@@ -54,24 +58,41 @@ class BundleTemplateSelector extends ConsumerWidget {
             
             const SizedBox(height: 20),
 
-            // Templates list
+            // Templates content
             Expanded(
-              child: templatesAsync.when(
-                data: (templates) => _buildTemplatesList(context, templates),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                      const SizedBox(height: 16),
-                      Text('Failed to load templates'),
-                      TextButton(
-                        onPressed: () => ref.refresh(bundleTemplatesProvider),
-                        child: const Text('Retry'),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // User Templates Section
+                    userTemplatesAsync.when(
+                      data: (userTemplates) => userTemplates.isNotEmpty
+                          ? _buildUserTemplatesSection(context, userTemplates)
+                          : const SizedBox.shrink(),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+                    
+                    // Built-in Templates Section
+                    templatesAsync.when(
+                      data: (templates) => _buildBuiltInTemplatesSection(context, templates),
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (error, stack) => Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                            const SizedBox(height: 16),
+                            Text('Failed to load templates'),
+                            TextButton(
+                              onPressed: () => ref.refresh(bundleTemplatesProvider),
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -81,17 +102,197 @@ class BundleTemplateSelector extends ConsumerWidget {
     );
   }
 
-  Widget _buildTemplatesList(BuildContext context, List<BundleTemplate> templates) {
+  Widget _buildUserTemplatesSection(BuildContext context, List<BundleUserTemplate> userTemplates) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // User Templates Header
+        Row(
+          children: [
+            Icon(Icons.bookmark, color: Colors.blue, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'My Templates',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Your custom templates',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 12),
+        
+        // User Templates List
+        ...userTemplates.map((template) => _buildUserTemplateCard(context, template)),
+        
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildBuiltInTemplatesSection(BuildContext context, List<BundleTemplate> templates) {
     // Group templates by category
     final groupedTemplates = <String, List<BundleTemplate>>{};
     for (final template in templates) {
       groupedTemplates.putIfAbsent(template.category, () => []).add(template);
     }
 
-    return ListView(
-      children: groupedTemplates.entries.map((entry) {
-        return _buildCategorySection(context, entry.key, entry.value);
-      }).toList(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Built-in Templates Header
+        Row(
+          children: [
+            Icon(Icons.auto_awesome, color: Colors.purple, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'Built-in Templates',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.purple,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Pre-configured templates for common use cases',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 12),
+        
+        // Categories
+        ...groupedTemplates.entries.map((entry) {
+          return _buildCategorySection(context, entry.key, entry.value);
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildUserTemplateCard(BuildContext context, BundleUserTemplate template) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () {
+          if (onUserTemplateSelected != null) {
+            onUserTemplateSelected!(template);
+          }
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.blue.withOpacity(0.3), width: 1),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.bookmark,
+                        color: Colors.blue,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  template.name,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  'My Template',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (template.description.isNotEmpty)
+                            Text(
+                              template.description,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Requirements
+                if (template.requirements.isNotEmpty) ...[
+                  Text(
+                    'Document Requirements:',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: template.requirements.map((requirement) {
+                      return Chip(
+                        label: Text(
+                          requirement.name,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.blue.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        backgroundColor: Colors.blue.withOpacity(0.1),
+                        side: BorderSide(color: Colors.blue.withOpacity(0.3)),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 

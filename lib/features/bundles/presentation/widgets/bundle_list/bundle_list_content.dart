@@ -1,6 +1,8 @@
 // lib/features/bundles/presentation/widgets/bundle_list/bundle_list_content.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sakudok/features/bundles/domain/entities/bundle.dart';
+import 'package:sakudok/features/bundles/presentation/pages/bundle_detail_page.dart';
 import '../../providers/bundle_providers.dart';
 import '../bundle_card.dart';
 import '../suggested_bundle_card.dart';
@@ -73,7 +75,7 @@ class BundleListContent extends ConsumerWidget {
                   // --- FIX: Added the required onTap and other actions ---
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => AddEditBundlePage(bundleId: bundle.id),
+                      builder: (context) => BundleDetailPage(bundleId: bundle.id),
                     ));
                   },
                   onEdit: () {

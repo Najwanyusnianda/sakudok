@@ -2,6 +2,8 @@
 import 'package:fpdart/fpdart.dart';
 import '../entities/bundle.dart';
 import '../entities/bundle_template.dart';
+import '../entities/bundle_user_template.dart';
+import '../entities/bundle_slot.dart';
 import '../../../../core/exceptions/app_exception.dart';
 
 abstract class BundleRepository {
@@ -24,4 +26,22 @@ abstract class BundleRepository {
   // Bundle analysis
   Future<Either<AppException, List<String>>> getIncompleteBundles();
   Future<Either<AppException, Map<String, int>>> getBundleStatistics();
+  
+  // User Templates (Custom Templates)
+  Future<Either<AppException, List<BundleUserTemplate>>> getUserTemplates();
+  Future<Either<AppException, BundleUserTemplate?>> getUserTemplateById(String id);
+  Future<Either<AppException, Unit>> createUserTemplate(BundleUserTemplate template);
+  Future<Either<AppException, Unit>> updateUserTemplate(BundleUserTemplate template);
+  Future<Either<AppException, Unit>> deleteUserTemplate(String id);
+  Future<Either<AppException, BundleUserTemplate>> saveBundleAsTemplate(String bundleId, String templateName);
+  Stream<List<BundleUserTemplate>> watchUserTemplates();
+
+  // Bundle Slots Management
+  Future<Either<AppException, List<BundleSlot>>> getBundleSlots(String bundleId);
+  Future<Either<AppException, BundleSlot?>> getBundleSlotById(String id);
+  Future<Either<AppException, Unit>> createBundleSlot(BundleSlot slot);
+  Future<Either<AppException, Unit>> updateBundleSlot(BundleSlot slot);
+  Future<Either<AppException, Unit>> deleteBundleSlot(String id);
+  Future<Either<AppException, Unit>> attachDocumentToSlot(String slotId, String documentId);
+  Future<Either<AppException, Unit>> detachDocumentFromSlot(String slotId);
 }

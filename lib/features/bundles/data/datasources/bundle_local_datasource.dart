@@ -13,6 +13,15 @@ abstract class BundleLocalDataSource {
   Future<void> removeDocumentFromBundle(int bundleId, int documentId);
   Future<List<db.DriftDocument>> getBundleDocuments(int bundleId);
   Future<List<db.DriftBundleDocument>> getAllBundleDocuments();
+
+  // Bundle Slots
+  Future<List<db.BundleSlot>> getBundleSlots(int bundleId);
+  Future<db.BundleSlot?> getBundleSlotById(int id);
+  Future<int> insertBundleSlot(db.BundleSlotsCompanion slot);
+  Future<void> updateBundleSlot(db.BundleSlotsCompanion slot);
+  Future<void> deleteBundleSlot(int id);
+  Future<void> attachDocumentToSlot(int slotId, int documentId);
+  Future<void> detachDocumentFromSlot(int slotId);
 }
 
 class BundleLocalDataSourceImpl implements BundleLocalDataSource {
@@ -64,5 +73,41 @@ class BundleLocalDataSourceImpl implements BundleLocalDataSource {
   Future<List<db.DriftBundleDocument>> getAllBundleDocuments() async {
     // This method doesn't exist in the database yet, let's create a simple implementation
     return []; // TODO: Implement in database if needed
+  }
+
+  // Bundle Slots implementations
+  @override
+  Future<List<db.BundleSlot>> getBundleSlots(int bundleId) async {
+    return await _database.getBundleSlots(bundleId);
+  }
+
+  @override
+  Future<db.BundleSlot?> getBundleSlotById(int id) async {
+    return await _database.getBundleSlotById(id);
+  }
+
+  @override
+  Future<int> insertBundleSlot(db.BundleSlotsCompanion slot) async {
+    return await _database.insertBundleSlot(slot);
+  }
+
+  @override
+  Future<void> updateBundleSlot(db.BundleSlotsCompanion slot) async {
+    await _database.updateBundleSlot(slot);
+  }
+
+  @override
+  Future<void> deleteBundleSlot(int id) async {
+    await _database.deleteBundleSlot(id);
+  }
+
+  @override
+  Future<void> attachDocumentToSlot(int slotId, int documentId) async {
+    await _database.attachDocumentToSlot(slotId, documentId);
+  }
+
+  @override
+  Future<void> detachDocumentFromSlot(int slotId) async {
+    await _database.detachDocumentFromSlot(slotId);
   }
 }

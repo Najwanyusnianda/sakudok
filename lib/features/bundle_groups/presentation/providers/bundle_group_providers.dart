@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/bundle_group_repository_impl.dart';
-import '../../domain/entities/bundle_group.dart';
+import '../../domain/entities/bundle_group.dart' as domain;
 import '../../domain/repositories/bundle_group_repository.dart';
 import '../../domain/usecases/get_all_bundle_groups.dart';
 import '../../domain/usecases/add_bundle_group.dart';
@@ -26,11 +26,11 @@ final deleteBundleGroupProvider =
 
 // State Notifier for Bundle Group List
 final bundleGroupsNotifierProvider =
-    StateNotifierProvider<BundleGroupNotifier, AsyncValue<List<BundleGroup>>>((ref) {
+    StateNotifierProvider<BundleGroupNotifier, AsyncValue<List<domain.BundleGroup>>>((ref) {
   return BundleGroupNotifier(ref);
 });
 
-class BundleGroupNotifier extends StateNotifier<AsyncValue<List<BundleGroup>>> {
+class BundleGroupNotifier extends StateNotifier<AsyncValue<List<domain.BundleGroup>>> {
   final Ref _ref;
   BundleGroupNotifier(this._ref) : super(const AsyncValue.loading()) {
     loadBundleGroups();
@@ -46,7 +46,7 @@ class BundleGroupNotifier extends StateNotifier<AsyncValue<List<BundleGroup>>> {
     );
   }
 
-  Future<bool> addBundleGroup(BundleGroup bundleGroup) async {
+  Future<bool> addBundleGroup(domain.BundleGroup bundleGroup) async {
     final usecase = _ref.read(addBundleGroupProvider);
     final result = await usecase(bundleGroup);
     return result.fold(
@@ -58,7 +58,7 @@ class BundleGroupNotifier extends StateNotifier<AsyncValue<List<BundleGroup>>> {
     );
   }
 
-  Future<bool> updateBundleGroup(BundleGroup bundleGroup) async {
+  Future<bool> updateBundleGroup(domain.BundleGroup bundleGroup) async {
     final usecase = _ref.read(updateBundleGroupProvider);
     final result = await usecase(bundleGroup);
     return result.fold(
