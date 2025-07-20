@@ -76,7 +76,7 @@ class DocumentMigrationService {
         // Copy to app's private directory
         final newPath = await _fileService.copyFileToAppDirectory(
           sourceFile: file,
-          documentType: document.type,
+          documentType: document.mainType,
         );
         newFilePaths.add(newPath);
         needsUpdate = true;

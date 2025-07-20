@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/document_type.dart';
 import '../../../domain/entities/metadata/document_metadata.dart';
 import 'ktp_metadata_form.dart';
-import 'sim_metadata_form.dart';
 
 class SmartMetadataSection extends StatelessWidget {
-  final DocumentType selectedType;
+  final MainDocumentType selectedType;
   final DocumentMetadata? currentMetadata;
   final ValueChanged<DocumentMetadata> onMetadataChanged;
 
@@ -51,161 +50,22 @@ class SmartMetadataSection extends StatelessWidget {
 
   Widget _buildMetadataForm(BuildContext context) {
     switch (selectedType) {
-      case DocumentType.ktp:
+      case MainDocumentType.CARD:
+        // For v1.0, show KTP form as the primary card example
+        // TODO: In v2.0, detect specific card type and show appropriate form
         return KTPMetadataForm(
           initialData: currentMetadata,
           onDataChanged: onMetadataChanged,
         );
       
-      case DocumentType.sim:
-        return SIMMetadataForm(
-          initialData: currentMetadata,
-          onDataChanged: onMetadataChanged,
-        );
+      case MainDocumentType.DOCUMENT:
+        // For v1.0, show a generic document form
+        // TODO: In v2.0, detect specific document type and show appropriate form
+        return _buildGenericForm();
       
-      case DocumentType.passport:
-        return _buildComingSoonForm(
-          'Passport',
-          Icons.flight,
-          Colors.purple,
-          [
-            'Travel validity alerts',
-            'Visa requirement checking',
-            'International travel bundles',
-            'Embassy contact integration',
-          ],
-        );
-      
-      case DocumentType.sertifikat:
-        return _buildComingSoonForm(
-          'Certificate',
-          Icons.workspace_premium,
-          Colors.amber,
-          [
-            'Professional skill tracking',
-            'Expiry date management',
-            'Portfolio bundle creation',
-            'Career progression insights',
-          ],
-        );
-      
-      case DocumentType.ijazah:
-        return _buildComingSoonForm(
-          'Diploma',
-          Icons.school,
-          Colors.indigo,
-          [
-            'Academic timeline tracking',
-            'GPA and honors recording',
-            'Education bundle creation',
-            'Career path recommendations',
-          ],
-        );
-      
-      case DocumentType.lainnya:
+      case MainDocumentType.OTHER:
         return _buildGenericForm();
     }
-  }
-
-  Widget _buildComingSoonForm(String typeName, IconData icon, MaterialColor color, List<String> features) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.shade50,
-            color.shade100,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.shade300),
-      ),
-      child: Column(
-        children: [
-          // Icon and Title
-          Icon(icon, size: 64, color: color.shade600),
-          const SizedBox(height: 16),
-          Text(
-            'Smart $typeName Form',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color.shade700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Coming Soon',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: color.shade600,
-            ),
-          ),
-          const SizedBox(height: 16),
-          
-          // Features Preview
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: color.shade200),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Planned Smart Features:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: color.shade700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...features.map((feature) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    children: [
-                      Icon(Icons.auto_awesome, 
-                           color: color.shade600, 
-                           size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          feature,
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          
-          // Progress Info
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.schedule, color: color.shade600, size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'Intelligent form under development',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: color.shade600,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildGenericForm() {

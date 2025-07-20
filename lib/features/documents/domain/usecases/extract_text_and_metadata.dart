@@ -10,7 +10,7 @@ class ExtractTextAndMetadataUseCase {
   
   Future<Either<AppException, ExtractedDocumentData>> call(
     String filePath, 
-    DocumentType documentType,
+    MainDocumentType mainDocumentType,
   ) async {
     try {
       // Simulate OCR processing delay
@@ -22,22 +22,22 @@ class ExtractTextAndMetadataUseCase {
       }
       
       // Mock extraction based on document type
-      final extractedData = await _extractDataByType(filePath, documentType);
+      final extractedData = await _extractDataByType(filePath, mainDocumentType);
       
       return Right(extractedData);
     } catch (e) {
       return Left(AppException('Failed to extract data: $e'));
     }
   }
-  
-  Future<ExtractedDocumentData> _extractDataByType(String filePath, DocumentType type) async {
+
+  Future<ExtractedDocumentData> _extractDataByType(String filePath, MainDocumentType type) async {
     switch (type) {
-      case DocumentType.ktp:
-        return _extractKTPData(filePath);
-      case DocumentType.sim:
-        return _extractSIMData(filePath);
-      case DocumentType.passport:
-        return _extractPassportData(filePath);
+      case MainDocumentType.CARD:
+        return _extractCardData(filePath);
+      case MainDocumentType.DOCUMENT:
+        return _extractDocumentData(filePath);
+      case MainDocumentType.OTHER :
+        return _extractOtherData(filePath);
       default:
         return ExtractedDocumentData(
           extractedText: 'General document text extracted from OCR',
@@ -45,6 +45,41 @@ class ExtractTextAndMetadataUseCase {
           confidence: 0.0,
         );
     }
+  }
+
+  ExtractedDocumentData _extractCardData(String filePath) {
+    // Mock card data extraction
+    if (filePath.contains('ktp')) {
+      return _extractKTPData(filePath);
+    } else if (filePath.contains('sim')) {
+      return _extractSIMData(filePath);
+    } else if (filePath.contains('passport')) {
+      return _extractPassportData(filePath);
+    } else {
+      return ExtractedDocumentData(
+        extractedText: 'Card data extracted from OCR',
+        metadata: const DocumentMetadata.unknown({}),
+        confidence: 0.0,
+      );
+    }
+  }
+
+  ExtractedDocumentData _extractDocumentData(String filePath) {
+    // Mock document data extraction
+    return ExtractedDocumentData(
+      extractedText: 'Document data extracted from OCR',
+      metadata: const DocumentMetadata.unknown({}),
+      confidence: 0.0,
+    );
+  }
+
+  ExtractedDocumentData _extractOtherData(String filePath) {
+    // Mock other data extraction
+    return ExtractedDocumentData(
+      extractedText: 'Other document data extracted from OCR',
+      metadata: const DocumentMetadata.unknown({}),
+      confidence: 0.0,
+    );
   }
   
   ExtractedDocumentData _extractKTPData(String filePath) {

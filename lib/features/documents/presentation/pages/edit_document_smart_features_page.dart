@@ -171,7 +171,7 @@ class _EditDocumentSmartFeaturesPageState extends ConsumerState<EditDocumentSmar
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: SmartMetadataSection(
-                selectedType: _document!.type,
+                selectedType: _document!.mainType,
                 currentMetadata: _currentMetadata,
                 onMetadataChanged: (metadata) {
                   setState(() {
@@ -253,7 +253,7 @@ class _EditDocumentSmartFeaturesPageState extends ConsumerState<EditDocumentSmar
       // Update document with new metadata
       final updatedDocument = _document!.copyWith(
         metadata: _currentMetadata!,
-        type: _document!.type, // Keep existing type but with smart metadata
+        mainType: _document!.mainType, // Keep existing type but with smart metadata
         updatedAt: DateTime.now(),
       );
 

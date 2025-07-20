@@ -16,7 +16,7 @@ class AddRequirementDialog extends StatefulWidget {
 
 class _AddRequirementDialogState extends State<AddRequirementDialog> {
   final _nameController = TextEditingController();
-  DocumentType _selectedType = DocumentType.ktp;
+  MainDocumentType _selectedType = MainDocumentType.DOCUMENT;
 
   @override
   void dispose() {
@@ -45,20 +45,20 @@ class _AddRequirementDialogState extends State<AddRequirementDialog> {
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<DocumentType>(
+            DropdownButtonFormField<MainDocumentType>(
               value: _selectedType,
               decoration: const InputDecoration(
-                labelText: 'Document Type',
+                labelText: 'Document Category',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.category),
               ),
-              items: DocumentType.values.map((type) => DropdownMenuItem(
+              items: MainDocumentType.values.map((type) => DropdownMenuItem(
                 value: type,
                 child: Row(
                   children: [
-                    Icon(_getDocumentTypeIcon(type), size: 20),
+                    Icon(type.icon, size: 20),
                     const SizedBox(width: 8),
-                    Text(_getDocumentTypeLabel(type)),
+                    Text(type.displayName),
                   ],
                 ),
               )).toList(),
@@ -68,7 +68,7 @@ class _AddRequirementDialogState extends State<AddRequirementDialog> {
                     _selectedType = value;
                     // Auto-fill the name when type changes
                     if (_nameController.text.isEmpty) {
-                      _nameController.text = _getDocumentTypeLabel(value);
+                      _nameController.text = value.displayName;
                     }
                   });
                 }
@@ -99,7 +99,7 @@ class _AddRequirementDialogState extends State<AddRequirementDialog> {
               final requirement = BundleTemplateRequirement(
                 id: DateTime.now().millisecondsSinceEpoch.toString(), // Simple ID generation
                 bundleUserTemplateId: widget.templateId,
-                documentType: _selectedType,
+                mainDocumentType: _selectedType,
                 name: _nameController.text.trim(),
               );
               Navigator.of(context).pop(requirement);
@@ -116,39 +116,5 @@ class _AddRequirementDialogState extends State<AddRequirementDialog> {
         ),
       ],
     );
-  }
-
-  IconData _getDocumentTypeIcon(DocumentType type) {
-    switch (type) {
-      case DocumentType.ktp:
-        return Icons.credit_card;
-      case DocumentType.passport:
-        return Icons.book;
-      case DocumentType.sim:
-        return Icons.directions_car;
-      case DocumentType.ijazah:
-        return Icons.school;
-      case DocumentType.sertifikat:
-        return Icons.workspace_premium;
-      case DocumentType.lainnya:
-        return Icons.insert_drive_file;
-    }
-  }
-
-  String _getDocumentTypeLabel(DocumentType type) {
-    switch (type) {
-      case DocumentType.ktp:
-        return 'KTP / ID Card';
-      case DocumentType.passport:
-        return 'Passport';
-      case DocumentType.sim:
-        return 'Driver\'s License';
-      case DocumentType.ijazah:
-        return 'Certificate / Diploma';
-      case DocumentType.sertifikat:
-        return 'Certificate';
-      case DocumentType.lainnya:
-        return 'Other Document';
-    }
   }
 }

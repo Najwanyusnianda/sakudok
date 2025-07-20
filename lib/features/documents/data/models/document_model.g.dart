@@ -13,7 +13,8 @@ DocumentModel _$DocumentModelFromJson(
   title: json['title'] as String,
   description: json['description'] as String?,
   thumbnail: json['thumbnail'] as String?,
-  type: $enumDecode(_$DocumentTypeEnumMap, json['type']),
+  mainType: $enumDecode(_$MainDocumentTypeEnumMap, json['mainType']),
+  subType: $enumDecodeNullable(_$DocumentSubTypeEnumMap, json['subType']),
   tags:
       (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
@@ -38,7 +39,8 @@ Map<String, dynamic> _$DocumentModelToJson(DocumentModel instance) =>
       'title': instance.title,
       'description': instance.description,
       'thumbnail': instance.thumbnail,
-      'type': _$DocumentTypeEnumMap[instance.type]!,
+      'mainType': _$MainDocumentTypeEnumMap[instance.mainType]!,
+      'subType': _$DocumentSubTypeEnumMap[instance.subType],
       'tags': instance.tags,
       'expiryDate': instance.expiryDate?.toIso8601String(),
       'isFavorite': instance.isFavorite,
@@ -51,11 +53,17 @@ Map<String, dynamic> _$DocumentModelToJson(DocumentModel instance) =>
       'extractedData': instance.extractedData,
     };
 
-const _$DocumentTypeEnumMap = {
-  DocumentType.ktp: 'ktp',
-  DocumentType.sim: 'sim',
-  DocumentType.passport: 'passport',
-  DocumentType.ijazah: 'ijazah',
-  DocumentType.sertifikat: 'sertifikat',
-  DocumentType.lainnya: 'lainnya',
+const _$MainDocumentTypeEnumMap = {
+  MainDocumentType.CARD: 'CARD',
+  MainDocumentType.DOCUMENT: 'DOCUMENT',
+  MainDocumentType.OTHER: 'OTHER',
+};
+
+const _$DocumentSubTypeEnumMap = {
+  DocumentSubType.ktp: 'ktp',
+  DocumentSubType.sim: 'sim',
+  DocumentSubType.passport: 'passport',
+  DocumentSubType.ijazah: 'ijazah',
+  DocumentSubType.sertifikat: 'sertifikat',
+  DocumentSubType.lainnya: 'lainnya',
 };

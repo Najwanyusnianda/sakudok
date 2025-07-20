@@ -1,9 +1,11 @@
+//lib/features/documents/presentation/pages/document_list_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
 import '../providers/document_providers.dart';
 import '../widgets/document_list/document_list_widget.dart';
-import '../widgets/document_list/document_sliver_app_bar.dart';
+import '../widgets/document_list/my_documents_top_bar.dart';
+import '../widgets/document_list/my_documents_search_bar.dart';
 import '../widgets/document_list/filter_drawer.dart';
 import '../widgets/document_capture/document_source_bottom_sheet.dart';
 import '../../domain/entities/document.dart'; // Assuming you have this entity
@@ -82,14 +84,28 @@ class _DocumentListPageState extends ConsumerState<DocumentListPage>
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            DocumentSliverAppBar(
-              selectedFilter: _selectedFilter,
-              onFilterChanged: (filter) =>
-                  setState(() => _selectedFilter = filter),
-              onSortTap: () => _showSortBottomSheet(context),
-              isSearchMode: _isSearchMode,
-              onSearchToggle: () => setState(() => _isSearchMode = !_isSearchMode),
+            // Top Bar
+            SliverToBoxAdapter(
+              child: MyDocumentsTopBar(
+                onFilterPressed: () => Scaffold.of(context).openDrawer(),
+                onSortPressed: () => _showSortBottomSheet(context),
+                onSearchPressed: () => setState(() => _isSearchMode = !_isSearchMode),
+                hasActiveFilter: _selectedFilter != DocumentFilter.all,
+                isSearchActive: _isSearchMode,
+              ),
             ),
+            // Search Bar (when search mode is active)
+            if (_isSearchMode)
+              SliverToBoxAdapter(
+                child: MyDocumentsSearchBar(
+                  isVisible: _isSearchMode,
+                  searchQuery: searchQuery,
+                  onSearchQueryChanged: (query) =>
+                      ref.read(searchQueryProvider.notifier).state = query,
+                  onClearSearch: () => ref.read(searchQueryProvider.notifier).state = '',
+                  onSearchDismissed: () => setState(() => _isSearchMode = false),
+                ),
+              ),
             documentsAsync.when(
               data: (docs) {
                 final filteredDocs = _filterAndSortDocuments(docs, searchQuery);
@@ -149,7 +165,7 @@ class _DocumentListPageState extends ConsumerState<DocumentListPage>
       filteredList = docs
           .where((doc) =>
               doc.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              doc.type.toString().toLowerCase().contains(searchQuery.toLowerCase()))
+              doc.mainType.toString().toLowerCase().contains(searchQuery.toLowerCase()))
           .toList();
     } else {
       filteredList = List.from(docs);
@@ -166,11 +182,9 @@ class _DocumentListPageState extends ConsumerState<DocumentListPage>
           return doc.expiryDate != null &&
               doc.expiryDate!.difference(DateTime.now()).inDays <= 60;
         case DocumentFilter.cards:
-          return [DocumentType.ktp, DocumentType.sim, DocumentType.passport]
-              .contains(doc.type);
+          return doc.mainType == MainDocumentType.CARD;
         case DocumentFilter.documents:
-          return ![DocumentType.ktp, DocumentType.sim, DocumentType.passport]
-              .contains(doc.type);
+          return doc.mainType == MainDocumentType.DOCUMENT;
       }
     }).toList();
 
@@ -188,7 +202,7 @@ class _DocumentListPageState extends ConsumerState<DocumentListPage>
           comparison = a.title.toLowerCase().compareTo(b.title.toLowerCase());
           break;
         case SortOption.type:
-          comparison = a.type.index.compareTo(b.type.index);
+          comparison = a.mainType.index.compareTo(b.mainType.index);
           break;
       }
       return _isAscending ? comparison : -comparison;

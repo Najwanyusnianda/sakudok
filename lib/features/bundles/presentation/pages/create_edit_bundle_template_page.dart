@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/bundle_providers.dart';
 import '../../domain/entities/bundle_user_template.dart';
 import '../../domain/entities/bundle_template_requirement.dart';
-import '../../../documents/domain/entities/document_type.dart';
 import '../widgets/add_bundle_template_requirement_dialog.dart';
 
 class CreateEditTemplatePage extends ConsumerStatefulWidget {
@@ -195,13 +194,13 @@ class _CreateEditTemplatePageState extends ConsumerState<CreateEditTemplatePage>
                               leading: CircleAvatar(
                                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                                 child: Icon(
-                                  _getDocumentTypeIcon(requirement.documentType),
+                                  requirement.mainDocumentType.icon,
                                   color: Theme.of(context).colorScheme.primary,
                                   size: 20,
                                 ),
                               ),
                               title: Text(requirement.name),
-                              subtitle: Text(_getDocumentTypeLabel(requirement.documentType)),
+                              subtitle: Text(requirement.mainDocumentType.displayName),
                               trailing: IconButton(
                                 icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
                                 onPressed: () => _removeRequirement(index),
@@ -289,40 +288,6 @@ class _CreateEditTemplatePageState extends ConsumerState<CreateEditTemplatePage>
       if (mounted) {
         setState(() => _isLoading = false);
       }
-    }
-  }
-
-  IconData _getDocumentTypeIcon(DocumentType type) {
-    switch (type) {
-      case DocumentType.ktp:
-        return Icons.credit_card;
-      case DocumentType.passport:
-        return Icons.book;
-      case DocumentType.sim:
-        return Icons.directions_car;
-      case DocumentType.ijazah:
-        return Icons.school;
-      case DocumentType.sertifikat:
-        return Icons.workspace_premium;
-      case DocumentType.lainnya:
-        return Icons.insert_drive_file;
-    }
-  }
-
-  String _getDocumentTypeLabel(DocumentType type) {
-    switch (type) {
-      case DocumentType.ktp:
-        return 'KTP / ID Card';
-      case DocumentType.passport:
-        return 'Passport';
-      case DocumentType.sim:
-        return 'Driver\'s License';
-      case DocumentType.ijazah:
-        return 'Certificate / Diploma';
-      case DocumentType.sertifikat:
-        return 'Certificate';
-      case DocumentType.lainnya:
-        return 'Other Document';
     }
   }
 }

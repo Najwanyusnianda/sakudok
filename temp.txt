@@ -1,0 +1,303 @@
+Understood. Thank you for clarifying those crucial points about the hamburger menu, "slot," and "group." This context is invaluable for providing precise, actionable feedback.
+
+Now, as your expert in modern minimal mobile app design and UX, I will provide a detailed implementation plan for each existing screen, and suggest new screens/features where necessary, incorporating my previous recommendations and your clarifications.
+
+---
+
+### Detailed UI/UX Implementation Plan for SakuDok
+
+**Overall Design Principles to Maintain:**
+* **Minimalism:** Focus on essential elements, clear hierarchy, and ample whitespace.
+* **Modernity:** Clean lines, subtle shadows, consistent iconography.
+* **User-Centricity:** Intuitive navigation, clear calls to action, proactive assistance.
+* **Branding:** Consistent use of the primary blue accent and clean typography.
+
+---
+
+#### 1. "My Documents" Screen (Current: Document List Screen)
+
+**Current State Analysis:**
+* **Purpose:** Primary view for all individual documents.
+* **UI Elements:** Header (My Documents), Search bar, Document list (cards), FAB (+).
+* **Clarification:** Left hamburger menu is for *filtering* by type (Favorite, Card, Document, etc.). Right icon is for *sorting* (date, alphabet). Search icon shows search form.
+* **Issues:** Inconsistent header, "Dapat disempurnakan" tag unclear, "Enable Smart Features" button color.
+
+**Detailed Implementation Plan:**
+
+* **Header (Top Bar):**
+    * **Consistent Styling:** Apply the **blue header with white text** style (like "Bundles" or "Settings" screens) for visual consistency across main sections.
+    * **Left Icon (Filter):** Replace the current hamburger icon with a dedicated **Filter icon** (e.g., three horizontal lines with a funnel/dots, or similar to the one in your "Filter Documents" screenshot). Tapping this opens the "Filter Documents" drawer.
+    * **Title:** "My Documents" (white text).
+    * **Right Icons:**
+        * **Sort Icon:** Add a **Sort icon** (e.g., A-Z or up/down arrows) next to the Filter icon. Tapping this opens a small modal/bottom sheet with sorting options (Date Added, Last Modified, Document Name (A-Z), Document Name (Z-A), Document Type).
+        * **Search Icon:** Keep the **Search icon** (magnifying glass) at the far right. Tapping this *activates the search bar below*, changing it from a placeholder to an active input field, potentially with a 'cancel' button.
+    * **Search Bar:**
+        * Visually integrated just below the header.
+        * Placeholder: "Search documents..."
+        * When Search icon is tapped: Keyboard appears, placeholder disappears, input field becomes active. A small 'X' button appears to clear the search or dismiss the search mode.
+
+* **Document Cards:**
+    * **Information Grouping:** Refine spacing within cards. Group document name and type together. Group update date and smart features together.
+    * **"Dapat disempurnakan" Clarity:**
+        * **Option 1 (Recommended - Minimalist):** Remove the text tag. Instead, use a subtle, distinct icon (e.g., a small "magic wand" or "sparkle" icon) near the document type/name. When tapped, a tooltip or small pop-up explains: "This document can be enhanced with smart features like renewal reminders or data extraction."
+        * **Option 2 (More direct):** Change the text to "Enhance" or "Smart Features Available" in a small, distinct badge that's part of the card, not floating.
+    * **"Enable Smart Features" Button:**
+        * Change the button color from purple to a **lighter, secondary shade of your primary blue** or a muted gray that indicates a call to action within the card but doesn't clash.
+        * Consider if it needs to be a full button or if the "Dapat disempurnakan" icon/badge (as suggested above) could be the tap target to enable/manage smart features for that specific document. This would reduce visual clutter.
+    * **Contextual Actions (3-dot menu):** Keep the 3-dot menu for actions like "Share," "Delete," "Move," "View Details."
+
+* **Floating Action Button (FAB):**
+    * Keep the large blue `+` FAB. Tapping it should bring up the "Add Document to SakuDok" modal/bottom sheet (as currently seen).
+
+---
+
+#### 2. "Bundles" Screen
+
+**Current State Analysis:**
+* **Purpose:** Overview of document bundles.
+* **UI Elements:** Header (Bundles), "All" tab, Bundle list (cards), Top right icons (group and add bundle).
+* **Issues:** Thin progress bar, "0 items" text disjointed, top right icons unclear.
+
+**Detailed Implementation Plan:**
+
+* **Header (Top Bar):**
+    * **Consistent Styling:** Apply the **blue header with white text** style.
+    * **Title:** "Bundles" (white text).
+    * **Right Icons:**
+        * **Manage Groups Icon:** Use a clear icon for "Manage Groups" (e.g., a stack of folders, or the current group icon but made more prominent/consistent with overall icon style). This icon should explicitly navigate to the "Manage Groups" screen.
+        * **Add Bundle Icon:** Keep the current `+` icon or a folder with a `+` for "Create Bundle." Tapping this should lead to the "Create Bundle" screen. (Consider if this duplicates the FAB for adding a bundle; if so, remove one for minimalism).
+
+* **Tab Navigation:**
+    * Keep the "All" tab. Consider adding other useful tabs if needed, e.g., "Active," "Completed," or "Templates" if template bundles become a prominent feature.
+
+* **Bundle Cards:**
+    * **Progress Bar Enhancement:**
+        * Make the progress bar **thicker and more visually impactful**.
+        * Integrate the "0 items" or actual progress (e.g., "0/2 documents") directly **within or immediately next to the progress bar**, perhaps on the right end.
+        * Use color to indicate progress: green for completion, orange/yellow for in-progress.
+    * **Bundle Details:**
+        * Keep bundle name, description (if present).
+        * "Manual" button: Ensure its purpose is clear. If it's to manually complete a bundle, the label should reflect that.
+    * **Actions:** Keep edit (pencil) and delete (trash can) icons prominent on the card.
+
+---
+
+#### 3. "Manage Groups" Screen (New/Enhanced)
+
+**Current State Analysis:**
+* **Purpose:** Manage categories for bundles.
+* **UI Elements:** Header, "No bundle groups yet" message, "Create Group" button, FAB ("Add Group").
+* **Issues:** Redundant "Create Group" button and "Add Group" FAB.
+
+**Detailed Implementation Plan:**
+
+* **Header (Top Bar):**
+    * **Consistent Styling:** Apply the **blue header with white text** style.
+    * **Back Arrow:** Keep the back arrow to navigate back to the "Bundles" screen.
+    * **Title:** "Manage Bundle Groups" (more descriptive than just "Manage Groups").
+
+* **Empty State:**
+    * Keep the clear central illustration and "No bundle groups yet."
+    * **Consolidate Buttons:** Remove the redundant "Create Group" button. The **FAB ("Add Group") is sufficient** and standard for adding new items.
+
+* **Group List (When populated):**
+    * Display groups in a clean, scrollable list.
+    * Each group item should show:
+        * Group Name.
+        * Count of bundles within that group (e.g., "3 Bundles").
+        * Actionable icons: Edit (pencil), Delete (trash can).
+
+* **Floating Action Button (FAB):**
+    * Keep the blue `+` FAB for "Add Group." Tapping it should open a simple modal/bottom sheet to input the new group name.
+
+---
+
+#### 4. "Filter Documents" Drawer (Current: Filter Overlay)
+
+**Current State Analysis:**
+* **Purpose:** Filter the "My Documents" list.
+* **UI Elements:** Drawer, Filter options (All, Favorites, Expiring Soon, Cards, Documents).
+* **Issues:** Icons could be more distinct.
+
+**Detailed Implementation Plan:**
+
+* **Drawer Structure:**
+    * Confirm it slides in from the left (as suggested by the hamburger icon).
+    * Header: "Filter Documents" with a clear close 'X' or back arrow.
+    * Subtitle: "Choose how to view your documents."
+
+* **Filter Options:**
+    * **Iconography:** Ensure all icons are consistent with the app's overall icon style. For example:
+        * "All Documents": A simple folder icon.
+        * "Favorites": A star icon (good as is).
+        * "Expiring Soon": A calendar icon with an alert/warning triangle, or a clock icon.
+        * "Cards": An ID card icon or generic card icon.
+        * "Documents": A generic document icon.
+    * **Active State:** Clearly highlight the currently selected filter (e.g., a blue background behind the selected row, or a blue checkmark).
+    * **Descriptive Text:** Keep the short, helpful descriptions below each filter name.
+
+---
+
+#### 5. "Bundle Information" Screen (Current: Bundle Detail)
+
+**Current State Analysis:**
+* **Purpose:** View details and progress of a specific bundle.
+* **UI Elements:** Header, Bundle info, Progress indicators, Document Checklist, "Add Slot" button.
+* **Clarification:** "Slot" is for planning a document without the file first.
+* **Issues:** "Just Started" tag, "Add Slot" vs "Add Document" clarity.
+
+**Detailed Implementation Plan:**
+
+* **Header (Top Bar):**
+    * **Consistent Styling:** Apply the **blue header with white text** style.
+    * **Back Arrow:** Keep the back arrow.
+    * **Title:** Display the actual Bundle Name (e.g., "Scholarship Application Bundle").
+
+* **Bundle Information Section:**
+    * Keep basic details like "Created" and "Updated" dates.
+    * **Bundle Progress:**
+        * Rename "Just Started" to a more dynamic status, e.g., "Progress: Incomplete," "Progress: In Progress," "Progress: Complete." Use a color-coded badge (e.g., light red/orange for incomplete, light blue for in-progress, light green for complete).
+        * Visually align "Required Documents" and "Overall Progress" counts. Make them more prominent.
+
+* **Document Checklist:**
+    * **Clearer Labels for Requirements:** Instead of just "Required," use a more descriptive status like "Missing" (red) or "Attached" (green) for each item.
+    * **Action Buttons:**
+        * **"Lampirkan" (Attach):** Clearly indicates attaching a document.
+        * **Crucial Improvement: "Add Slot" vs. "Add Document":**
+            * **Replace "Add Slot" button with two distinct options (possibly a bottom sheet or small menu when clicking a single "Add Item" button):**
+                1.  **"Add Placeholder Document" (or "Add Slot"):** For adding a planned document entry without a file. This creates an empty checklist item for tracking.
+                2.  **"Add Existing Document" (or "Attach Document"):** For directly attaching a document already in SakuDok or importing a new one.
+            * **Consider a single FAB at the bottom** that, when tapped, presents these two choices clearly. This is a common pattern.
+
+---
+
+#### 6. "Create Bundle" Screen
+
+**Current State Analysis:**
+* **Purpose:** Allows users to create new bundles, optionally from templates.
+* **UI Elements:** Header, Bundle Preview, Input fields, Template options.
+* **Issues:** "BOTTOM OVERFLOWED" error.
+
+**Detailed Implementation Plan:**
+
+* **Header (Top Bar):**
+    * **Consistent Styling:** Apply the **blue header with white text** style.
+    * **Back Arrow:** Keep the back arrow.
+    * **Title:** "Create New Bundle" (more explicit).
+
+* **Bundle Preview:**
+    * Keep the large folder icon. It's a good visual cue.
+
+* **Input Fields:**
+    * **"Bundle Name" & "Description (Optional)":** Keep these standard input fields.
+
+* **Templates Section:**
+    * **Stronger Visual Separation:** Use a clear divider or slightly different background for the "Or, accelerate with a template" section to visually separate it from manual creation.
+    * **Template Cards/Buttons:** Ensure template options like "Job Application" and "Travel Documents" are clear and easy to tap.
+    * **"View All Templates":** Keep this button to access a dedicated screen for Browse more templates.
+
+* **Action Button:**
+    * Add a prominent, full-width **"Create Bundle"** button at the bottom of the screen.
+
+* **Development Issue:**
+    * **CRITICAL:** Resolve the "BOTTOM OVERFLOWED BY 3.7 PIXELS" error. This is a development issue that must be fixed for a production-ready app.
+
+---
+
+#### 7. "Pengaturan" (Settings) Screen
+
+**Current State Analysis:**
+* **Purpose:** Manage app settings, security, and data.
+* **UI Elements:** Header, List of settings categorized.
+* **Issues:** None significant, generally well-structured.
+
+**Detailed Implementation Plan:**
+
+* **Header (Top Bar):**
+    * **Consistent Styling:** Apply the **blue header with white text** style.
+    * **Title:** "Settings" (or "Pengaturan" if locale specific).
+
+* **Setting Categories and Items:**
+    * Keep the clear categorization (Keamanan, Backup & Restore, Aplikasi).
+    * Ensure all icons are consistent in style.
+    * The use of chevrons (`>`) clearly indicates tappable items that lead to a new screen.
+    * **"Enkripsi Data":** The "Aktif" tag with green background is good for showing status.
+
+---
+
+#### 8. "Beranda" (Home/Welcome) Screen
+
+**Current State Analysis:**
+* **Purpose:** Initial welcome screen, potentially the app's dashboard.
+* **UI Elements:** Header (SakuDok), Welcome message, Folder icon.
+* **Issues:** Too minimal, doesn't showcase core "smart" value proposition.
+
+**Detailed Implementation Plan (Transform into a Dashboard):**
+
+* **Header (Top Bar):**
+    * **Consistent Styling:** Apply the **blue header with white text** style.
+    * **Title:** "SakuDok" or "Home" (white text).
+    * **Right Icons:** Consider adding a Notification Bell icon (for proactive alerts) or a user profile icon here.
+
+* **Core Content - The "Smart Dashboard":** This screen needs to communicate value immediately. Replace the static welcome message with dynamic, actionable content.
+    * **Top Section (Personalized Greeting):** "Hello [User Name]," or "Good [Morning/Afternoon/Evening],"
+    * **Key Insight/Actionable Card (High Priority):**
+        * **"Upcoming Renewals" Card:** Prominently display a card showing the *next* expiring document (e.g., "Your Passport expires in 45 days!"). Tapping it takes them to the "Expiring Soon" filter or directly to the document.
+        * **"Bundle Progress Alert" Card:** If a key bundle is incomplete (e.g., "Scholarship Application: 1 document missing!"), display this. Tapping leads to the "Bundle Information" screen for that bundle.
+    * **"Quick Actions" Section:**
+        * Buttons/Cards for frequently performed actions:
+            * "Add New Document" (leads to "Add Document to SakuDok" modal).
+            * "Create New Bundle".
+            * "Scan Document" (if this is a direct action).
+    * **"Recent Documents" / "Recent Bundles" (Optional):** Small carousel or list of recently accessed items for quick retrieval.
+    * **"Tips/Discover SakuDok Features" (Optional, initially for onboarding):** Small card promoting underutilized features, e.g., "Did you know you can share documents securely?" or "Explore Document Templates."
+
+* **Visual Elements:** Use subtle cards or sections to break up this information, maintaining the minimalist aesthetic but making it data-rich.
+
+---
+
+#### 9. "Add Document to SakuDok" Modal/Bottom Sheet
+
+**Current State Analysis:**
+* **Purpose:** Choose method of adding a document.
+* **UI Elements:** Header, Two main options ("Take Photo", "Choose from Storage"), "Cancel" button.
+* **Issues:** None. This design is clean and standard.
+
+**Detailed Implementation Plan:**
+
+* **Design:** Keep as is. It's a clean and effective modal.
+* **Integration:** This modal should appear when the `+` FAB on "My Documents" is tapped, and when "Add Existing Document" is selected from the "Bundle Information" screen (if you adopt the two-button approach).
+
+---
+
+#### 10. "Quick Save" Screen
+
+**Current State Analysis:**
+* **Purpose:** Expedited document saving.
+* **UI Elements:** Combined "Add Document" choices with input fields.
+* **Issues:** High information density, potential for confusion in flow.
+
+**Detailed Implementation Plan (Refined Flow):**
+
+* **Re-evaluate the "Quick Save" Name:** If this screen is for *saving* a document *after* it's been captured/selected, then the "Add Document to SakuDok" section at the top (Take Photo/Choose from Storage) is redundant here. The user *already made that choice*.
+
+* **Proposed Flow A (Recommended - Simpler):**
+    1.  User taps `+` on "My Documents" -> "Add Document to SakuDok" modal appears (Take Photo / Choose from Storage).
+    2.  User selects "Take Photo" or "Choose from Storage".
+    3.  *Then*, they are taken to **this screen, but without the "Take Photo / Choose from Storage" options at the top.**
+    4.  **Header:** "Save Document" (or "Document Details").
+    5.  **Content:**
+        * **Document Preview (Optional but Recommended):** A small thumbnail or icon representing the captured/selected document could be shown at the top.
+        * **"Document Title" Input:** Pre-fill with a default name (e.g., "Document - [Date]"). Allow editing.
+        * **"Document Type" Dropdown:** This is crucial for smart features. Ensure the types are well-defined and cover common documents (ID Card, Passport, Certificate, Contract, Invoice, etc.).
+        * **Optional Fields:** Add expandable sections for "Add Tags," "Description," or "Associate with Bundle" (if not already done via bundle screen).
+    6.  **Action Button:** "Save Document" (prominent, full-width blue button at bottom).
+
+* **Proposed Flow B (If current structure *must* be kept):**
+    * **Visual Separation:** Draw a very strong visual line or use distinct card backgrounds to separate the "Add Document to SakuDok" section from the "Document Title" and "Document Type" sections. Make it clear these are two separate steps or actions on one screen.
+    * **Header:** "Quick Save" is okay, but "Add & Save Document" might be clearer.
+    * **Top Right Button:** Keep "Save" button to perform the save action.
+
+---
+
+This detailed plan aims to enhance SakuDok's visual appeal, usability, and ability to communicate its unique value proposition as a smart and secure document manager. By implementing these suggestions, you'll provide your users with a more cohesive, intuitive, and modern experience. Good luck with your presentation!

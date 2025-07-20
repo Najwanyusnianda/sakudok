@@ -30,7 +30,7 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
   late TextEditingController _tagsController;
   
   // Form State
-  DocumentType _selectedType = DocumentType.ktp;
+  MainDocumentType _selectedMainType = MainDocumentType.DOCUMENT;
   bool _isFavorite = false;
   bool _isLoading = false;
   DateTime? _expiryDate;
@@ -77,7 +77,7 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
     setState(() {
       _titleController.text = document.title;
       _descriptionController.text = document.description ?? '';
-      _selectedType = document.type;
+      _selectedMainType = document.mainType;
       _isFavorite = document.isFavorite;
       _expiryDate = document.expiryDate;
       _tags = document.tags;
@@ -162,13 +162,13 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
               ),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<DocumentType>(
-              value: _selectedType,
+            DropdownButtonFormField<MainDocumentType>(
+              value: _selectedMainType,
               decoration: const InputDecoration(
                 labelText: 'Select Document Type',
                 border: OutlineInputBorder(),
               ),
-              items: DocumentType.values.map((type) {
+              items: MainDocumentType.values.map((type) {
                 return DropdownMenuItem(
                   value: type,
                   child: Text(_getDocumentTypeDisplayName(type)),
@@ -177,7 +177,7 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
               onChanged: (value) {
                 if (value != null) {
                   setState(() {
-                    _selectedType = value;
+                    _selectedMainType = value;
                     _currentMetadata = null; // Reset metadata when type changes
                   });
                 }
@@ -291,7 +291,7 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
             ),
             const SizedBox(height: 16),
             SmartMetadataSection(
-              selectedType: _selectedType,
+              selectedType: _selectedMainType,
               currentMetadata: _currentMetadata,
               onMetadataChanged: (metadata) {
                 setState(() {
@@ -332,20 +332,14 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
     );
   }
 
-  String _getDocumentTypeDisplayName(DocumentType type) {
+  String _getDocumentTypeDisplayName(MainDocumentType type) {
     switch (type) {
-      case DocumentType.ktp:
-        return 'KTP (Identity Card)';
-      case DocumentType.sim:
-        return 'SIM (Driver License)';
-      case DocumentType.passport:
-        return 'Passport';
-      case DocumentType.sertifikat:
-        return 'Certificate';
-      case DocumentType.ijazah:
-        return 'Diploma';
-      case DocumentType.lainnya:
-        return 'Other Documents';
+      case MainDocumentType.CARD:
+        return 'Card File';
+      case MainDocumentType.DOCUMENT:
+        return 'Document Files';
+      case MainDocumentType.OTHER:
+        return 'Others';
     }
   }
 
@@ -364,7 +358,7 @@ class _AddEditDocumentPageState extends ConsumerState<AddEditDocumentPage> {
         id: widget.documentId ?? '',
         title: _titleController.text,
         description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-        type: _selectedType,
+        mainType: _selectedMainType,
         metadata: _currentMetadata ?? const DocumentMetadata.unknown({}),
         tags: _tags,
         isFavorite: _isFavorite,

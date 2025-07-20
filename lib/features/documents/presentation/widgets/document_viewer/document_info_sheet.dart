@@ -58,7 +58,7 @@ class DocumentInfoSheet extends StatelessWidget {
                 children: [
                   _buildInfoRow('Title', document.title),
                   _buildInfoRow(
-                      'Type', _getDocumentTypeDisplayName(document.type)),
+                      'Type', _getDocumentTypeDisplayName(document.mainType)),
                   if (document.description != null &&
                       document.description!.isNotEmpty)
                     _buildInfoRow('Description', document.description!),
@@ -109,20 +109,14 @@ class DocumentInfoSheet extends StatelessWidget {
     );
   }
 
-  String _getDocumentTypeDisplayName(DocumentType type) {
+  String _getDocumentTypeDisplayName(MainDocumentType type) {
     switch (type) {
-      case DocumentType.ktp:
-        return 'KTP (Identity Card)';
-      case DocumentType.sim:
-        return 'SIM (Driver License)';
-      case DocumentType.passport:
-        return 'Passport';
-      case DocumentType.ijazah:
-        return 'Diploma';
-      case DocumentType.sertifikat:
-        return 'Certificate';
-      case DocumentType.lainnya:
-        return 'Other Document';
+      case MainDocumentType.CARD:
+        return 'Card';
+      case MainDocumentType.DOCUMENT:
+        return 'Document';
+      case MainDocumentType.OTHER:
+        return 'Others ';
     }
   }
 

@@ -23,7 +23,7 @@ class SmartDocumentExtractionPage extends ConsumerStatefulWidget {
 }
 
 class _SmartDocumentExtractionPageState extends ConsumerState<SmartDocumentExtractionPage> {
-  DocumentType? _selectedType;
+  MainDocumentType? _selectedType;
   DocumentMetadata? _extractedMetadata;
   DocumentMetadata? _currentMetadata;
   ExtractedDocumentData? _extractionResult;
@@ -165,9 +165,9 @@ class _SmartDocumentExtractionPageState extends ConsumerState<SmartDocumentExtra
           // Document Types
           Expanded(
             child: ListView.builder(
-              itemCount: DocumentType.values.length,
+              itemCount: MainDocumentType.values.length,
               itemBuilder: (context, index) {
-                final type = DocumentType.values[index];
+                final type = MainDocumentType.values[index];
                 return _buildTypeCard(type);
               },
             ),
@@ -177,7 +177,7 @@ class _SmartDocumentExtractionPageState extends ConsumerState<SmartDocumentExtra
     );
   }
 
-  Widget _buildTypeCard(DocumentType type) {
+  Widget _buildTypeCard(MainDocumentType type) {
     final config = _getTypeConfig(type);
     final isSelected = _selectedType == type;
     
@@ -514,53 +514,29 @@ class _SmartDocumentExtractionPageState extends ConsumerState<SmartDocumentExtra
     Navigator.of(context).pop(_currentMetadata);
   }
 
-  _TypeConfig _getTypeConfig(DocumentType type) {
+  _TypeConfig _getTypeConfig(MainDocumentType type) {
     switch (type) {
-      case DocumentType.ktp:
+      case MainDocumentType.CARD:
         return _TypeConfig(
-          title: 'KTP',
-          description: 'Indonesian Identity Card',
-          icon: Icons.badge,
+          title: 'Kartu',
+          description: 'ID Cards, licenses, and similar documents',
+          icon: type.icon,
           color: Colors.blue,
           hasSmartFeatures: true,
         );
-      case DocumentType.sim:
+      case MainDocumentType.DOCUMENT:
         return _TypeConfig(
-          title: 'SIM',
-          description: 'Driver License',
-          icon: Icons.drive_eta,
+          title: 'Dokumen',
+          description: 'Certificates, letters, and formal documents',
+          icon: type.icon,
           color: Colors.green,
           hasSmartFeatures: true,
         );
-      case DocumentType.passport:
+      case MainDocumentType.OTHER:
         return _TypeConfig(
-          title: 'Passport',
-          description: 'Travel Document',
-          icon: Icons.flight,
-          color: Colors.purple,
-          hasSmartFeatures: true,
-        );
-      case DocumentType.sertifikat:
-        return _TypeConfig(
-          title: 'Certificate',
-          description: 'Professional Certification',
-          icon: Icons.workspace_premium,
-          color: Colors.amber,
-          hasSmartFeatures: true,
-        );
-      case DocumentType.ijazah:
-        return _TypeConfig(
-          title: 'Diploma',
-          description: 'Education Certificate',
-          icon: Icons.school,
-          color: Colors.indigo,
-          hasSmartFeatures: true,
-        );
-      case DocumentType.lainnya:
-        return _TypeConfig(
-          title: 'Other',
-          description: 'General Document',
-          icon: Icons.description,
+          title: 'Lainnya',
+          description: 'General documents and miscellaneous items',
+          icon: type.icon,
           color: Colors.grey,
           hasSmartFeatures: false,
         );

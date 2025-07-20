@@ -26,9 +26,9 @@ class FileService {
   }
 
   /// Get the directory for a specific document type
-  Future<Directory> _getTypeDirectory(DocumentType type) async {
+  Future<Directory> _getTypeDirectory(MainDocumentType mainType) async {
     final documentsDir = await _getDocumentsDirectory();
-    final typeFolder = _getTypeFolderName(type);
+    final typeFolder = _getTypeFolderName(mainType);
     final typeDir = Directory(path.join(documentsDir.path, typeFolder));
     if (!await typeDir.exists()) {
       await typeDir.create(recursive: true);
@@ -37,8 +37,8 @@ class FileService {
   }
 
   /// Get the images subdirectory for a document type
-  Future<Directory> _getImagesDirectory(DocumentType type) async {
-    final typeDir = await _getTypeDirectory(type);
+  Future<Directory> _getImagesDirectory(MainDocumentType mainType) async {
+    final typeDir = await _getTypeDirectory(mainType);
     final imagesDir = Directory(path.join(typeDir.path, _imagesFolder));
     if (!await imagesDir.exists()) {
       await imagesDir.create(recursive: true);
@@ -47,8 +47,8 @@ class FileService {
   }
 
   /// Get the PDFs subdirectory for a document type
-  Future<Directory> _getPdfsDirectory(DocumentType type) async {
-    final typeDir = await _getTypeDirectory(type);
+  Future<Directory> _getPdfsDirectory(MainDocumentType mainType) async {
+    final typeDir = await _getTypeDirectory(mainType);
     final pdfsDir = Directory(path.join(typeDir.path, _pdfsFolder));
     if (!await pdfsDir.exists()) {
       await pdfsDir.create(recursive: true);
@@ -57,27 +57,21 @@ class FileService {
   }
 
   /// Get folder name for document type
-  String _getTypeFolderName(DocumentType type) {
-    switch (type) {
-      case DocumentType.ktp:
-        return 'identity_cards';
-      case DocumentType.sim:
-        return 'driving_licenses';
-      case DocumentType.passport:
-        return 'passports';
-      case DocumentType.ijazah:
-        return 'diplomas';
-      case DocumentType.sertifikat:
-        return 'certificates';
-      case DocumentType.lainnya:
-        return 'others';
+  String _getTypeFolderName(MainDocumentType mainType) {
+    switch (mainType) {
+      case MainDocumentType.CARD:
+        return 'cards';
+      case MainDocumentType.DOCUMENT:
+        return 'documents';
+      case MainDocumentType.OTHER:
+        return 'other';
     }
   }
 
   /// Copy a file to the app's private directory
   Future<String> copyFileToAppDirectory({
     required File sourceFile,
-    required DocumentType documentType,
+    required MainDocumentType documentType,
     String? customFileName,
   }) async {
     try {
@@ -120,7 +114,7 @@ class FileService {
   /// Save file data to the app's private directory
   Future<String> saveFileData({
     required Uint8List data,
-    required DocumentType documentType,
+    required MainDocumentType mainDocumentType,
     required String extension,
     String? customFileName,
   }) async {
@@ -128,9 +122,9 @@ class FileService {
       // Determine destination directory based on file type
       Directory destDir;
       if (_isImageFile(extension)) {
-        destDir = await _getImagesDirectory(documentType);
+        destDir = await _getImagesDirectory(mainDocumentType);
       } else if (_isPdfFile(extension)) {
-        destDir = await _getPdfsDirectory(documentType);
+        destDir = await _getPdfsDirectory(mainDocumentType);
       } else {
         throw FileServiceException('Unsupported file type: $extension');
       }
@@ -187,9 +181,9 @@ class FileService {
   }
 
   /// Get all files for a specific document type
-  Future<List<String>> getFilesForType(DocumentType type) async {
+  Future<List<String>> getFilesForType(MainDocumentType mainType) async {
     try {
-      final typeDir = await _getTypeDirectory(type);
+      final typeDir = await _getTypeDirectory(mainType);
       final List<String> allFiles = [];
 
       // Get images
@@ -253,7 +247,7 @@ class FileService {
   /// Move file from one document type to another
   Future<String> moveFileToType({
     required String currentPath,
-    required DocumentType newType,
+    required MainDocumentType newMainType,
   }) async {
     try {
       final currentFile = File(currentPath);
@@ -265,9 +259,9 @@ class FileService {
       final extension = path.extension(currentPath).toLowerCase();
       Directory destDir;
       if (_isImageFile(extension)) {
-        destDir = await _getImagesDirectory(newType);
+        destDir = await _getImagesDirectory(newMainType);
       } else if (_isPdfFile(extension)) {
-        destDir = await _getPdfsDirectory(newType);
+        destDir = await _getPdfsDirectory(newMainType);
       } else {
         throw FileServiceException('Unsupported file type: $extension');
       }

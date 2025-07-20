@@ -31,15 +31,24 @@ class $DocumentsTable extends Documents
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
-  late final GeneratedColumn<String> type = GeneratedColumn<String>(
-    'type',
+  late final GeneratedColumnWithTypeConverter<MainDocumentType, String>
+  mainType = GeneratedColumn<String>(
+    'main_type',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-  );
+  ).withConverter<MainDocumentType>($DocumentsTable.$convertermainType);
+  @override
+  late final GeneratedColumnWithTypeConverter<DocumentSubType?, String>
+  subType = GeneratedColumn<String>(
+    'sub_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<DocumentSubType?>($DocumentsTable.$convertersubType);
   static const VerificationMeta _filePathsMeta = const VerificationMeta(
     'filePaths',
   );
@@ -174,7 +183,8 @@ class $DocumentsTable extends Documents
   List<GeneratedColumn> get $columns => [
     id,
     title,
-    type,
+    mainType,
+    subType,
     filePaths,
     createdAt,
     updatedAt,
@@ -209,14 +219,6 @@ class $DocumentsTable extends Documents
       );
     } else if (isInserting) {
       context.missing(_titleMeta);
-    }
-    if (data.containsKey('type')) {
-      context.handle(
-        _typeMeta,
-        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_typeMeta);
     }
     if (data.containsKey('file_paths')) {
       context.handle(
@@ -318,10 +320,18 @@ class $DocumentsTable extends Documents
         DriftSqlType.string,
         data['${effectivePrefix}title'],
       )!,
-      type: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}type'],
-      )!,
+      mainType: $DocumentsTable.$convertermainType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}main_type'],
+        )!,
+      ),
+      subType: $DocumentsTable.$convertersubType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}sub_type'],
+        ),
+      ),
       filePaths: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}file_paths'],
@@ -373,12 +383,18 @@ class $DocumentsTable extends Documents
   $DocumentsTable createAlias(String alias) {
     return $DocumentsTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<MainDocumentType, String> $convertermainType =
+      const MainDocumentTypeConverter();
+  static TypeConverter<DocumentSubType?, String?> $convertersubType =
+      const DocumentSubTypeConverter();
 }
 
 class Document extends DataClass implements Insertable<Document> {
   final int id;
   final String title;
-  final String type;
+  final MainDocumentType mainType;
+  final DocumentSubType? subType;
   final String filePaths;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -393,7 +409,8 @@ class Document extends DataClass implements Insertable<Document> {
   const Document({
     required this.id,
     required this.title,
-    required this.type,
+    required this.mainType,
+    this.subType,
     required this.filePaths,
     required this.createdAt,
     required this.updatedAt,
@@ -411,7 +428,16 @@ class Document extends DataClass implements Insertable<Document> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
-    map['type'] = Variable<String>(type);
+    {
+      map['main_type'] = Variable<String>(
+        $DocumentsTable.$convertermainType.toSql(mainType),
+      );
+    }
+    if (!nullToAbsent || subType != null) {
+      map['sub_type'] = Variable<String>(
+        $DocumentsTable.$convertersubType.toSql(subType),
+      );
+    }
     map['file_paths'] = Variable<String>(filePaths);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -440,7 +466,10 @@ class Document extends DataClass implements Insertable<Document> {
     return DocumentsCompanion(
       id: Value(id),
       title: Value(title),
-      type: Value(type),
+      mainType: Value(mainType),
+      subType: subType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subType),
       filePaths: Value(filePaths),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -471,7 +500,8 @@ class Document extends DataClass implements Insertable<Document> {
     return Document(
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
-      type: serializer.fromJson<String>(json['type']),
+      mainType: serializer.fromJson<MainDocumentType>(json['mainType']),
+      subType: serializer.fromJson<DocumentSubType?>(json['subType']),
       filePaths: serializer.fromJson<String>(json['filePaths']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -491,7 +521,8 @@ class Document extends DataClass implements Insertable<Document> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
-      'type': serializer.toJson<String>(type),
+      'mainType': serializer.toJson<MainDocumentType>(mainType),
+      'subType': serializer.toJson<DocumentSubType?>(subType),
       'filePaths': serializer.toJson<String>(filePaths),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -509,7 +540,8 @@ class Document extends DataClass implements Insertable<Document> {
   Document copyWith({
     int? id,
     String? title,
-    String? type,
+    MainDocumentType? mainType,
+    Value<DocumentSubType?> subType = const Value.absent(),
     String? filePaths,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -524,7 +556,8 @@ class Document extends DataClass implements Insertable<Document> {
   }) => Document(
     id: id ?? this.id,
     title: title ?? this.title,
-    type: type ?? this.type,
+    mainType: mainType ?? this.mainType,
+    subType: subType.present ? subType.value : this.subType,
     filePaths: filePaths ?? this.filePaths,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -541,7 +574,8 @@ class Document extends DataClass implements Insertable<Document> {
     return Document(
       id: data.id.present ? data.id.value : this.id,
       title: data.title.present ? data.title.value : this.title,
-      type: data.type.present ? data.type.value : this.type,
+      mainType: data.mainType.present ? data.mainType.value : this.mainType,
+      subType: data.subType.present ? data.subType.value : this.subType,
       filePaths: data.filePaths.present ? data.filePaths.value : this.filePaths,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -571,7 +605,8 @@ class Document extends DataClass implements Insertable<Document> {
     return (StringBuffer('Document(')
           ..write('id: $id, ')
           ..write('title: $title, ')
-          ..write('type: $type, ')
+          ..write('mainType: $mainType, ')
+          ..write('subType: $subType, ')
           ..write('filePaths: $filePaths, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -591,7 +626,8 @@ class Document extends DataClass implements Insertable<Document> {
   int get hashCode => Object.hash(
     id,
     title,
-    type,
+    mainType,
+    subType,
     filePaths,
     createdAt,
     updatedAt,
@@ -610,7 +646,8 @@ class Document extends DataClass implements Insertable<Document> {
       (other is Document &&
           other.id == this.id &&
           other.title == this.title &&
-          other.type == this.type &&
+          other.mainType == this.mainType &&
+          other.subType == this.subType &&
           other.filePaths == this.filePaths &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
@@ -627,7 +664,8 @@ class Document extends DataClass implements Insertable<Document> {
 class DocumentsCompanion extends UpdateCompanion<Document> {
   final Value<int> id;
   final Value<String> title;
-  final Value<String> type;
+  final Value<MainDocumentType> mainType;
+  final Value<DocumentSubType?> subType;
   final Value<String> filePaths;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -642,7 +680,8 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
   const DocumentsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
-    this.type = const Value.absent(),
+    this.mainType = const Value.absent(),
+    this.subType = const Value.absent(),
     this.filePaths = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -658,7 +697,8 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
   DocumentsCompanion.insert({
     this.id = const Value.absent(),
     required String title,
-    required String type,
+    required MainDocumentType mainType,
+    this.subType = const Value.absent(),
     required String filePaths,
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -671,12 +711,13 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     this.bundleId = const Value.absent(),
     this.metadata = const Value.absent(),
   }) : title = Value(title),
-       type = Value(type),
+       mainType = Value(mainType),
        filePaths = Value(filePaths);
   static Insertable<Document> custom({
     Expression<int>? id,
     Expression<String>? title,
-    Expression<String>? type,
+    Expression<String>? mainType,
+    Expression<String>? subType,
     Expression<String>? filePaths,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -692,7 +733,8 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
-      if (type != null) 'type': type,
+      if (mainType != null) 'main_type': mainType,
+      if (subType != null) 'sub_type': subType,
       if (filePaths != null) 'file_paths': filePaths,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -710,7 +752,8 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
   DocumentsCompanion copyWith({
     Value<int>? id,
     Value<String>? title,
-    Value<String>? type,
+    Value<MainDocumentType>? mainType,
+    Value<DocumentSubType?>? subType,
     Value<String>? filePaths,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -726,7 +769,8 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     return DocumentsCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
-      type: type ?? this.type,
+      mainType: mainType ?? this.mainType,
+      subType: subType ?? this.subType,
       filePaths: filePaths ?? this.filePaths,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -750,8 +794,15 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
-    if (type.present) {
-      map['type'] = Variable<String>(type.value);
+    if (mainType.present) {
+      map['main_type'] = Variable<String>(
+        $DocumentsTable.$convertermainType.toSql(mainType.value),
+      );
+    }
+    if (subType.present) {
+      map['sub_type'] = Variable<String>(
+        $DocumentsTable.$convertersubType.toSql(subType.value),
+      );
     }
     if (filePaths.present) {
       map['file_paths'] = Variable<String>(filePaths.value);
@@ -794,7 +845,8 @@ class DocumentsCompanion extends UpdateCompanion<Document> {
     return (StringBuffer('DocumentsCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
-          ..write('type: $type, ')
+          ..write('mainType: $mainType, ')
+          ..write('subType: $subType, ')
           ..write('filePaths: $filePaths, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -2685,7 +2737,8 @@ typedef $$DocumentsTableCreateCompanionBuilder =
     DocumentsCompanion Function({
       Value<int> id,
       required String title,
-      required String type,
+      required MainDocumentType mainType,
+      Value<DocumentSubType?> subType,
       required String filePaths,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -2702,7 +2755,8 @@ typedef $$DocumentsTableUpdateCompanionBuilder =
     DocumentsCompanion Function({
       Value<int> id,
       Value<String> title,
-      Value<String> type,
+      Value<MainDocumentType> mainType,
+      Value<DocumentSubType?> subType,
       Value<String> filePaths,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -2784,9 +2838,16 @@ class $$DocumentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get type => $composableBuilder(
-    column: $table.type,
-    builder: (column) => ColumnFilters(column),
+  ColumnWithTypeConverterFilters<MainDocumentType, MainDocumentType, String>
+  get mainType => $composableBuilder(
+    column: $table.mainType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DocumentSubType?, DocumentSubType, String>
+  get subType => $composableBuilder(
+    column: $table.subType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get filePaths => $composableBuilder(
@@ -2914,8 +2975,13 @@ class $$DocumentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get type => $composableBuilder(
-    column: $table.type,
+  ColumnOrderings<String> get mainType => $composableBuilder(
+    column: $table.mainType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subType => $composableBuilder(
+    column: $table.subType,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2990,8 +3056,11 @@ class $$DocumentsTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
-  GeneratedColumn<String> get type =>
-      $composableBuilder(column: $table.type, builder: (column) => column);
+  GeneratedColumnWithTypeConverter<MainDocumentType, String> get mainType =>
+      $composableBuilder(column: $table.mainType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DocumentSubType?, String> get subType =>
+      $composableBuilder(column: $table.subType, builder: (column) => column);
 
   GeneratedColumn<String> get filePaths =>
       $composableBuilder(column: $table.filePaths, builder: (column) => column);
@@ -3120,7 +3189,8 @@ class $$DocumentsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
-                Value<String> type = const Value.absent(),
+                Value<MainDocumentType> mainType = const Value.absent(),
+                Value<DocumentSubType?> subType = const Value.absent(),
                 Value<String> filePaths = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -3135,7 +3205,8 @@ class $$DocumentsTableTableManager
               }) => DocumentsCompanion(
                 id: id,
                 title: title,
-                type: type,
+                mainType: mainType,
+                subType: subType,
                 filePaths: filePaths,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -3152,7 +3223,8 @@ class $$DocumentsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String title,
-                required String type,
+                required MainDocumentType mainType,
+                Value<DocumentSubType?> subType = const Value.absent(),
                 required String filePaths,
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -3167,7 +3239,8 @@ class $$DocumentsTableTableManager
               }) => DocumentsCompanion.insert(
                 id: id,
                 title: title,
-                type: type,
+                mainType: mainType,
+                subType: subType,
                 filePaths: filePaths,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

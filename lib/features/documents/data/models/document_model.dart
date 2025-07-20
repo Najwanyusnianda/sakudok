@@ -12,7 +12,8 @@ class DocumentModel {
   final String title;
   final String? description;
   final String? thumbnail;
-  final DocumentType type;
+  final MainDocumentType mainType;
+  final DocumentSubType? subType;
   final List<String> tags;
   final DateTime? expiryDate;
   final bool isFavorite;
@@ -30,7 +31,8 @@ class DocumentModel {
     required this.title,
     this.description,
     this.thumbnail,
-    required this.type,
+    required this.mainType,
+    this.subType,
     this.tags = const [],
     this.expiryDate,
     this.isFavorite = false,
@@ -52,7 +54,8 @@ class DocumentModel {
         title: doc.title,
         description: doc.description,
         thumbnail: doc.thumbnail,
-        type: doc.type,
+        mainType: doc.mainType,
+        subType: doc.subType,
         tags: doc.tags,
         expiryDate: doc.expiryDate,
         isFavorite: doc.isFavorite,
@@ -71,7 +74,8 @@ class DocumentModel {
         title: title,
         description: description,
         thumbnail: thumbnail,
-        type: type,
+        mainType: mainType,
+        subType: subType,
         tags: tags,
         expiryDate: expiryDate,
         isFavorite: isFavorite,

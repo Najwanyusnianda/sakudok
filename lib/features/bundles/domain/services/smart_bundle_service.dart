@@ -79,7 +79,7 @@ class SmartBundleService {
   // Check bundle completeness and suggest missing documents
   static List<String> suggestMissingDocuments(Bundle bundle) {
     final missing = <String>[];
-    final presentTypes = bundle.documents.map((doc) => doc.type.name).toSet();
+    final presentTypes = bundle.documents.map((doc) => doc.mainType.name).toSet();
     
     for (final requiredType in bundle.requiredDocumentTypes) {
       if (!presentTypes.contains(requiredType)) {
@@ -94,7 +94,7 @@ class SmartBundleService {
   static double calculateCompletionPercentage(Bundle bundle) {
     if (bundle.requiredDocumentTypes.isEmpty) return 1.0;
     
-    final presentTypes = bundle.documents.map((doc) => doc.type.name).toSet();
+    final presentTypes = bundle.documents.map((doc) => doc.mainType.name).toSet();
     final requiredCount = bundle.requiredDocumentTypes.length;
     final presentRequiredCount = bundle.requiredDocumentTypes
         .where((type) => presentTypes.contains(type))
@@ -104,25 +104,25 @@ class SmartBundleService {
   }
   
   // Helper methods
-  static Map<DocumentType, List<Document>> _groupDocumentsByType(List<Document> documents) {
-    final grouped = <DocumentType, List<Document>>{};
+  static Map<MainDocumentType, List<Document>> _groupDocumentsByType(List<Document> documents) {
+    final grouped = <MainDocumentType, List<Document>>{};
     for (final doc in documents) {
-      grouped.putIfAbsent(doc.type, () => []).add(doc);
+      grouped.putIfAbsent(doc.mainType, () => []).add(doc);
     }
     return grouped;
   }
   
   static List<Document> _findMatchingDocuments(
-    Map<DocumentType, List<Document>> documentsByType,
+    Map<MainDocumentType, List<Document>> documentsByType,
     BundleTemplate template,
   ) {
     final matched = <Document>[];
     
     // Add required documents
     for (final typeString in template.requiredDocumentTypes) {
-      final type = DocumentType.values.firstWhere(
+      final type = MainDocumentType.values.firstWhere(
         (t) => t.name == typeString,
-        orElse: () => DocumentType.lainnya,
+        orElse: () => MainDocumentType.OTHER,
       );
       if (documentsByType.containsKey(type)) {
         matched.addAll(documentsByType[type]!);
@@ -131,9 +131,9 @@ class SmartBundleService {
     
     // Add optional documents
     for (final typeString in template.optionalDocumentTypes) {
-      final type = DocumentType.values.firstWhere(
+      final type = MainDocumentType.values.firstWhere(
         (t) => t.name == typeString,
-        orElse: () => DocumentType.lainnya,
+        orElse: () => MainDocumentType.OTHER,
       );
       if (documentsByType.containsKey(type)) {
         matched.addAll(documentsByType[type]!);
@@ -144,13 +144,13 @@ class SmartBundleService {
   }
   
   static bool _hasAllRequiredDocuments(
-    Map<DocumentType, List<Document>> documentsByType,
+    Map<MainDocumentType, List<Document>> documentsByType,
     BundleTemplate template,
   ) {
     for (final typeString in template.requiredDocumentTypes) {
-      final type = DocumentType.values.firstWhere(
+      final type = MainDocumentType.values.firstWhere(
         (t) => t.name == typeString,
-        orElse: () => DocumentType.lainnya,
+        orElse: () => MainDocumentType.OTHER,
       );
       if (!documentsByType.containsKey(type) || documentsByType[type]!.isEmpty) {
         return false;

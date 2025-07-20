@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:sakudok/features/documents/domain/entities/document_type.dart';
 import 'tables/documents.dart';
 import 'tables/bundles.dart';
 import 'tables/bundle_documents.dart';
@@ -27,7 +28,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -44,6 +45,25 @@ class AppDatabase extends _$AppDatabase {
         if (from < 3) {
           // Create the new BundleSlots table
           await m.createTable(bundleSlots);
+        }
+        if (from < 4) {
+          // Add new document type columns and migrate existing data
+          await m.addColumn(documents, documents.mainType);
+          await m.addColumn(documents, documents.subType);
+          
+          // Migrate existing data: map old 'type' to new mainType/subType structure
+          await customStatement('''
+            UPDATE documents 
+            SET mainType = CASE 
+              WHEN type IN ('ktp', 'sim', 'passport') THEN 'CARD'
+              WHEN type IN ('ijazah', 'sertifikat') THEN 'DOCUMENT'
+              ELSE 'OTHER'
+            END,
+            subType = CASE 
+              WHEN type IN ('ktp', 'sim', 'passport', 'ijazah', 'sertifikat') THEN type
+              ELSE 'lainnya'
+            END
+          ''');
         }
       },
     );
@@ -77,7 +97,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<DriftDocument>> getDocumentsByType(String type) async {
-    return await (select(documents)..where((d) => d.type.equals(type))).get();
+    return await (select(documents)..where((d) => d.mainType.equals(type))).get();
   }
 
   Future<List<DriftDocument>> getExpiringDocuments(int daysThreshold) async {

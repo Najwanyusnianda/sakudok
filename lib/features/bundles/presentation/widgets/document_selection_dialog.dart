@@ -172,13 +172,13 @@ class _DocumentSelectionDialogState extends ConsumerState<DocumentSelectionDialo
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((doc) =>
           doc.title.toLowerCase().contains(_searchQuery) ||
-          doc.type.toString().toLowerCase().contains(_searchQuery)).toList();
+          doc.mainType.toString().toLowerCase().contains(_searchQuery)).toList();
     }
     
     // Sort by relevance - documents matching the required type first
     filtered.sort((a, b) {
-      final aMatches = a.type.toString().toLowerCase().contains(widget.requiredDocType.toLowerCase());
-      final bMatches = b.type.toString().toLowerCase().contains(widget.requiredDocType.toLowerCase());
+      final aMatches = a.mainType.toString().toLowerCase().contains(widget.requiredDocType.toLowerCase());
+      final bMatches = b.mainType.toString().toLowerCase().contains(widget.requiredDocType.toLowerCase());
       
       if (aMatches && !bMatches) return -1;
       if (!aMatches && bMatches) return 1;
@@ -191,7 +191,7 @@ class _DocumentSelectionDialogState extends ConsumerState<DocumentSelectionDialo
   }
 
   Widget _buildDocumentTile(Document document) {
-    final isRecommended = document.type.toString().toLowerCase()
+    final isRecommended = document.mainType.toString().toLowerCase()
         .contains(widget.requiredDocType.toLowerCase());
     
     return Card(
@@ -208,7 +208,7 @@ class _DocumentSelectionDialogState extends ConsumerState<DocumentSelectionDialo
               ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
               : Colors.grey.shade100,
           child: Icon(
-            _getDocumentIcon(document.type.toString()),
+            document.mainType.icon,
             color: isRecommended 
                 ? Theme.of(context).colorScheme.primary
                 : Colors.grey.shade600,
@@ -245,7 +245,7 @@ class _DocumentSelectionDialogState extends ConsumerState<DocumentSelectionDialo
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(document.type.toString()),
+            Text(document.mainType.displayName),
             Text(
               'Created: ${_formatDate(document.createdAt)}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -301,23 +301,6 @@ class _DocumentSelectionDialogState extends ConsumerState<DocumentSelectionDialo
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Create document functionality coming soon!')),
     );
-  }
-
-  IconData _getDocumentIcon(String type) {
-    switch (type.toLowerCase()) {
-      case 'ktp':
-        return Icons.badge;
-      case 'sim':
-        return Icons.directions_car;
-      case 'ijazah':
-        return Icons.school;
-      case 'sertifikat':
-        return Icons.verified;
-      case 'cv':
-        return Icons.person;
-      default:
-        return Icons.description;
-    }
   }
 
   String _formatDate(DateTime date) {

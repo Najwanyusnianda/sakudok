@@ -1,492 +1,342 @@
-//lib/features/documents/presentation/widgets/document_card.dart
+// lib/features/documents/presentation/widgets/document_card.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // For date formatting
 import '../../domain/entities/document.dart';
 import '../../domain/entities/document_type.dart';
-import '../../domain/entities/metadata/document_metadata.dart';
-import 'metadata_previews/ktp_preview.dart';
-import 'metadata_previews/sim_preview.dart';
-import 'metadata_previews/passport_preview.dart';
-import 'metadata_previews/ielts_preview.dart';
-import 'metadata_previews/transcript_preview.dart';
-import 'metadata_previews/cv_preview.dart';
-import 'metadata_previews/certificate_preview.dart';
-import 'metadata_previews/diploma_preview.dart';
+import 'document_list/data_quick_view_modal.dart'; // Ensure this path is correct
 
 class DocumentCard extends StatelessWidget {
   final Document document;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-  final VoidCallback? onEdit;
-  final VoidCallback? onEnableSmartFeatures;
+  final VoidCallback onViewFile; // Opens the actual document attachment
+  final VoidCallback? onViewData; // Opens the DataQuickViewModal
+  final VoidCallback? onManageData; // Navigates to the data input/edit form
+  final VoidCallback? onContextMenu; // Opens the 3-dot menu
 
   const DocumentCard({
     super.key,
     required this.document,
-    required this.onTap,
-    required this.onDelete,
-    this.onEdit,
-    this.onEnableSmartFeatures,
+    required this.onViewFile,
+    this.onViewData,
+    this.onManageData,
+    this.onContextMenu,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 2, // Subtle shadow for modern look
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Row: Document type, title, and actions
-              _buildHeaderRow(context),
-              const SizedBox(height: 12),
-              
-              // Description
-              if (document.description != null && document.description!.isNotEmpty) ...[
-                Text(
-                  document.description!,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                    height: 1.4,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-              ],
-              
-              // Metadata Preview (for smart documents)
-              _buildMetadataPreview(context),
-              
-              // Tags
-              if (document.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                _buildTagsRow(context),
-              ],
-              
-              const SizedBox(height: 12),
-              
-              // Footer Row: Update date and status indicators
-              _buildFooterRow(context),
-            ],
-          ),
-        ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias, // Ensures InkWell ripple stays within rounded corners
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section 1: Primary Document Info & File Access
+          // This entire section is the tap target for onViewFile
+          _buildPrimaryFileSection(context),
+
+          // Section 2: Data Quick View & Last Updated (if structured data exists)
+          if (_hasStructuredData())
+            _buildDataQuickViewAndUpdatedSection(context),
+
+          // Section 3: Data Management Action & Context Menu
+          _buildDataManagementAndContextMenuSection(context),
+        ],
       ),
     );
   }
 
-  Widget _buildHeaderRow(BuildContext context) {
-    return Row(
-      children: [
-        // Document Type Icon
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: _getDocumentTypeColor(document.type).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            _getIconForDocumentType(document.type),
-            color: _getDocumentTypeColor(document.type),
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: 12),
-        
-        // Document Type Label and Title
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Document Type Label
-              Text(
-                _getDocumentTypeDisplayName(document.type),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: _getDocumentTypeColor(document.type),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 11,
-                ),
-              ),
-              const SizedBox(height: 2),
-              
-              // Document Title
-              Text(
-                document.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  height: 1.2,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-        
-        // Status Indicators and Actions
-        Row(
-          mainAxisSize: MainAxisSize.min,
+  // --- Helper Widgets for Sections ---
+
+Widget _buildPrimaryFileSection(BuildContext context) {
+    return InkWell(
+      onTap: onViewFile, // Tapping anywhere here opens the file
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Favorite Star
-            if (document.isFavorite)
-              Container(
-                margin: const EdgeInsets.only(right: 8),
-                child: Icon(
-                  Icons.star_rounded,
-                  color: Colors.amber.shade600,
-                  size: 18,
-                ),
-              ),
-            
-            // Expiry Warning
-            if (_hasExpiryWarning()) ...[
-              Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.warning_rounded,
-                      color: Colors.orange.shade700,
-                      size: 12,
-                    ),
-                    const SizedBox(width: 2),
-                    Text(
-                      _getExpiryText(),
-                      style: TextStyle(
-                        color: Colors.orange.shade700,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            
-            // More Actions Menu
-            PopupMenuButton<String>(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.grey.shade600,
-                size: 18,
-              ),
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'view',
-                  child: Row(
-                    children: [
-                      Icon(Icons.visibility_outlined, size: 16),
-                      SizedBox(width: 8),
-                      Text('View'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit_outlined, size: 16),
-                      SizedBox(width: 8),
-                      Text('Edit'),
-                    ],
-                  ),
-                ),
-                if (onEnableSmartFeatures != null && !_hasSmartMetadata())
-                  const PopupMenuItem(
-                    value: 'smart',
-                    child: Row(
-                      children: [
-                        Icon(Icons.auto_awesome, size: 16),
-                        SizedBox(width: 8),
-                        Text('Enable Smart Features'),
-                      ],
-                    ),
-                  ),
-                const PopupMenuItem(
-                  value: 'share',
-                  child: Row(
-                    children: [
-                      Icon(Icons.share_outlined, size: 16),
-                      SizedBox(width: 8),
-                      Text('Share'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete_outline, size: 16, color: Colors.red),
-                      SizedBox(width: 8),
-                      Text('Delete', style: TextStyle(color: Colors.red)),
-                    ],
-                  ),
-                ),
-              ],
-              onSelected: (value) {
-                switch (value) {
-                  case 'view':
-                    onTap();
-                    break;
-                  case 'edit':
-                    onEdit?.call();
-                    break;
-                  case 'smart':
-                    onEnableSmartFeatures?.call();
-                    break;
-                  case 'share':
-                    // TODO: Implement share functionality
-                    break;
-                  case 'delete':
-                    onDelete();
-                    break;
-                }
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTagsRow(BuildContext context) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 4,
-      children: document.tags.take(3).map((tag) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Text(
-          tag,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey.shade700,
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      )).toList()..addAll(
-        document.tags.length > 3 ? [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '+${document.tags.length - 3}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey.shade600,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          )
-        ] : [],
-      ),
-    );
-  }
-
-  Widget _buildFooterRow(BuildContext context) {
-    return Row(
-      children: [
-        // Update Date
-        Icon(
-          Icons.schedule,
-          color: Colors.grey.shade500,
-          size: 14,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          'Updated ${_formatDate(document.updatedAt)}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.grey.shade600,
-            fontSize: 11,
-          ),
-        ),
-        
-        const Spacer(),
-        
-        // Smart Features Indicator
-        if (_hasSmartMetadata())
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.purple.shade50,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.purple.shade200),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  color: Colors.purple.shade600,
-                  size: 10,
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  'Smart',
-                  style: TextStyle(
-                    color: Colors.purple.shade700,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          )
-        else if (onEnableSmartFeatures != null)
-          GestureDetector(
-            onTap: onEnableSmartFeatures,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            // Document Type Icon
+            Container(
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
-                color: Colors.purple.shade50,
+                color: _getDocumentTypeColor(document.mainType).withOpacity(0.1), // Lighter background
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.purple.shade200),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Icon(
+                _getDocumentIcon(document.mainType, document.filePaths.isNotEmpty ? document.filePaths.first.split('.').last : ''), // More specific icon
+                color: _getDocumentTypeColor(document.mainType),
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+
+            // Document Name and File Type
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.auto_awesome_outlined,
-                    color: Colors.purple.shade600,
-                    size: 12,
-                  ),
-                  const SizedBox(width: 4),
                   Text(
-                    'Enable Smart Features',
-                    style: TextStyle(
-                      color: Colors.purple.shade700,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    document.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                          color: Colors.grey.shade900, // Stronger text color
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _getFileTypeLabel(),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ],
               ),
             ),
+
+            // Status indicators (Favorite, Expiry Warning)
+            _buildStatusIndicators(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusIndicators(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min, // Use minimum space
+      children: [
+        if (document.isFavorite)
+          Icon(
+            Icons.star_rounded, // Use rounded star for modern look
+            color: Colors.amber.shade600,
+            size: 20,
+          ),
+        if (_hasExpiryWarning())
+          Padding(
+            padding: EdgeInsets.only(top: document.isFavorite ? 4 : 0), // Add padding only if favorite is also present
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade100,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.warning_rounded, // Use rounded warning icon
+                color: Colors.orange.shade700,
+                size: 14,
+              ),
+            ),
           ),
       ],
     );
   }
 
-  Widget _buildMetadataPreview(BuildContext context) {
-    // Metadata Preview using Composition Pattern
-    return document.metadata.map(
-      ktp: (metadata) => KtpPreview(metadata: metadata),
-      sim: (metadata) => SimPreview(metadata: metadata),
-      passport: (metadata) => PassportPreview(metadata: metadata),
-      ielts: (metadata) => IeltsPreview(metadata: metadata),
-      transcript: (metadata) => TranscriptPreview(metadata: metadata),
-      cv: (metadata) => CvPreview(metadata: metadata),
-      certificate: (metadata) => CertificatePreview(metadata: metadata),
-      diploma: (metadata) => DiplomaPreview(metadata: metadata),
-      unknown: (_) => const SizedBox.shrink(),
+  Widget _buildDataQuickViewAndUpdatedSection(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        if (onViewData != null) {
+          onViewData!();
+        } else {
+          // Default behavior: show data quick view modal
+          DataQuickViewModal.show(
+            context,
+            document,
+            onEditData: onManageData,
+            onViewFile: onViewFile,
+          );
+        }
+      },
+      // Removed Container with blue background and borders for minimalism
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(
+              Icons.dashboard_rounded, // More intuitive icon for data/dashboard
+              size: 18,
+              color: Theme.of(context).primaryColor, // Use primary blue
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'View Data',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).primaryColor, // Use primary blue
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            const Spacer(), // Pushes updated info to the right
+            Icon(
+              Icons.access_time_rounded, // Rounded time icon
+              size: 16,
+              color: Colors.grey.shade600,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'Updated ${_formatLastUpdated()}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey.shade600,
+                    // fontSize: 11, // Keep default bodySmall or adjust slightly
+                  ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Color _getDocumentTypeColor(DocumentType type) {
-    switch (type) {
-      case DocumentType.ktp:
-        return Colors.blue.shade600;
-      case DocumentType.sim:
-        return Colors.green.shade600;
-      case DocumentType.passport:
-        return Colors.purple.shade600;
-      case DocumentType.ijazah:
-        return Colors.indigo.shade600;
-      case DocumentType.sertifikat:
-        return Colors.orange.shade600;
-      case DocumentType.lainnya:
-        return Colors.grey.shade600;
-    }
+  Widget _buildDataManagementAndContextMenuSection(BuildContext context) {
+    final hasMetadata = _hasStructuredData();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16), // Adjust padding for bottom section
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute space
+        children: [
+          // Data Management Action (InkWell for better tap feedback)
+          Expanded(
+            child: InkWell(
+              onTap: onManageData,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                // Removed BoxDecoration border for a cleaner look
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // Keep content compact
+                  children: [
+                    Icon(
+                      hasMetadata ? Icons.edit_note_rounded : Icons.add_box_rounded, // More specific icons
+                      size: 18,
+                      color: Colors.grey.shade700,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      hasMetadata ? 'Manage Data' : 'Add Data',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          // Context Menu (InkWell for better tap feedback)
+          InkWell(
+            onTap: onContextMenu,
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.all(8), // Padding for tap target
+              // Removed BoxDecoration border for a cleaner look
+              child: Icon(
+                Icons.more_vert_rounded, // Rounded variant
+                size: 20, // Slightly larger for easier tapping
+                color: Colors.grey.shade700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  String _getDocumentTypeDisplayName(DocumentType type) {
+  // --- Helper Methods ---
+
+  bool _hasStructuredData() {
+    // This logic assumes document.metadata is an actual object/map
+    // and not just an empty default Object instance.
+    // You might need to refine this based on your actual Document entity structure.
+    // For example, if metadata is a Map<String, dynamic>, check if it's not empty.
+    return document.metadata != null; // Assuming metadata is a Map or similar
+  }
+
+  String _getFileTypeLabel() {
+    if (document.filePaths.isNotEmpty) {
+      final path = document.filePaths.first;
+      final extension = path.split('.').last.toLowerCase();
+      switch (extension) {
+        case 'pdf':
+          return 'PDF Document';
+        case 'jpg':
+        case 'jpeg':
+          return 'JPEG Image';
+        case 'png':
+          return 'PNG Image';
+        case 'doc':
+        case 'docx':
+          return 'Word Document';
+        default:
+          return 'Document';
+      }
+    }
+    return 'Document';
+  }
+
+  IconData _getDocumentIcon(MainDocumentType type, String fileExtension) {
+    // You can make these icons more specific based on your design system
     switch (type) {
-      case DocumentType.ktp:
-        return 'KTP (Identity Card)';
-      case DocumentType.sim:
-        return 'SIM (Driver License)';
-      case DocumentType.passport:
-        return 'Passport';
-      case DocumentType.ijazah:
-        return 'Diploma';
-      case DocumentType.sertifikat:
-        return 'Certificate';
-      case DocumentType.lainnya:
-        return 'Other Document';
+      case MainDocumentType.CARD:
+        return Icons.credit_card_rounded; // More specific for cards
+      case MainDocumentType.DOCUMENT:
+        switch (fileExtension.toLowerCase()) {
+          case 'pdf':
+            return Icons.picture_as_pdf_rounded;
+          case 'jpg':
+          case 'jpeg':
+          case 'png':
+            return Icons.image_rounded;
+          case 'doc':
+          case 'docx':
+            return Icons.description_rounded; // For general documents like Word
+          default:
+            return Icons.insert_drive_file_rounded; // Generic file icon
+        }
+      case MainDocumentType.OTHER:
+        return Icons.folder_open_rounded; // Generic folder for 'other'
     }
   }
 
   bool _hasExpiryWarning() {
-    return document.expiryDate != null && 
-           document.expiryDate!.difference(DateTime.now()).inDays <= 60;
+    if (document.expiryDate == null) return false;
+
+    final now = DateTime.now();
+    final difference = document.expiryDate!.difference(now).inDays;
+    return difference <= 60 && difference >= 0;
   }
 
-  String _getExpiryText() {
-    if (document.expiryDate == null) return '';
-    
-    final daysLeft = document.expiryDate!.difference(DateTime.now()).inDays;
-    if (daysLeft <= 0) {
-      return 'Expired';
-    } else if (daysLeft <= 7) {
-      return '${daysLeft}d left';
-    } else if (daysLeft <= 30) {
-      return '${(daysLeft / 7).ceil()}w left';
+  String _formatLastUpdated() {
+    final now = DateTime.now();
+    final difference = now.difference(document.updatedAt);
+
+    if (difference.inDays > 7) {
+      return DateFormat('dd MMM yyyy').format(document.updatedAt); // More precise for older
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
     } else {
-      return '${(daysLeft / 30).ceil()}m left';
+      return 'Just now';
     }
   }
 
-  bool _hasSmartMetadata() {
-    return document.metadata.when(
-      ktp: (_, a, b, c, d, e, f, g, h, i) => true,
-      sim: (_, a, b, c, d, e, f, g) => true,
-      passport: (_, a, b, c, d, e, f, g, h, i) => true,
-      ielts: (_, a, b, c, d, e, f, g, h, i, j) => true,
-      transcript: (_, a, b, c, d, e, f, g, h) => true,
-      cv: (_, a, b, c, d, e, f) => true,
-      certificate: (_, a, b, c, d, e, f) => true,
-      diploma: (_, a, b, c, d, e, f, g) => true,
-      unknown: (_) => false,
-    );
-  }
-
-  IconData _getIconForDocumentType(DocumentType type) {
+  Color _getDocumentTypeColor(MainDocumentType type) {
     switch (type) {
-      case DocumentType.ktp:
-        return Icons.credit_card;
-      case DocumentType.sim:
-        return Icons.drive_eta;
-      case DocumentType.passport:
-        return Icons.book;
-      case DocumentType.ijazah:
-        return Icons.school;
-      case DocumentType.sertifikat:
-        return Icons.workspace_premium;
-      case DocumentType.lainnya:
-        return Icons.description;
+      case MainDocumentType.CARD:
+        return Colors.blue.shade700; // Deeper blue
+      case MainDocumentType.DOCUMENT:
+        return Colors.green.shade700; // Deeper green
+      case MainDocumentType.OTHER:
+        return Colors.grey.shade700; // Deeper grey
     }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

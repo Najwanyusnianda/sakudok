@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/document_type.dart';
 
 class SmartDocumentTypeSelector extends StatelessWidget {
-  final DocumentType? selectedType;
-  final Function(DocumentType) onTypeSelected;
+  final MainDocumentType? selectedType;
+  final Function(MainDocumentType) onTypeSelected;
   final bool isLoading;
 
   const SmartDocumentTypeSelector({
@@ -63,7 +63,7 @@ class SmartDocumentTypeSelector extends StatelessWidget {
                 ),
               )
             else
-              ...DocumentType.values.map((type) => _buildTypeOption(context, type)),
+              ...MainDocumentType.values.map((type) => _buildTypeOption(context, type)),
             
             const SizedBox(height: 16),
             
@@ -97,7 +97,7 @@ class SmartDocumentTypeSelector extends StatelessWidget {
     );
   }
 
-  Widget _buildTypeOption(BuildContext context, DocumentType type) {
+  Widget _buildTypeOption(BuildContext context, MainDocumentType type) {
     final config = _getTypeConfig(type);
     final isSelected = selectedType == type;
     
@@ -188,53 +188,29 @@ class SmartDocumentTypeSelector extends StatelessWidget {
     );
   }
 
-  _TypeConfig _getTypeConfig(DocumentType type) {
+  _TypeConfig _getTypeConfig(MainDocumentType type) {
     switch (type) {
-      case DocumentType.ktp:
+      case MainDocumentType.CARD:
         return _TypeConfig(
-          title: 'KTP',
-          description: 'Indonesian Identity Card',
-          icon: Icons.badge,
+          title: 'Kartu',
+          description: 'ID Cards, licenses, and similar documents',
+          icon: type.icon,
           color: Colors.blue,
           hasSmartFeatures: true,
         );
-      case DocumentType.sim:
+      case MainDocumentType.DOCUMENT:
         return _TypeConfig(
-          title: 'SIM',
-          description: 'Driver License',
-          icon: Icons.drive_eta,
+          title: 'Dokumen',
+          description: 'Certificates, letters, and formal documents',
+          icon: type.icon,
           color: Colors.green,
           hasSmartFeatures: true,
         );
-      case DocumentType.passport:
+      case MainDocumentType.OTHER:
         return _TypeConfig(
-          title: 'Passport',
-          description: 'Travel Document',
-          icon: Icons.flight,
-          color: Colors.purple,
-          hasSmartFeatures: true,
-        );
-      case DocumentType.sertifikat:
-        return _TypeConfig(
-          title: 'Certificate',
-          description: 'Professional Certification',
-          icon: Icons.workspace_premium,
-          color: Colors.amber,
-          hasSmartFeatures: true,
-        );
-      case DocumentType.ijazah:
-        return _TypeConfig(
-          title: 'Diploma',
-          description: 'Education Certificate',
-          icon: Icons.school,
-          color: Colors.indigo,
-          hasSmartFeatures: true,
-        );
-      case DocumentType.lainnya:
-        return _TypeConfig(
-          title: 'Other',
-          description: 'General Document',
-          icon: Icons.description,
+          title: 'Lainnya',
+          description: 'General documents and miscellaneous items',
+          icon: type.icon,
           color: Colors.grey,
           hasSmartFeatures: false,
         );

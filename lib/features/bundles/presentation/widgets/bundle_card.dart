@@ -149,7 +149,7 @@ class BundleProgressBar extends StatelessWidget {
 
   double _calculateProgress() {
     if (bundle.requiredDocumentTypes.isEmpty) return 1.0;
-    final presentTypes = bundle.documents.map((doc) => doc.type.name).toSet();
+    final presentTypes = bundle.documents.map((doc) => doc.mainType.name).toSet();
     final requiredCount = bundle.requiredDocumentTypes.length;
     final presentRequiredCount =
         bundle.requiredDocumentTypes.where((type) => presentTypes.contains(type)).length;
@@ -255,7 +255,7 @@ class RequiredDocuments extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final presentTypes = bundle.documents.map((doc) => doc.type.name).toSet();
+    final presentTypes = bundle.documents.map((doc) => doc.mainType.name).toSet();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -4,7 +4,6 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart'; // Import for debugPrint
 import '../../../../core/database/app_database.dart' as db;
 import '../../domain/entities/document.dart' as domain;
-import '../../domain/entities/document_type.dart';
 import '../../domain/entities/metadata/document_metadata.dart';
 
 class DocumentMapper {
@@ -32,7 +31,8 @@ class DocumentMapper {
         id: dbDoc.id.toString(),
         title: dbDoc.title,
         description: dbDoc.description,
-        type: DocumentType.values.byName(dbDoc.type),
+        mainType: dbDoc.mainType,
+        subType: dbDoc.subType,
         createdAt: dbDoc.createdAt,
         updatedAt: dbDoc.updatedAt,
         
@@ -70,7 +70,8 @@ class DocumentMapper {
       id: id != null ? Value(id) : const Value.absent(),
       title: Value(domainDoc.title),
       description: Value(domainDoc.description),
-      type: Value(domainDoc.type.name),
+      mainType: Value(domainDoc.mainType),
+      subType: Value(domainDoc.subType),
       tags: Value(json.encode(domainDoc.tags)),
       createdAt: Value(domainDoc.createdAt),
       updatedAt: Value(domainDoc.updatedAt),

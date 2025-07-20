@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/bundle_slot.dart';
-import '../../../documents/domain/entities/document_type.dart'; // Import your DocumentType enum
+import '../../../documents/domain/entities/document_type.dart'; // Import MainDocumentType
 
 class AddCustomSlotDialog extends ConsumerStatefulWidget {
   final String bundleId;
@@ -21,8 +21,8 @@ class AddCustomSlotDialog extends ConsumerStatefulWidget {
 class _AddCustomSlotDialogState extends ConsumerState<AddCustomSlotDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  // Use the DocumentType enum for type safety
-  DocumentType _selectedDocType = DocumentType.lainnya;
+  // Use the MainDocumentType enum for type safety
+  MainDocumentType _selectedDocType = MainDocumentType.OTHER;
   bool _isRequired = true;
   bool _isLoading = false;
 
@@ -95,13 +95,13 @@ class _AddCustomSlotDialogState extends ConsumerState<AddCustomSlotDialog> {
                 textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<DocumentType>(
+              DropdownButtonFormField<MainDocumentType>(
                 value: _selectedDocType,
                 decoration: const InputDecoration(
                   labelText: 'Expected Document Type',
                 ),
-                // --- IMPROVEMENT: Use the DocumentType enum directly ---
-                items: DocumentType.values.map((type) {
+                // --- IMPROVEMENT: Use the MainDocumentType enum directly ---
+                items: MainDocumentType.values.map((type) {
                   return DropdownMenuItem(
                     value: type,
                     child: Row(

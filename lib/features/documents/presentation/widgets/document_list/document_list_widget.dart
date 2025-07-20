@@ -1,9 +1,10 @@
+// lib/features/documents/presentation/widgets/document_list/document_list_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/document.dart'; // Adjust import path
-import '../../pages/add_edit_document_page.dart';
 import '../../pages/document_viewer_page.dart';
 import '../../pages/edit_document_smart_features_page.dart';
+import '../../pages/add_edit_document_page.dart';
 import '../document_card.dart';
 import '../../providers/document_providers.dart'; // Adjust import path
 
@@ -36,7 +37,7 @@ class DocumentListWidget extends ConsumerWidget {
             final doc = documents[index];
             return DocumentCard(
               document: doc,
-              onTap: () {
+              onViewFile: () {
                 // --- START DEBUGGING ---
                 // Print the document details when the card is tapped.
                 // This helps verify the path being sent to the viewer.
@@ -48,15 +49,11 @@ class DocumentListWidget extends ConsumerWidget {
                   builder: (context) => DocumentViewerPage(document: doc),
                 ));
               },
-              onEdit: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => AddEditDocumentPage(documentId: doc.id),
-              )),
-              onDelete: () => onDelete(doc.id),
-              onEnableSmartFeatures: () =>
-                  Navigator.of(context).push(MaterialPageRoute(
+              onManageData: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) =>
                     EditDocumentSmartFeaturesPage(documentId: doc.id),
               )),
+              onContextMenu: () => _showContextMenu(context, doc),
             );
           },
           childCount: documents.length,
@@ -111,6 +108,69 @@ class DocumentListWidget extends ConsumerWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  void _showContextMenu(BuildContext context, Document doc) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit Document'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddEditDocumentPage(documentId: doc.id),
+                ));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share'),
+              onTap: () {
+                Navigator.pop(context);
+                // TODO: Implement share functionality
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation(context, doc);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Document doc) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Document'),
+        content: Text('Are you sure you want to delete "${doc.title}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onDelete(doc.id);
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }

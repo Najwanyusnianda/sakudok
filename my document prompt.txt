@@ -1,0 +1,207 @@
+"Refactor the MyDocumentsScreen component. It should primarily consist of:
+
+A TopBar component.
+
+A SearchBar component.
+
+A DocumentList component (which renders DocumentCard components).
+
+A FloatingActionButton (FAB) component."
+
+II. TopBar Component (MyDocumentsTopBar):
+
+"Create or modify the MyDocumentsTopBar component.
+
+Background: Solid blue color.
+
+Height: Standard sliver app bar height.
+
+Content Alignment: Vertically center all elements.
+
+Left Icon (Filter):
+
+Icon: Use a clear 'filter' icon (e.g., a funnel icon, or three horizontal lines with a triangle/dots).
+
+Functionality: On tap, trigger a function onFilterPressed which will open the filter drawer.
+
+Title:
+
+Text: 'My Documents'.
+
+Color: White.
+
+Font: Consistent with app's main heading font.
+
+Right Icons (Ordered from left to right - less common to more common actions):
+
+Sort Icon:
+
+Icon: Standard 'sort' icon (e.g., A-Z, or up/down arrows with lines).
+
+Functionality: On tap, trigger a function onSortPressed which will display a bottom sheet/modal with sorting options.
+
+Search Icon:
+
+Icon: Magnifying glass.
+
+Functionality: On tap, trigger a function onSearchPressed. This function should toggle the visibility/active state of the SearchBar component below it."
+
+III. SearchBar Component (MyDocumentsSearchBar):
+
+"Create or modify the MyDocumentsSearchBar component.
+
+Visibility: Initially hidden or displayed as a placeholder. It becomes an active input field when onSearchPressed from MyDocumentsTopBar is triggered.
+
+Design:
+
+A clean, slightly recessed white background for the input field.
+
+Full width, placed directly below the MyDocumentsTopBar.
+
+Content:
+
+Placeholder Text: 'Search documents...'.
+
+Input Field:
+
+When active, accept text input.
+
+Include a small 'X' (clear text) icon inside the field, visible when text is present, to clear the input.
+
+Functionality:
+
+onSearchQueryChanged(query: string): Callback for real-time search filtering.
+
+onClearSearch(): Callback for clearing the search query.
+
+onSearchDismissed(): Callback to return the search bar to its placeholder/inactive state (e.g., if a 'Cancel' button were implemented, though an 'X' to clear might suffice for minimalism)."
+
+IV. DocumentCard Component (DocumentCard):
+
+"Refactor the DocumentCard component to clearly present file and data access.
+
+Root: Use a Card or similar elevated container.
+
+Padding: Consistent internal padding.
+
+Content Layout (Conceptual Row/Column structure):
+
+Section 1: Document File Access (Primary Tap Area)
+
+Layout: Horizontal row.
+
+Left: DocumentTypeIcon (dynamic icon based on file type, e.g., PDF, image, generic document, ID card).
+
+Center:
+
+DocumentName: Bold, prominent text.
+
+FileTypeLabel: Smaller, normal weight text (e.g., 'PDF', 'JPEG').
+
+Primary Tap Action: Make this entire top section the primary tap target. On tap, trigger onViewFile(documentId) which opens the full attachment viewer.
+
+Section 2: Structured Data Quick View/Status
+
+Layout: Horizontal row below Section 1.
+
+Visibility: Only render this section if the document has associated structured data.
+
+Left:
+
+DataIcon: A small, consistent icon representing structured data (e.g., a clipboard with lines, a small spreadsheet icon, or a 3-bullet list icon).
+
+Text: 'View Data' (smaller, slightly muted text).
+
+Tap Action: Tapping this icon or text should trigger onViewData(documentId), which will open the DataQuickViewModal (or bottom sheet).
+
+Right:
+
+UpdatedIcon: Small clock or calendar icon.
+
+LastUpdatedDate: Text displaying the last updated date (e.g., 'Updated 20/07/2025').
+
+Section 3: Data Management & Secondary Actions
+
+Layout: Horizontal row at the bottom of the card, clearly separated (e.g., by a thin divider line or simply distinct padding).
+
+Left (Data Input/Management Action):
+
+Dynamic Text Label:
+
+If no structured data exists: 'Add Data'.
+
+If structured data exists (and can be edited/enhanced): 'Manage Data'.
+
+Icon (Optional, but recommended): A small 'magic wand' or 'plus in a tag' icon.
+
+Tap Action: Tapping this should trigger onManageData(documentId), which navigates to the specific form for inputting/editing structured data for that document type.
+
+Right (Context Menu):
+
+ThreeDotMenuIcon: Standard vertical 3-dot icon.
+
+Tap Action: Tapping this triggers onOpenContextMenu(documentId), displaying options like 'Share', 'Delete', 'Move', etc."
+
+V. DataQuickViewModal Component (New Component - Modal/Bottom Sheet):
+
+"Create a new DataQuickViewModal component.
+
+Type: Implement as a modal or bottom sheet (bottom sheet preferred for modern mobile UX).
+
+Header:
+
+Title: Dynamically display 'Document Details - [Document Name]'.
+
+Close Button: A clear 'X' icon or a back arrow to dismiss the modal.
+
+Content:
+
+Display structured data as clear Key-Value pairs.
+
+For Each Key-Value Pair:
+
+Key (Label): (e.g., 'ID Card Number').
+
+Value: (e.g., '1234567890').
+
+Copy Icon: A small, tappable 'copy' icon next to each value. On tap, copy that specific value to the clipboard and show a small success toast ('Copied!').
+
+Action Buttons (Bottom):
+
+'Edit Data' Button: Navigates to the full data input/editing form for the document (onEditData(documentId)).
+
+'View Document File' Button: Opens the original document attachment (onViewFile(documentId)).
+
+Ensure appropriate spacing and styling for these buttons.
+
+Security Consideration: If security measures (PIN/biometric) are needed before copying sensitive data, implement this within the onCopy action."
+
+VI. FloatingActionButton Component (MyDocumentsFAB):
+
+"Modify or ensure the FloatingActionButton component is correctly implemented.
+
+Icon: A large + sign.
+
+Color: Primary blue accent color.
+
+Position: Bottom right, standard FAB position.
+
+Action: On tap, trigger onAddDocumentPressed, which should open the existing 'Add Document to SakuDok' modal/bottom sheet (Take Photo / Choose from Storage)."
+
+General Instructions for AI Editor:
+
+"Prioritize clean code, modularity (separate components for clear responsibilities), and adherence to the app's existing design system (colors, fonts, spacing).
+
+Use semantic variable names.
+
+Add comments for complex logic or new functionalities.
+
+Ensure all new icons are sourced from the app's existing icon library or a standard, minimalist icon set (e.g., Material Icons, Feather Icons) and match the overall style."
+
+
+before impelementation, you can check current implementation code:
+//lib/features/documents/presentation/pages/document_list_page.dart
+//lib/features/documents/presentation/widgets/document_list/document_sliver_app_bar.dart
+//lib/features/documents/presentation/widgets/document_list/document_list_widget.dart
+//lib/features/documents/presentation/widgets/document_list/filter_drawer.dart
+//lib/features/documents/presentation/widgets/document_card.dart
